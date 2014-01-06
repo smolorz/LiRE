@@ -1,0 +1,6 @@
+
+config LIRE_BZIP2_INST
+    bool "  Install bzip2"
+    default y
+    help
+    ...text...

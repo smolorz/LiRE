@@ -1,0 +1,52 @@
+#!/bin/sh
+
+#
+# LiRE package bootmanager script
+#
+# Christoph Mueller 2004
+# 2006-02-21 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+#load the lire.conf
+. /etc/lire.conf
+
+# searching for package depend conf
+DEP_CONF="/etc/package_dep.conf"
+if [ ! -f $DEP_CONF ]; then
+    echo "Can't find LiRE package depend config file"
+    exit 1
+fi
+. $DEP_CONF
+
+echo ""
+echo "Boot-time LiRE package manager"
+echo "------------------------------"
+
+for PACK in $PACKAGES_DEP_LIST; do
+
+    INIT_FILE="/etc/rc.d/packages/$PACK/package.init"
+    START_FILE="/etc/rc.d/packages/$PACK/package.start"
+
+    if [ -x $INIT_FILE -o -x $START_FILE ]; then
+        echo "PACKAGE: $PACK"
+    fi
+
+    if [ -x $INIT_FILE ]; then
+        echo "Initializing ... "
+        $INIT_FILE
+    fi
+
+    if [ -x $START_FILE ]; then
+        if [ "$PACK" != "rtnet" -o "$RTNET_AUTOSTART" == "y" ]; then
+            echo "Starting ... "
+            $START_FILE
+        fi
+    fi
+
+    if [ -x $INIT_FILE -o -x $START_FILE ]; then
+        echo ""
+    fi
+
+done
+
+echo "------------------------------"

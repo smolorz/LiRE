@@ -1,0 +1,7 @@
+
+config LIRE_GSL_BUILD_SRC
+    bool "    Build GNU Scientific Library"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_GSL_INST
+    help
+    ...

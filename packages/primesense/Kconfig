@@ -1,0 +1,7 @@
+
+config LIRE_PRIMESENSE_INST
+    bool "  Install PrimeSense camera driver lib"
+    default y
+    select LIRE_OPENNI_INST
+    help
+    ...text...

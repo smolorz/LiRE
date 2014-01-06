@@ -1,0 +1,507 @@
+#! /bin/bash
+
+#
+# LIRE_SOURCE_SCRIPTS
+# 2005-12-05 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
+# 2009-12-24 Sascha Kruse (knopwob@googlemail.com)
+
+################################################################################
+# COMMON PART
+################################################################################
+
+#
+# $1 = package name
+#
+function LOAD_CONFIG()
+{
+    CONF_FILE="$LIRE_CONFDIR/$1.config"
+    [ ! -f $CONF_FILE ] && { echo "Config file $CONF_FILE not found"; exit 1; }
+    echo "Loading $CONF_FILE ... "
+    . $CONF_FILE
+}
+
+# needs     $LIRE_DIR
+# creates   all LIRE values
+function LIRE_LOAD_LIRE_CONFIGS()
+{
+  [ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+  . .lire_config
+  . "${LiRE_DIR}/configs/LIRE.config"
+}
+
+# needs     $PACKAGE, $LIRE_CONFDIR
+# creates   all package values
+function LIRE_LOAD_OWN_CONFIG()
+{
+    LOAD_CONFIG "$PACKAGE"
+}
+
+# needs $PACKAGE, $LIRE_SCRDIR
+function LIRE_LOAD_DEP_CONFIGS()
+{
+    DEP_PACKS=`cat "$LIRE_SRCDIR/$PACKAGE/$LIRE_PKG_DEPEND_FILE"`
+    [ $? -gt 0 ] && { echo " Can't find $LIRE_PKG_DEPEND_FILE"; exit 1; }
+    for c in `echo "$DEP_PACKS"`; do
+        LOAD_CONFIG "$c"
+    done
+}
+
+# needs $PACKAGE, $LIRE_SCRDIR
+function LIRE_COPY_DEP_MD5SUMS()
+{
+    DEP_PACKS=`cat "$LIRE_SRCDIR/$PACKAGE/$LIRE_PKG_DEPEND_FILE"`
+    [ $? -gt 0 ] && { echo " Can't find $LIRE_PKG_DEPEND_FILE"; exit 1; }
+    for c in `echo "$DEP_PACKS"`; do
+        echo " $PACKAGE: copy .$c$LIRE_CHECKSUM_EXT"
+        cp -f "$LIRE_BUILDDIR/$c/.$c$LIRE_CHECKSUM_EXT" "$PACK_BUILDDIR"
+    done
+}
+
+function LIRE_INIT_PACKAGE_VALUES()
+{
+    PACK_SCRDIR="$LIRE_SRCDIR/$PACKAGE"
+    PACK_SRCDIR="$PACK_SCRDIR/$PACKAGE"
+    PACK_BUILDDIR="$LIRE_BUILDDIR/$PACKAGE"
+    PACK_INSTDIR="$LIRE_INSTDIR/$PACKAGE"
+    PACK_PACKDIR="$LIRE_PACKDIR/$PACKAGE"
+    PACK_CONFIG="$LIRE_CONFDIR/$PACKAGE.config"
+
+    PACK_MD5FILE=".$PACKAGE$LIRE_CHECKSUM_EXT"
+    PACK_MD5FILE_B="$PACK_BUILDDIR/$PACK_MD5FILE"
+    PACK_MD5FILE_I="$PACK_INSTDIR/$PACK_MD5FILE"
+    PACK_MD5FILE_P="$PACK_PACKDIR/$PACK_MD5FILE"
+}
+
+################################################################################
+# CHECK PART
+################################################################################
+
+function LIRE_INIT_VALUES()
+{
+    #
+    # load configs
+    #
+    LIRE_LOAD_LIRE_CONFIGS
+    LIRE_LOAD_OWN_CONFIG
+    LIRE_LOAD_DEP_CONFIGS
+
+    LIRE_INIT_PACKAGE_VALUES
+}
+
+function LIRE_CHECK_START()
+{
+    echo ""
+    echo " ===---> $PACKAGE check script"
+    echo ""
+
+    LIRE_INIT_VALUES
+}
+
+function LIRE_INIT_SOURCE_CHECK()
+{
+    [ "$PACKAGE" == "" ] && { echo "ERROR: Invalid Package name "; exit 1; }
+
+    #
+    # create $PACK_BUILDDIR
+    #
+    if [ ! -d "$DIR" ]; then
+	mkdir -p "$PACK_BUILDDIR"
+        [ $? -gt 0 ] && { echo " Can't create build directory"; exit 1; }
+    fi
+
+    #
+    # switch to src/$PACKAGE (source script directory )
+    #
+    cd "$PACK_SCRDIR"
+}
+
+function LIRE_EXIT_SOURCE_CHECK()
+{
+    #
+    # check package version
+    #
+    echo -n " Checking $PACKAGE version ... "
+    [ "$PACKAGE_VERSION" == "" ] && { echo "[INVALID]"; exit 1; }
+    echo "[$PACKAGE_VERSION]"
+
+    #
+    # check source config file
+    #
+    PACK_SRCCONF="$PACKAGE_SRCCONF"
+    echo -n " Checking $PACKAGE source config file $PACK_SRCCONF ... "
+    [ ! -f "$PACK_SRCCONF" ] && { echo "[NOT FOUND]"; exit 1; }
+    echo "[OK]"
+
+    #
+    # add values to $PACKAGE.config
+    #
+    PACK=`echo "$PACKAGE" | sed -e ' s/[a-z]/\u&/g'`
+    echo "LIRE_"$PACK"_SRCCONF=$PACK_SRCCONF"    >> $PACK_CONFIG
+    echo "LIRE_"$PACK"_VERSION=$PACKAGE_VERSION" >> $PACK_CONFIG
+
+    echo " $PACKAGE check script completed"
+
+    #
+    # write version
+    #
+    echo $PACKAGE_VERSION > "$PACK_SRCDIR/$LIRE_VERSION_FILE"
+
+    #
+    # goto LIRE_DIR
+    #
+    cd "$LIRE_DIR"
+
+}
+
+################################################################################
+# BUILD PART
+################################################################################
+
+function LIRE_BUILD_START()
+{
+    echo ""
+    echo " ===---> $PACKAGE build script"
+    echo ""
+
+    LIRE_INIT_VALUES
+}
+
+
+function LIRE_INIT_SOURCE_BUILD()
+{
+  [ "$PACKAGE" == "" ] && { echo "ERROR: Invalid Package name "; exit 1; }
+
+  #
+  # check source config file
+  #
+  PACK_SRCCONF="$PACKAGE_SRCCONF"
+  echo -n " Checking $PACKAGE source config file $PACK_SRCCONF ... "
+  [ ! -f "$PACK_SRCCONF" ] && { echo "[ERROR]"; exit 1; }
+  echo "[OK]"
+
+  BUILD=0
+  INSTALL=0
+  MAKEPACK=0
+
+  #
+  # check values
+  #
+  [ ! -d "$PACK_SCRDIR" ] && { echo " ERROR: invalid PACK_SCRDIR"; exit 1; }
+  [ ! -d "$PACK_SRCDIR" ] && { echo " ERROR: invalid PACK_SRCDIR"; exit 1; }
+
+  #
+  # check depend md5sum
+  #
+  DEP_PACKS=`cat "$LIRE_SRCDIR/$PACKAGE/$LIRE_PKG_DEPEND_FILE"`
+  for c in `echo "$DEP_PACKS"`; do
+    DEP_MD5FILE="$LIRE_BUILDDIR/$c/.$c$LIRE_CHECKSUM_EXT"
+    PKG_MD5FILE="$PACK_BUILDDIR/.$c$LIRE_CHECKSUM_EXT"
+    echo -n " $PACKAGE: Searching for $c md5sum ... "
+    if [ -f "$PKG_MD5FILE" ]; then
+      echo "[`cat "$PKG_MD5FILE"`]"
+      echo -n " $PACKAGE: Checking $c md5sum ... "
+      SUM_NEW=`cat "$DEP_MD5FILE"`
+      SUM_OLD=`cat "$PKG_MD5FILE"`
+      if [ "$SUM_NEW" != "$SUM_OLD" ]; then
+          echo "[CHANGED] ($SUM_NEW -- $SUM_OLD), force build"
+          BUILD=1
+      else
+          echo "[OK]"
+      fi
+    else
+      echo "[NOT FOUND], force build"
+      BUILD=1
+    fi
+  done
+
+  #
+  # check source md5sum
+  #
+
+  if [ $BUILD -eq 0 ]; then
+    echo -n " $PACKAGE: Searching for md5sum in build directory ... "
+    if [ -f "$PACK_MD5FILE_B" ]; then
+      echo "[`cat "$PACK_MD5FILE_B"`]"
+      SUM_NEW=`md5sum "$PACK_SRCCONF" | gawk -F" " '{print $1}'`
+      SUM_OLD=`cat "$PACK_MD5FILE_B"`
+      echo -n " $PACKAGE: Checking  build md5sum ... "
+      if [ "$SUM_NEW" != "$SUM_OLD" ]; then
+        echo "[CHANGED] ($SUM_NEW -- $SUM_OLD), force build"
+        rm -f "$PACK_MD5FILE_B"
+        BUILD=1
+      else
+          echo "[OK]"
+      fi
+    else
+      echo "[NOT FOUND], force build"
+      BUILD=1
+    fi
+  fi
+
+  if [ $BUILD -eq 1 ]; then
+    INSTALL=1
+    MAKEPACK=1
+  else
+    echo -n " Searching for md5sum in install directory ... "
+    if [ -f "$PACK_MD5FILE_I" ]; then
+      echo "[`cat "$PACK_MD5FILE_I"`]"
+      echo -n " Checking install md5sum ... "
+      SUM_NEW=`cat "$PACK_MD5FILE_B"`
+      SUM_OLD=`cat "$PACK_MD5FILE_I"`
+      if [ "$SUM_NEW" != "$SUM_OLD" ]; then
+        echo "[CHANGED] ($SUM_NEW -- $SUM_OLD), force install"
+        INSTALL=1
+      else
+        echo "[OK]"
+      fi
+    else
+      echo "[NOT FOUND], force install"
+      INSTALL=1
+    fi
+  fi
+
+  if [ $INSTALL -eq 1 ]; then
+    MAKEPACK=1
+  else
+    echo -n " Searching for md5sum in package directory ... "
+    if [ -f "$PACK_MD5FILE_P" ]; then
+      echo "[`cat "$PACK_MD5FILE_P"`]"
+      echo -n " Checking package md5sum ... "
+      SUM_NEW=`cat "$PACK_MD5FILE_B"`
+      SUM_OLD=`cat "$PACK_MD5FILE_P"`
+      if [ "$SUM_NEW" != "$SUM_OLD" ]; then
+        echo "[CHANGED] ($SUM_NEW -- $SUM_OLD), force makepack"
+        MAKEPACK=1
+      else
+        echo "[OK]"
+      fi
+    else
+      echo "[NOT FOUND], force makepack"
+      MAKEPACK=1
+    fi
+  fi
+
+  #
+  # force build ?
+  #
+  if [ $BUILD -eq 0 ]; then
+    echo ""
+    echo -n " FORCE BUILD $PACKAGE [y/N] : "
+    read key
+    if [ "$key" != "" -a "$key" != "n" -a "$key" != "N" ]; then
+      BUILD=1
+      INSTALL=1
+      MAKEPACK=1
+    fi
+  fi
+
+  #
+  # switch to $PACK_BUILDDIR (package build directory )
+  #
+  cd "$PACK_BUILDDIR"
+
+}
+
+function LIRE_STOP_BUILD_START_INSTALL()
+{
+    cd "$PACK_BUILDDIR"
+
+    #
+    # create new md5sum in src dir and copy all dep md5sums into $PACK_SRCDIR
+    #
+
+    if [ $BUILD -eq 1 ]; then
+      echo -n " $PACKAGE: create new md5sum in build directory ... "
+      SUM_NEW=`md5sum "$PACK_SRCCONF" | gawk -F" " '{print $1}'`
+      echo "$SUM_NEW" > "$PACK_MD5FILE_B"
+      echo "[`cat "$PACK_MD5FILE_B"`]"
+      LIRE_COPY_DEP_MD5SUMS
+
+      echo ""
+    fi
+
+    #
+    # force install ?
+    #
+    if [ $INSTALL -eq 0 ]; then
+      echo ""
+      echo -n " FORCE MAKE INSTALL $PACKAGE [y/N] : "
+      read key
+      if [ "$key" != "" -a "$key" != "n" -a "$key" != "N" ]; then
+        INSTALL=1
+        MAKEPACK=1
+      fi
+    fi
+
+    #
+    # clean old $PACK_INSTDIR or create new
+    #
+
+    if [ $INSTALL -eq 1 ]; then
+      if [ -d "$PACK_INSTDIR" ]; then
+        echo -n " Remove old install directory $PACK_INSTDIR ... "
+        rm -rf $PACK_INSTDIR/*
+        [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+        echo "[OK]"
+      else
+        mkdir -p "$PACK_INSTDIR"
+      fi
+    fi
+
+    #
+    # stay in $PACK_BUILDDIR (package build directory )
+    #
+    cd "$PACK_BUILDDIR"
+}
+
+function LIRE_STOP_INSTALL_START_MAKE_PACKAGE()
+{
+    cd "$PACK_BUILDDIR"
+
+    #
+    # copy the md5sum into $PACK_INSTDIR
+    #
+    if [ $INSTALL -eq 1 ]; then
+        echo -n " $PACKAGE: create new md5sum in install directory ... "
+        cp -f "$PACK_MD5FILE_B" "$PACK_MD5FILE_I"
+        echo "[`cat "$PACK_MD5FILE_I"`]"
+    fi
+
+    #
+    # force make package ?
+    #
+    if [ $MAKEPACK -eq 0 ]; then
+      echo ""
+      echo -n " FORCE MAKE PACKAGE $PACKAGE [y/N] : "
+      read key
+      if [ "$key" != "" -a "$key" != "n" -a "$key" != "N" ]; then
+        MAKEPACK=1
+      fi
+    fi
+
+    #
+    # switch to $PACK_INSTDIR (package build directory)
+    #
+    cd "$PACK_INSTDIR"
+}
+
+function LIRE_STOP_MAKE_PACKAGE()
+{
+    #
+    # copy the md5sum
+    #
+    if [ $MAKEPACK -eq 1 ]; then
+        echo -n " $PACKAGE: create new md5sum in package directory ... "
+        cp -f "$PACK_MD5FILE_B" "$PACK_MD5FILE_P"
+        echo "[`cat "$PACK_MD5FILE_P"`]"
+    fi
+
+    #
+    # copy version and depend file
+    #
+    cp -f "$PACK_SRCDIR/$LIRE_VERSION_FILE"    "$PACK_PACKDIR/version"
+    cp -u "$LIRE_SRCDIR/$PACKAGE/$LIRE_PKG_DEPEND_FILE" "$PACK_PACKDIR/$LIRE_PKG_DEPEND_FILE"
+
+    #
+    # switch to LIRE root directory
+    #
+    cd "$LIRE_DIR"
+}
+
+function LIRE_EXIT_SOURCE_BUILD()
+{
+    echo " $PACKAGE build script completed ";
+    cd $LIRE_DIR
+}
+
+function LIRE_EXIT_ERROR()
+{
+  #
+  # check $1 == digit
+  #
+  echo $1 | egrep -q '^[[:space:]]*[+-]?[[:space:]]*[[:digit:]]+[[:space:]]*$' &&
+  {
+    [ $1 -gt 0 ] && { echo " ERROR ($1): exit $PACKAGE build script"
+        cd $LIRE_DIR
+        exit $1
+    }
+  }
+
+  #
+  # check $1 != digit
+  #
+  echo $1 | egrep -q '^[[:space:]]*[+-]?[[:space:]]*[[:digit:]]+[[:space:]]*$' ||
+  {
+    [ "$1" == "" ] && { echo " ERROR: LIRE_EXIT_SOURCE_BUILD -> NO EXIT VALUE"; }
+    [ "$1" != "" ] && { echo " ERROR: Value = $1"; }
+  }
+
+  cd $LIRE_DIR
+  exit 1
+}
+
+
+#selects the config file. Either by a select menu, or automatically, if
+#build bleeding edge is activated.
+#$CONFIG_FILE must be initialized and filled with the the file, to which
+#$PACKAGE and $PACKAGE_VERSION must be initialized as well
+#the selected config file will be copied to.
+function LIRE_SELECT_CONFIG_FILE()
+{
+    echo -n "checking $CONFIG_FILE ... "
+    if [ -f "$CONFIG_FILE" ]; then
+        echo "[OK]"
+    else
+        echo "[NOT FOUND]"
+
+        if [ ! -d "configs" ]; then
+            echo "There are no config files to choose from --> SKIPPING"
+        else
+            if [ "$CONFIG_LIRE_BUILD_BLEEDING_EDGE" == "y" ]; then
+                cd configs
+                SELECTED_CONFIG_FILE="configs/`$LIRE_SCRDIR/build/selectConfig.py`" 
+
+                [ $? -ne 0 ] && { echo "Can't determine config-file"; cd ..; LIRE_EXIT_ERROR 1; }
+
+                cd ..
+
+            else    
+                echo ""
+                echo " Found $PACKAGE version $PACKAGE_VERSION"
+                echo ""
+            
+                echo "Please select config file"
+                echo ""
+                CONFIGS=`find configs -type f -name "$CONFIG_NAME*" | grep -v ".svn" | sort `
+                CONFIGS=" ${CONFIGS[*]} exit"
+
+                select config in $CONFIGS; do
+                    case "$config" in
+                        "") echo "No valid selection"; continue;;
+                        "exit") LIRE_EXIT_ERROR 1; break;;
+                        *) echo "You have selected: $config"
+                        SELECTED_CONFIG_FILE=$config
+                        break;;
+                    esac
+                done
+ 
+            fi
+            LOGFILE=$CONFIG_LIRE_BUILD_CONFIGS_LOG
+            if [ "$LOGFILE" != "" ]; then
+                echo "===============================================================================" >> $LOGFILE
+                echo "$PACKAGE $PACKAGE_VERSION" >> $LOGFILE
+                echo "===============================================================================" >> $LOGFILE
+                for file in configs/* ; do
+                    echo "$file" >> $LOGFILE
+                done
+                echo "Selected --> $SELECTED_CONFIG_FILE" >> $LOGFILE
+            fi
+            cp $SELECTED_CONFIG_FILE $CONFIG_FILE
+            [ $? -gt 0 ] && { echo " Can't copy config file "; LIRE_EXIT_ERROR 1; }
+ 
+        fi
+    fi
+        
+}
+

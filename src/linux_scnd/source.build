@@ -1,0 +1,234 @@
+#! /bin/bash
+
+#
+# Linux_scnd build script
+# 2009-09-25 Oliver Weidner (Oliver.Weidner@gmail.com)
+
+# name of this package
+PACKAGE="linux_scnd"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_LINUX_SCND_SRCDIR/.config"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # build kernel bzImage
+    #
+
+    # build in srcdir, not in builddir
+    cd $LIRE_LINUX_SCND_SRCDIR
+
+
+    case $LIRE_LINUX_SCND_VERSION in
+        2.4.*)
+            BUILD_TARGETS="bzImage modules"
+            if [ ! -f .depend ]; then
+                BUILD_TARGETS="dep "$BUILD_TARGETS
+            fi
+            ;;
+        *)
+            BUILD_TARGETS=
+            ;;
+    esac
+
+    echo " make kernel"
+
+    make -j$CONFIG_LIRE_BUILD_JOBS $BUILD_TARGETS
+
+    [ $? -gt 0 ] && LIRE_EXIT_ERROR 1
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    # build in srcdir, not in builddir
+    cd $LIRE_LINUX_SCND_SRCDIR
+
+    #
+    # cleanup linux instdir
+    #
+    rm -rf $LIRE_LINUX_SCND_INSTDIR/*
+
+    #
+    # make modules install
+    #
+    echo " make modules install"
+    make modules_install INSTALL_MOD_PATH="$LIRE_LINUX_SCND_INSTDIR"
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " make install [OK]"
+
+    #
+    # remove links
+    #
+    echo " rm links source and build ... "
+
+#    for i in `find "$LIRE_LINUX_SCND_INSTDIR/lib/modules/" -type l`; do rm $i; done TODO
+    rm -f "$LIRE_LINUX_SCND_INSTDIR/lib/modules/$LIRE_LINUX_SCND_VERSION/build"
+    rm -f "$LIRE_LINUX_SCND_INSTDIR/lib/modules/$LIRE_LINUX_SCND_VERSION/source"
+
+    #
+    # copy bzImage
+    #
+    mkdir -p "$LIRE_LINUX_SCND_INSTDIR/boot/"
+
+    echo -n " copy bzImage ... "
+    cp -f arch/$ARCH/boot/bzImage "$LIRE_LINUX_SCND_INSTDIR/boot/bzImage"
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    #
+    # copy System.map
+    #
+    echo -n " copy System.map ... "
+    mkdir -p "$LIRE_LINUX_SCND_INSTDIR/lib/"
+    cp -f System.map "$LIRE_LINUX_SCND_INSTDIR/lib/System.map_scnd"
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+    #
+    # create ~src link
+    #
+
+    rm -f src
+    ln -s $LIRE_LINUX_SCND_SRCDIR src
+
+    #
+    # build tar tree
+    #
+
+    echo " build tar tree ... "
+    rm -rf tar
+
+    # make dirs
+    mkdir tar
+
+    # copy files
+    ret=0
+
+    echo " Copy Files ... "
+
+    cp -rf lib		tar/
+    [ $? -gt 0 ] && { ret=$?; }
+    cp -rf boot		tar/
+    [ $? -gt 0 ] && { ret=$?; }
+
+
+    echo -n " RENAME bzImage ... "
+
+    mv tar/boot/bzImage tar/boot/bzImage_scnd
+    [ $? -gt 0 ] && { ret=$?; }
+
+
+    echo " DELETE firmware, ... " #symlinks ... "
+
+    rm -rf tar/lib/firmware    ## TODO is it intelligent to remove this, just
+    [ $? -gt 0 ] && { ret=$?; } ## because we have another kernel adding this???
+
+#    for i in `find "tar/lib" -type l`; do echo $i; rm -i $i; done;
+#    [ $? -gt 0 ] && { ret=$? }
+
+## TODO make it nicer to catch ERRORS here.
+
+    [ $ret -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+
+    #
+    # create and move tar.bz2
+    #
+    DEST="$LIRE_LINUX_SCND_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"
+    cd tar
+
+    echo -n " Creating $TAR ... "
+    tar -cjf $TAR *
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Moving $TAR to $DEST ... "
+    mv -f $TAR $DEST
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+    rm -rf tar
+
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

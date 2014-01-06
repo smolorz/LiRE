@@ -1,0 +1,39 @@
+#! /bin/sh
+
+################################################################################
+#
+# Ethernet start script
+#
+################################################################################
+
+#load the lire.conf
+. /etc/lire.conf
+
+if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
+
+    # Do not execute this script if the same NIC will be used by openvpn.
+    # And openvpn will be started during init.
+    if [ "$TARGET_OPENVPN_AUTOSTART" == "y" ]; then
+        . /etc/openvpn/profiles/$TARGET_OPENVPN_PROFILE
+        if [ "$OPENVPN_PROFILE_NIC" == "$TARGET_ETHERNET_NIC" ]; then
+            echo " LiRE ethernet will *NOT* be configured for normal use."
+            echo -n "  Reason: $TARGET_ETHERNET_NIC is *ALSO* used by OpenVPN"
+            echo " and TARGET_OPENVPN_AUTOSTART is set! OpenVPN has priority."
+            exit 1;
+        fi
+    fi
+
+    echo "Initializing ETHERNET on interface $TARGET_ETHERNET_NIC"
+    echo "SETTING IP            $TARGET_MAIN_IP"
+    if [ "$TARGET_MAIN_IP" == "DHCP" ]; then
+        rm -rf /etc/dhcpc > /dev/null 2> /dev/null
+        dhcpcd $TARGET_ETHERNET_NIC -t 5 -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME -q
+        echo -n "           "
+        ifconfig | grep inet
+        echo
+    else
+        ifconfig $TARGET_ETHERNET_NIC up $TARGET_MAIN_IP netmask 255.255.255.0
+        route add -net default gw xx.xx.xx.xx netmask 0.0.0.0 $TARGET_ETHERNET_NIC
+	# TODO: gw configurable!
+    fi
+fi

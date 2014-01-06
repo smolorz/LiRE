@@ -1,0 +1,8 @@
+
+config LIRE_RACK_RTS_BUILD_SRC
+    bool "    Build Rack (RTS private module)"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_RACK_RTS_INST
+    select LIRE_RACK_BUILD_SRC
+    help
+

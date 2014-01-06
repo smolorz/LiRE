@@ -1,0 +1,9 @@
+
+config LIRE_PCL_INST
+    bool "  Install pointclouds"
+    default n
+    select LIRE_FLANN_INST
+    select LIRE_BOOST_INST
+    select LIRE_EIGEN_INST
+    help
+    ...text...

@@ -1,0 +1,82 @@
+#! /bin/bash
+
+EXCEPTIONS=" 
+    libselinux
+    libsepol
+    policy
+    policycoreutils
+    "
+    
+
+if [ ! -d "$1" ]; then
+    echo "Can't find destination directory $1."
+    echo ""
+    echo "Start this script as follows:"
+    echo ""
+    echo "$0 <LiRE binary directory>"
+    echo ""
+    exit 1
+fi
+
+echo "Copy packages into LiRE binary directory ($1) ..."
+
+DEST_DIR="$1"
+
+#
+# get all packages
+#
+ALL_PACKS=`/bin/ls -A "." | \
+            grep -vw "Kconfig" | \
+            grep -vw ".gitignore" | \
+	    grep -v .new | \
+	    grep -vw package_copy`
+
+#
+# remove exceptions
+#
+COPY_PACKS=" $ALL_PACKS "
+for rp in `echo $EXCEPTIONS`; do
+    COPY_PACKS=`echo $COPY_PACKS | sed -e 's/ '$rp' / /g'`
+    echo " Ignoring package $rp"
+done
+
+
+#
+# show all packages
+#
+echo ""
+echo "Copy Packages : $COPY_PACKS"
+
+#
+# copy files
+#
+for pack in `echo $COPY_PACKS`; do
+
+    echo "------------------------"
+    echo "==--> Copy package $pack"
+    
+    SRC_FILES="$pack/$pack.tar.bz2
+               $pack/version
+	       $pack/depends_on	       
+              "
+    DEST="$DEST_DIR/$pack/"
+    
+    if [ ! -d $DEST ]; then
+	echo "$pack binary directory not found."
+	echo -n "Create [Y/n] : "
+	read key
+	if [ "$key" == "y" -o "$key" == "Y" -o "$key" == "" ]; then
+	    mkdir -p $DEST
+	    [ $? -ne 0 ] && { echo "Can't create $DEST -> EXIT"; exit 1; }
+	fi
+    fi
+    
+    for file in `echo $SRC_FILES`; do
+	[ ! -f $file ] && { echo "file $file not found"; exit 1; };
+	echo "copy $file $DEST ..."
+	cp "$file" "$DEST"
+	[ $? -ne 0 ] && { echo "Can't copy file $file"; exit 1; };
+    done
+done
+
+echo "done ;-)"

@@ -1,0 +1,80 @@
+#! /bin/bash
+
+#
+# LIRE_BUILD_FUNCTIONS
+# 2006-02-17 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
+#
+
+function CREATE_VERSION_FILE()
+{
+    pkg=$1
+    # don't run manual version input for linux (has auto detection)
+    [ $pkg = "linux" ] && { return 0; }
+
+    echo ""
+    echo " ===---> Create version file ..."
+    echo ""
+    
+    echo " No $LIRE_VERSION_FILE file found for package $pkg"
+    echo ""
+    echo -n " Please enter version (e.g. 2.6.16.18): "
+    read key
+    echo $key > $LIRE_SRCDIR/$pkg/$pkg/$LIRE_VERSION_FILE
+    
+    echo ""
+    echo " $LIRE_VERSION_FILE created!"
+
+    return 0
+}
+
+function CHECK_SRC()
+{
+    echo ""
+    echo " ===---> Checking sources ..."
+    echo ""
+
+    for p in `cat "$LIRE_SRC_BUILD_LIST"`; do
+
+        DIR="$LIRE_SRCDIR/$p/$p"
+        echo -n "Checking $DIR ... "
+        [ ! -d  $DIR ] && { echo "[NOT FOUND], do 'make update' first"; return 1; }
+        echo "[OK]"
+
+        FILE="$LIRE_SRCDIR/$p/$LIRE_PKG_DEPEND_FILE"
+        echo -n "Checking $FILE ... "
+        [ ! -f  $FILE ] && { echo "[NOT FOUND]"; return 1; }
+        echo "[OK]"
+
+        FILE="$LIRE_SRCDIR/$p/$p/$LIRE_VERSION_FILE"
+        echo -n "Checking $FILE ... "
+        [ ! -f  $FILE ] && { echo "[NOT FOUND]"; CREATE_VERSION_FILE $p; }
+        echo "[OK]"
+        echo ""
+	
+    done
+    return 0
+}
+
+function CHECK_NEEDED_BUILD_FILES()
+{
+    echo ""
+    echo " ===---> Checking needed build files ..."
+    echo ""
+
+    for p in `cat "$LIRE_SRC_BUILD_LIST"`; do
+
+        NEEDED_FILES=" $LIRE_SRCDIR/$p/$LIRE_SRC_CHECK_SKRIPT
+                       $LIRE_SRCDIR/$p/$LIRE_SRC_BUILD_SKRIPT
+                     "
+
+        for f in $NEEDED_FILES; do
+            echo -n "Checking $f ... "
+            [ ! -f  $f ] && { echo "[NOT FOUND]"; return 1; }
+            echo "[OK]"
+        done
+        echo ""
+    done
+
+    return 0
+}

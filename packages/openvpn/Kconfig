@@ -1,0 +1,7 @@
+
+config LIRE_OPENVPN_INST
+    bool "  Install OpenVPN"
+    default y
+    select LIRE_OPENSSL_INST
+    help
+    ...text...

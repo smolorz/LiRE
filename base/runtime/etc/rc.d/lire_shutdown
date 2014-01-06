@@ -1,0 +1,49 @@
+#!/bin/sh
+
+#
+# LiRE shutdown script
+#
+# Stop of Unix
+#
+# 2005-11-03 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# load lire config
+. "/etc/lire.conf"
+
+#
+# to custromizing the shutdown process BEFORE umountig add commands here
+#
+
+echo ""
+echo "***  LiRE shutdown script"
+echo ""
+
+echo ""
+echo "-> shutting down network"
+ifconfig wlan0 down
+ifconfig eth0 down
+ifconfig eth1 down
+echo ""
+
+echo  " -> syncing "
+sync
+
+echo " -> unmounting filesystems"
+
+#
+# umount all
+#
+umount -a -r  > /dev/null 2> /dev/null
+
+
+#
+# to custromizing the shutdown process AFTER umountig add commands here
+#
+
+echo
+echo bye bye
+echo
+
+# this should be the last command of this script
+beep -f 330 -l 300 -r $TARGET_NR_HALT_BEEPS

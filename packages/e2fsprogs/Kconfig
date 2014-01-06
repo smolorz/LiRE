@@ -1,0 +1,6 @@
+
+config LIRE_E2FSPROGS_INST
+    bool "  Install e2fsprogs"
+    default y
+    help
+    Installs e2fsprogs utilities for ext2..4 filesystems. Such as e2fsck.

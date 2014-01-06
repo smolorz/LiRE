@@ -1,0 +1,10 @@
+*.o
+*.so
+.config.cmd
+.ncurses
+.tmpconfig.h
+lex.*.c
+*.tab.c
+conf
+mconf
+lxdialog

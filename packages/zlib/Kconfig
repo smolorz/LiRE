@@ -1,0 +1,6 @@
+
+config LIRE_ZLIB_INST
+    bool "  Install zlib"
+    default y
+    help
+    ...text...

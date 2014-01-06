@@ -1,0 +1,8 @@
+
+config LIRE_RTNET_SCND_BUILD_SRC
+    bool "   RTnet kernel stuff for scnd kernel"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_RTNET_SCND_INST
+    select LIRE_XENOMAI_SCND_BUILD_SRC
+    help
+    Build kernel stuff from rtnet for the second kernel.

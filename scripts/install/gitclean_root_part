@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+
+#
+# BEGIN gitclean_root_part
+#
+
+#
+# 16-09-2009 (current LiRE development version: 0.9-beta3)
+# This script was written by Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+######################################################################
+#                                                                    #
+# We must root let do this, because the .gitignore files are chowned #
+# by root and otherwise we have no rights do delete them             #
+#                                                                    #
+######################################################################
+
+. "${LiRE_DIR}/configs/LIRE.config"
+
+for i in `find "$LIRE_REAL_OUTDIR" -name ".gitignore"`; do
+	rm -f $i; echo "$i DELETED"; done
+
+#
+# END gitclean_root_part
+#

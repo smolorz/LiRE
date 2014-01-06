@@ -1,0 +1,9 @@
+
+config LIRE_OPENSSH_BUILD_SRC
+    bool "    Build new OpenSSH"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_OPENSSH_INST
+    select LIRE_ZLIB_BUILD_SRC
+    select LIRE_OPENSSL_BUILD_SRC
+    help
+    ...

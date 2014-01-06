@@ -1,0 +1,188 @@
+#! /bin/bash
+
+#
+# Xenomai check script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2011-02-17 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
+#        - Modify xenomai version check to patch all sub-versions of the
+#          2.5 branch
+# 2011-09-06 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
+#        - Modify xenomai version check to patch all sub-versions of the
+#          2.6 branch
+#
+#
+
+# name of this package
+PACKAGE="xenomai"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_CHECK_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_XENOMAI_SRCDIR/configure"
+
+#
+# before calling LIRE_INIT_SOURCE_CHECK you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_CHECK
+
+#
+# - the package name is valid
+# - you are in the SRC/$PACKAGE directory now (source script directory )
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF (!!! not this package source config !!!)
+#       LIRE_"$PACK"_VERSION (!!! not this package source config !!!)
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you find an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+#========== START YOUR CHECKS HERE =============================================
+
+#
+# set version
+#
+FILE="$LIRE_XENOMAI_SRCDIR/$LIRE_VERSION_FILE"
+if [ -f $FILE ]; then
+    PACKAGE_VERSION=`cat $FILE`
+else
+    PACKAGE_VERSION=`cat "$LIRE_XENOMAI_SRCDIR/config/version"`
+fi
+
+#
+# check xenomai links
+#
+
+$LIRE_XENOMAI_SRCDIR/scripts/prepare-kernel.sh \
+      --linux=$LIRE_LINUX_SRCDIR \
+      --arch=$ARCH
+
+[ $? -gt 0 ] && { echo "ERROR while preparing linux kernel -> EXIT"; LIRE_EXIT_ERROR 1;}
+
+#
+# loading linux config
+#
+echo " loading: $LIRE_LINUX_SRCCONF "
+. $LIRE_LINUX_SRCCONF
+
+#
+# check if xenomai is enabled
+#
+echo -n " Checking Xenomai ... "
+if [ "$CONFIG_XENOMAI" != "y" ]; then
+    echo "[not enabled]"
+
+    CONFIG_NAME="config"
+    CONFIG_FILE="$LIRE_LINUX_SRCDIR/.$CONFIG_NAME"
+
+    CONFIGS=`find configs -maxdepth 1 -name 'config-*-xenomai-*' | sort`
+
+    echo ""
+    echo " Found Linux version $LIRE_LINUX_VERSION"
+    echo " Found Xenomai version $PACKAGE_VERSION"
+    echo ""
+
+    CONFIGS=`find configs -type f -name "$CONFIG_NAME*" | grep -v ".svn" | sort `
+
+    IDX=0
+    echo " Searching for default config files ... "
+    echo -n ""
+    for c in $CONFIGS; do
+        echo ""
+        echo -n " [$IDX] : $c"
+        CFG[$IDX]=$c
+        DEFIDX=$IDX
+        ((IDX = $IDX + 1))
+    done
+    echo " (default)"
+    echo " [$IDX] : exit"
+    EXITIDX=$IDX
+
+    echo ""
+    OK=0
+    while ( [ $OK -eq 0 ] ); do
+        echo -n "Your choice : "
+        read key
+
+        if [ "$key" == "" ]; then
+            key=$DEFIDX
+        fi
+
+        echo $key | egrep -q '^[[:space:]]*[[:digit:]]+[[:space:]]*$' || \
+                    { echo "Not a value"; continue; }
+
+        if [ $key -lt 0 -o $key -gt $IDX ]; then
+            echo "Invalid choice. Try again ( 0 - $IDX ) ..."
+            echo ""
+            continue
+        fi
+
+        if [ $key -eq $EXITIDX ]; then
+            echo "Exit ..."
+            LIRE_EXIT_ERROR 1
+        fi
+        OK=1
+    done
+
+    cp ${CFG[$key]} $CONFIG_FILE
+    [ $? -gt 0 ] && { echo " Can't copy config file "; LIRE_EXIT_ERROR 1; }
+
+else
+    echo "[FOUND]";
+fi
+
+###############################################################################
+##############################################################################
+# IMPORTANT!!!!
+# Patch xenomai if the version is > 2.5.0, because rack doesn't work without this patch
+# this may change with new rack versions. So take a look at this, if you update rack
+#############################################################################
+
+XENO_MAJOR_VER=`echo $PACKAGE_VERSION | awk -F "." '{print $1}'`
+XENO_MINOR_VER=`echo $PACKAGE_VERSION | awk -F "." '{print $2}'`
+
+if [ $XENO_MAJOR_VER == "2" ]; then
+    if [ $XENO_MINOR_VER == "5" -o $XENO_MINOR_VER == "6" ]; then
+        echo "Patching xenomai to make it work with rack"
+        current_dir=`pwd`
+        cd $LIRE_XENOMAI_SRCDIR
+        patch --forward -p0 <  $LIRE_XENOMAI_SCRDIR/rtserial.rts_patch
+        cd $current_dir
+    fi
+fi
+
+
+#========== STOP YOUR CHECKS HERE ==============================================
+#
+# before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.
+# the build script can get this values by LIRE_$PACK$_$VALUE$ (e.g. LIRE_LINUX_VERSION)
+#
+# PACKAGE_SRCCONF must be a vild source config file
+# PACKAGE_VERSION (version of this package)
+#
+LIRE_EXIT_SOURCE_CHECK

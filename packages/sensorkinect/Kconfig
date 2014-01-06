@@ -1,0 +1,7 @@
+
+config LIRE_SENSORKINECT_INST
+    bool "  Install Kinect camera driver lib based on OpenNI (by avin2)"
+    default y
+    select LIRE_OPENNI_INST
+    help
+    ...text...

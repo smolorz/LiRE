@@ -1,0 +1,56 @@
+#! /bin/sh
+
+#
+# 2009-12-11 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+
+################################################################################
+#
+# WLAN start script
+#
+################################################################################
+
+#load the lire.conf
+. /etc/lire.conf
+
+if [ "$TARGET_INIT_WLAN" == "y" ]; then
+
+    echo "Configuring WLAN device \"$TARGET_WLAN_NIC\".."
+
+    # Do not execute this script if the same NIC will be used by openvpn.
+    # And openvpn will be started during init.
+    if [ "$TARGET_OPENVPN_AUTOSTART" == "y" ]; then
+        . /etc/openvpn/profiles/$TARGET_OPENVPN_PROFILE
+        if [ "$OPENVPN_PROFILE_NIC" == "$TARGET_WLAN_NIC" ]; then
+            echo " ..to get used by OpenVPN later (which has priority)."
+            exit 1;
+        fi
+    fi
+
+    echo " Initializing WLAN on interface $TARGET_WLAN_NIC..."
+    sleep 5
+    ifconfig $TARGET_WLAN_NIC up
+    echo " Associate $TARGET_WLAN_NIC with \"$TARGET_WLAN_SSID\"..."
+    sleep 1
+    iwconfig $TARGET_WLAN_NIC essid "$TARGET_WLAN_SSID"
+
+    if [ "$TARGET_INIT_WPA_SUPPLICANT" == "y" ]; then
+        echo " Starting wpa_supplicant..."
+        sleep 1
+        wpa_supplicant -B -Dwext -c/etc/wpa_supplicant.conf -i$TARGET_WLAN_NIC
+        sleep 5
+    fi
+
+    if [ "$TARGET_WLAN_IP" == "DHCP" ]; then
+        rm -rf /etc/dhcpc > /dev/null 2> /dev/null
+        echo " Requesting IP for $TARGET_WLAN_NIC..."
+        dhcpcd $TARGET_WLAN_NIC -t 5 -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME -q
+        echo -n "           "
+        ifconfig | grep inet
+        echo
+    else
+        echo "Setting IP $TARGET_WLAN_IP for $TARGET_WLAN_NIC"
+        ifconfig $TARGET_WLAN_NIC $TARGET_WLAN_IP netmask 255.255.255.0
+    fi
+fi

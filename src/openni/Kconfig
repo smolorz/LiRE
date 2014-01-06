@@ -1,0 +1,8 @@
+
+config LIRE_OPENNI_BUILD_SRC
+    bool "    Build OpenNI"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_OPENNI_INST
+    select LIRE_LIBUSB_BUILD_SRC
+    help
+    ...

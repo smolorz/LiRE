@@ -1,0 +1,32 @@
+#! /bin/bash
+
+#
+# LIRE library install script
+# 2011-01-24 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
+#
+
+#
+# Libraries have to be copied from the toolchain's sysroot lib
+# directory if cross-compiling is active, or from the build system's
+# lib directory.
+#
+
+LIBS="ld- libc libdl libgcc_s.so. libm libnsl libnss libpthread libresolv librt libthread_db libutil libstdc++.so."
+
+if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+    LIBS_DIR="$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR/$CONFIG_LIRE_TARGET_TUPLE/$CONFIG_LIRE_TARGET_TUPLE/sys-root/lib"
+    for f in `echo "$LIBS"`; do
+        cp -fdv "$LIBS_DIR/$f"* "$LIRE_OUTDIR/lib/"
+        [ $? -gt 0 ] && { echo "ERROR installing $f library"; exit 1; }
+    done
+    rm -fv "$LIRE_OUTDIR/lib/"*.py
+else
+    for f in `echo "$LIBS"`; do
+        cp -fdv "/lib/$f"* "$LIRE_OUTDIR/lib/"
+        if [ $? -gt 0 ]; then
+            echo "Can't find $f library in /lib, trying /usr/lib ..."
+            cp -fdv "/usr/lib/$f"* "$LIRE_OUTDIR/lib/"
+            [ $? -gt 0 ] && { echo "ERROR installing $f library"; exit 1; }
+	fi
+    done
+fi

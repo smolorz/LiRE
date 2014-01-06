@@ -1,0 +1,11 @@
+--- include/rtdm/rtserial.h	2009-11-04 10:48:59.000000000 +0100
++++ include/rtdm/rtserial.h.rts_patch	2010-01-22 14:46:45.000000000 +0100
+@@ -263,8 +263,6 @@ typedef struct rtser_config {
+ 	/** reception FIFO interrupt threshold, see @ref RTSER_FIFO_xxx */
+ 	int		fifo_depth;
+ 
+-	int		reserved;
+-
+ 	/** reception timeout, see @ref RTSER_TIMEOUT_xxx for special
+ 	 *  values */
+ 	nanosecs_rel_t	rx_timeout;

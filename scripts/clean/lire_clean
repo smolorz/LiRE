@@ -1,0 +1,99 @@
+#! /bin/bash
+
+#
+# LIRE clean script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+
+[ ! -f "${LiRE_DIR}/configs/LIRE.config" ] && { echo " Can't find LIRE.config -> EXIT"; exit 1;}
+. "${LiRE_DIR}/configs/LIRE.config"
+
+$LIRE_SCRDIR/clean/lire_package_clean
+
+
+echo ""
+echo "============================================"
+echo " LIRE clean"
+echo "============================================"
+echo ""
+
+
+#
+# remove lists
+#
+echo " Deleting lists in $LIRE_SCRDIR ... "
+
+FILES=`find $LIRE_SCRDIR -name *.list`
+
+for f in $FILES; do
+    echo -n " Deleting $f ... "
+    rm -f $f
+    [ $? -ne 0 ] && { echo "[ERROR]"; exit 1; }
+    echo "[OK]"
+done
+
+#
+# clean builddir
+#
+if [ ! -d "$LIRE_BUILDDIR" ]; then
+    echo " Can't find LiRE builddir $LIRE_BUILDDIR -> skip"
+else
+    echo -n " Clean $LIRE_BUILDDIR ? [y/N] : "
+    read key
+    if [ "$key" == "Y" -o "$key" == "y" ]; then
+        echo -n " Cleaning builddir ... "
+        rm -rf $LIRE_BUILDDIR/*
+        [ $? -gt 0 ] && { echo "[ERROR]"; exit 1; }
+        echo "[OK]"
+    fi
+fi
+
+#
+# clean outdir
+#
+if [ ! -d "$LIRE_OUTDIR" ]; then
+    echo " Can't find out dir $LIRE_OUTDIR -> skip"
+else
+    echo -n " Clean $LIRE_OUTDIR ? [y/N] : "
+    read key
+    if [ "$key" == "Y" -o "$key" == "y" ]; then
+        echo -n " Cleaning outdir ... "
+        sudo rm -rf $LIRE_OUTDIR/*
+        [ $? -gt 0 ] && { echo "[ERROR]"; exit 1; }
+        echo "[OK]"
+    fi
+fi
+
+#
+# delete .lire_config
+#
+echo -n " Delete $LIRE_CONFIG_FILE ? [y/N] : "
+read key
+if [ "$key" == "Y" -o "$key" == "y" ]; then
+    echo -n " Copy $LIRE_CONFIG_FILE to $LIRE_CONFIG_FILE.bak... "
+    cp -f "$LIRE_CONFIG_FILE" "$LIRE_CONFIG_FILE.bak"
+    [ $? -gt 0 ] && { echo "[ERROR]"; exit 1; }
+    echo "[OK]"
+
+    echo -n " Deleting $LIRE_CONFIG_FILE ... "
+    rm -f "$LIRE_CONFIG_FILE"
+    [ $? -gt 0 ] && { echo "[ERROR]"; exit 1; }
+    echo "[OK]"
+fi
+
+#
+# remove configs
+#
+echo " Deleting configs in $LIRE_CONFDIR ... "
+
+find -P "$LIRE_CONFDIR"                     \
+     -name "*.config"                       \
+     -exec echo -n "Deleting "'{}'" ..." \; \
+     -exec rm -f '{}' \;                    \
+     -exec echo " [OK]" \;
+ 
+[ $? -ne 0 ] && { echo "[ERROR]"; exit 1; }
+
+echo "LIRE clean completed ..."

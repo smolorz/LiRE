@@ -1,0 +1,20 @@
+#! /bin/sh
+
+################################################################################
+#
+# SensorKinect XnSensorServer loop
+#
+################################################################################
+
+. /etc/lire.conf
+
+PROG="XnSensorServer_kinect"
+
+[ ! -x `which $PROG` ] && { exit 1; }
+
+while(true); do
+    echo "Starting XnSensorServer_kinect ..."
+    $PROG
+
+    sleep 1
+done

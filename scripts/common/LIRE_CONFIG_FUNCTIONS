@@ -1,0 +1,360 @@
+#! /bin/bash
+
+#
+# LIRE_CONFIG_FUNCTIONS
+# 2005-12-05 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
+#
+
+function REMOVE_ALL_CONFIGS()
+{
+  rm -f "$LIRE_CONFDIR/*.config"
+}
+
+function INIT_ALL_LIRE_VALUES()
+{
+  # LIRE root directory
+  LIRE_DIR=${LiRE_DIR}
+
+  # LIRE Kconfig file
+  LIRE_CONFIG_FILE=".lire_config"
+
+  # LIRE version file
+  LIRE_VERSION_FILE=".version_LIRE"
+
+  # LIRE package install skript
+  LIRE_PACK_INST_SKRIPT="package.install"
+
+  # LIRE package init skript
+  LIRE_PACK_INIT_SKRIPT="package.init"
+
+  # LIRE package start skript
+  LIRE_PACK_START_SKRIPT="package.start"
+
+  # LIRE scp update server
+  LIRE_SCP_UPDATE_SERVER="$CONFIG_LIRE_SCP_UPDATE_SERVER"
+
+  # LIRE base directory
+  LIRE_BASEDIR="$LIRE_DIR/base"
+
+  # LIRE package directory
+  LIRE_PACKDIR="$LIRE_DIR/packages"
+
+  # LIRE source directory
+  LIRE_SRCDIR="$LIRE_DIR/src"
+
+  # LIRE common library directory
+  LIRE_LIBDIR="$LIRE_DIR/libs"
+
+  # LIRE script directory
+  LIRE_SCRDIR="$LIRE_DIR/scripts"
+
+  # LIRE install script directory
+  LIRE_ISCRDIR="$LIRE_SCRDIR/install"
+
+  # LIRE common script directory
+  LIRE_CSCRDIR="$LIRE_SCRDIR/common"
+
+  # LIRE directory for configs
+  LIRE_CONFDIR="$LIRE_DIR/configs"
+
+  # LIRE real out directory
+  LIRE_REAL_OUTDIR="$CONFIG_LIRE_OUTDIR"
+
+  #LiRE build remotely
+  LIRE_BUILD_REMOTELY="$CONFIG_LIRE_BUILD_REMOTELY"
+
+  # LIRE SELinux labelling support (depends on policy package)
+  LIRE_LABEL_FILES="$CONFIG_LIRE_POLICY_INST"
+
+  # LIRE virtual out directory (changed by netboot install)
+  LIRE_OUTDIR="$LIRE_REAL_OUTDIR.tmp"
+
+  # LIRE package depend file
+  LIRE_PKG_DEPEND_FILE="depends_on"
+
+  # LIRE list file with all packages
+  LIRE_ALL_PACK_LIST="$LIRE_SCRDIR/all_pack.list"
+
+  # LIRE list file with all packages which have to be downloaded
+  LIRE_BIN_GET_LIST="$LIRE_SCRDIR/bin_get.list"
+
+  # LIRE list file with all packages which were downloaded
+  LIRE_BIN_GOT_LIST="$LIRE_SCRDIR/bin_got.list"
+
+  # LIRE list file with all packages which shall be installed
+  LIRE_BIN_INST_LIST="$LIRE_SCRDIR/bin_inst.list"
+
+  # LIRE list file with all install packages, ordered by dependency
+  LIRE_BIN_DEP_LIST="$LIRE_SCRDIR/bin_dep.list"
+
+  # LIRE md5 checksum extension
+  LIRE_CHECKSUM_EXT="_md5"
+
+  # where to find the syslinux directory on the host system
+  LIRE_HOST_SYSLINUX_DIR="$CONFIG_LIRE_HOST_SYSLINUX_DIR"
+
+  # if you want to build something
+  if [ "$CONFIG_LIRE_BUILD_SRC" == "y" ]; then
+
+    # LIRE build soures
+    LIRE_BUILD_SRC="y"
+
+
+
+    # LIRE build directory (make absolute path)
+    if [ `echo "$CONFIG_LIRE_BUILDDIR" | cut -c 1` == '/' ]; then 	# absolute path
+	LIRE_BUILDDIR="$CONFIG_LIRE_BUILDDIR"
+    else								# relative path
+	LIRE_BUILDDIR=$LIRE_DIR/"$CONFIG_LIRE_BUILDDIR"
+    fi
+
+    # LIRE install directory (make absolute path)
+    if [ `echo "$CONFIG_LIRE_INSTDIR" | cut -c 1` == '/' ]; then 	# absolute path
+        LIRE_INSTDIR="$CONFIG_LIRE_INSTDIR"
+    else								# relative path
+        LIRE_INSTDIR=$LIRE_DIR/"$CONFIG_LIRE_INSTDIR"
+    fi
+
+    # LIRE source check script
+    LIRE_SRC_CHECK_SKRIPT="source.check"
+
+    # LIRE source build script
+    LIRE_SRC_BUILD_SKRIPT="source.build"
+
+    # LIRE list file with all packages which shall be built
+    LIRE_SRC_BUILD_LIST="$LIRE_SCRDIR/src_build.list"
+
+    # LIRE list file with all packages which have to be downloaded
+    LIRE_SRC_GET_LIST="$LIRE_SCRDIR/src_get.list"
+
+    # LIRE list file with all packages which were downloaded
+    LIRE_SRC_GOT_LIST="$LIRE_SCRDIR/src_got.list"
+
+    # LIRE list file with all build packages, ordered by dependency
+    LIRE_SRC_DEP_LIST="$LIRE_SCRDIR/src_dep.list"
+
+    # LIRE local source directory for all downloaded sources
+    LIRE_SRC_DOWNLOAD_DIR="$CONFIG_LIRE_BUILD_SRC_DOWNLOAD_DIR"
+
+    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+
+	export ARCH=$CONFIG_LIRE_TARGET_ARCH
+	export host_alias=$CONFIG_LIRE_TARGET_TUPLE
+
+	TOOLCHAIN_BIN_DIR="$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR/$host_alias/bin"
+
+	export CROSS_COMPILE="$TOOLCHAIN_BIN_DIR/$host_alias-"
+
+	export AS="${CROSS_COMPILE}as"
+	export AR="${CROSS_COMPILE}ar"
+	export CC="${CROSS_COMPILE}gcc"
+	export CPP="${CC} -E"
+	export LD="${CROSS_COMPILE}ld"
+	export CXX="${CROSS_COMPILE}g++"
+	export NM="${CROSS_COMPILE}nm"
+	export OBJCOPY="${CROSS_COMPILE}objcopy"
+	export OBJDUMP="${CROSS_COMPILE}objdump"
+	export RANLIB="${CROSS_COMPILE}ranlib"
+	export READELF="${CROSS_COMPILE}readelf"
+	export SIZE="${CROSS_COMPILE}size"
+	export STRINGS="${CROSS_COMPILE}strings"
+	export STRIP="${CROSS_COMPILE}strip"
+
+	export PATH="${PATH}:$TOOLCHAIN_BIN_DIR"
+    fi
+
+  fi
+
+  # if you want to use netboot
+  if [ "$CONFIG_LIRE_NETBOOT" == "y" ]; then
+
+    # LIRE netboot enable
+    LIRE_NB_CREATE="y"
+
+    # LIRE netboot boot options
+    LIRE_NB_BOOTOPTS="$CONFIG_LIRE_BOOTOPTIONS"
+
+    # LIRE netboot image (full path)
+    LIRE_NB_IMAGE="$LIRE_REAL_OUTDIR/$CONFIG_LIRE_IMGNAME"
+
+    # LIRE netboot image size
+    LIRE_NB_IMAGESIZE="$CONFIG_LIRE_IMGSIZE"
+
+  fi
+
+  # if you want to use QEMU
+  if [ "$CONFIG_LIRE_QEMU" == "y" ]; then
+
+    # LIRE QEMU enable
+    LIRE_QE_CREATE="y"
+
+    # LIRE QEMU image (full path)
+    LIRE_QE_IMAGE="$LIRE_REAL_OUTDIR/$CONFIG_LIRE_IMGNAME"
+
+    # LIRE QEMU image size
+    LIRE_QE_IMAGESIZE="$CONFIG_LIRE_IMGSIZE"
+
+  fi
+
+  # if you want to use ISO
+  if [ "$CONFIG_LIRE_ISO" == "y" ]; then
+
+    # LIRE ISO enable
+    LIRE_ISO_CREATE="y"
+
+    # LIRE ISO boot options
+    LIRE_ISO_BOOTOPTS="$CONFIG_LIRE_BOOTOPTIONS"
+
+    # LIRE ISO image (full path)
+    LIRE_ISO_IMAGE="$LIRE_REAL_OUTDIR/$CONFIG_LIRE_IMGNAME"
+
+    # LIRE ISO image size
+    LIRE_ISO_IMAGESIZE="$CONFIG_LIRE_IMGSIZE"
+  fi
+}
+
+function CREATE_LIRE_INSTALL_CONFIG()
+{
+  REMOVE_ALL_CONFIGS
+
+  INIT_ALL_LIRE_VALUES
+
+  [ "$CONFIG_LIRE_OUTDIR" == "" ] && { return 1; }
+
+  echo -n " Creating LIRE.config ... "
+
+  FILE="${LiRE_DIR}/configs/LIRE.config"
+
+  echo "#! /bin/bash"                                 >  $FILE
+  echo "#"                                            >> $FILE
+  echo "# LIRE config file"                           >> $FILE
+  echo "#"                                            >> $FILE
+  echo "# For more informations "                     >> $FILE
+  echo "# -> look @ scripts/common/LIRE_CONFIG_FUNCTIONS" >> $FILE
+  echo ""                                             >> $FILE
+  echo "#"                                            >> $FILE
+  echo "# file names"                                 >> $FILE
+  echo "#"                                            >> $FILE
+  echo ""                                             >> $FILE
+  echo "LIRE_CONFIG_FILE=\"$LIRE_CONFIG_FILE\""       >> $FILE
+  echo "LIRE_VERSION_FILE=\"$LIRE_VERSION_FILE\""     >> $FILE
+  echo "LIRE_PACK_INST_SKRIPT=\"$LIRE_PACK_INST_SKRIPT\""   >> $FILE
+  echo "LIRE_PACK_INIT_SKRIPT=\"$LIRE_PACK_INIT_SKRIPT\""   >> $FILE
+  echo "LIRE_PACK_START_SKRIPT=\"$LIRE_PACK_START_SKRIPT\"" >> $FILE
+
+  echo ""                                             >> $FILE
+  echo "#"                                            >> $FILE
+  echo "# common"                                     >> $FILE
+  echo "#"                                            >> $FILE
+  echo ""                                             >> $FILE
+  echo "LIRE_DIR=\"$LIRE_DIR\""                       >> $FILE
+  echo "LIRE_BASEDIR=\"$LIRE_BASEDIR\""               >> $FILE
+  echo "LIRE_PACKDIR=\"$LIRE_PACKDIR\""               >> $FILE
+  echo "LIRE_SRCDIR=\"$LIRE_SRCDIR\""                 >> $FILE
+  echo "LIRE_LIBDIR=\"$LIRE_LIBDIR\""                 >> $FILE
+  echo "LIRE_SCRDIR=\"$LIRE_SCRDIR\""                 >> $FILE
+  echo "LIRE_ISCRDIR=\"$LIRE_ISCRDIR\""               >> $FILE
+  echo "LIRE_CSCRDIR=\"$LIRE_CSCRDIR\""               >> $FILE
+  echo "LIRE_CONFDIR=\"$LIRE_CONFDIR\""               >> $FILE
+  echo "LIRE_REAL_OUTDIR=\"$LIRE_REAL_OUTDIR\""       >> $FILE
+  echo "LIRE_OUTDIR=\"$LIRE_OUTDIR\""                 >> $FILE
+  echo "LIRE_LABEL_FILES=\"$CONFIG_LIRE_POLICY_INST\""   >> $FILE
+  echo "LIRE_ALL_PACK_LIST=\"$LIRE_ALL_PACK_LIST\""   >> $FILE
+  echo "LIRE_BIN_GET_LIST=\"$LIRE_BIN_GET_LIST\""     >> $FILE
+  echo "LIRE_BIN_GOT_LIST=\"$LIRE_BIN_GOT_LIST\""     >> $FILE
+  echo "LIRE_BIN_INST_LIST=\"$LIRE_BIN_INST_LIST\""   >> $FILE
+  echo "LIRE_BIN_DEP_LIST=\"$LIRE_BIN_DEP_LIST\""     >> $FILE
+  echo "LIRE_PKG_DEPEND_FILE=\"$LIRE_PKG_DEPEND_FILE\""  >> $FILE
+  echo "LIRE_SCP_UPDATE_SERVER=\"$LIRE_SCP_UPDATE_SERVER\""   >> $FILE
+  echo "LIRE_CHECKSUM_EXT=\"$LIRE_CHECKSUM_EXT\""     >> $FILE
+  echo "LIRE_HOST_SYSLINUX_DIR=\"$LIRE_HOST_SYSLINUX_DIR\"" >> $FILE
+
+  if [ "$LIRE_BUILD_SRC" == "y" ]; then
+    echo ""                                           >> $FILE
+    echo "#"                                          >> $FILE
+    echo "# building"                                 >> $FILE
+    echo "#"                                          >> $FILE
+    echo ""                                           >> $FILE
+    echo "LIRE_BUILD_SRC=\"$LIRE_BUILD_SRC\""         >> $FILE
+    echo "LIRE_BUILDDIR=\"$LIRE_BUILDDIR\""           >> $FILE
+    echo "LIRE_INSTDIR=\"$LIRE_INSTDIR\""             >> $FILE
+    echo "LIRE_SRC_CHECK_SKRIPT=\"$LIRE_SRC_CHECK_SKRIPT\"" >> $FILE
+    echo "LIRE_SRC_BUILD_SKRIPT=\"$LIRE_SRC_BUILD_SKRIPT\"" >> $FILE
+    echo "LIRE_SRC_BUILD_LIST=\"$LIRE_SRC_BUILD_LIST\""     >> $FILE
+    echo "LIRE_SRC_GET_LIST=\"$LIRE_SRC_GET_LIST\""         >> $FILE
+    echo "LIRE_SRC_GOT_LIST=\"$LIRE_SRC_GOT_LIST\""         >> $FILE
+    echo "LIRE_SRC_DEP_LIST=\"$LIRE_SRC_DEP_LIST\""         >> $FILE
+    echo "LIRE_SRC_DOWNLOAD_DIR=\"$LIRE_SRC_DOWNLOAD_DIR\"" >> $FILE
+  fi
+
+  if [ "$LIRE_NB_CREATE" == "y" ]; then
+    echo ""                                           >> $FILE
+    echo "#"                                          >> $FILE
+    echo "# netboot"                                  >> $FILE
+    echo "#"                                          >> $FILE
+    echo ""                                           >> $FILE
+    echo "LIRE_NB_CREATE=\"$LIRE_NB_CREATE\""         >> $FILE
+    echo "LIRE_NB_BOOTOPTS=\"$LIRE_NB_BOOTOPTS\""     >> $FILE
+    echo "LIRE_NB_IMAGE=\"$LIRE_NB_IMAGE\""           >> $FILE
+    echo "LIRE_NB_IMAGESIZE=\"$LIRE_NB_IMAGESIZE\""   >> $FILE
+  fi
+  echo ""                                             >> $FILE
+
+  if [ "$LIRE_QE_CREATE" == "y" ]; then
+   echo ""                                           >> $FILE
+   echo "#"                                          >> $FILE
+   echo "# QEMU"                                     >> $FILE
+   echo "#"                                          >> $FILE
+   echo ""                                           >> $FILE
+   echo "LIRE_QE_CREATE=\"$LIRE_QE_CREATE\""         >> $FILE
+   echo "LIRE_QE_IMAGE=\"$LIRE_QE_IMAGE\""           >> $FILE
+   echo "LIRE_QE_IMAGESIZE=\"$LIRE_QE_IMAGESIZE\""   >> $FILE
+  fi
+  echo ""
+
+  if [ "$LIRE_ISO_CREATE" == "y" ]; then
+    echo ""                                           >> $FILE
+    echo "#"                                          >> $FILE
+    echo "# ISO"                                      >> $FILE
+    echo "#"                                          >> $FILE
+    echo ""                                           >> $FILE
+    echo "LIRE_ISO_CREATE=\"$LIRE_ISO_CREATE\""       >> $FILE
+    echo "LIRE_ISO_BOOTOPTS=\"$LIRE_ISO_BOOTOPTS\""   >> $FILE
+    echo "LIRE_ISO_IMAGE=\"$LIRE_ISO_IMAGE\""         >> $FILE
+    echo "LIRE_ISO_IMAGESIZE=\"$LIRE_ISO_IMAGESIZE\"" >> $FILE
+  fi
+  echo ""                                             >> $FILE
+
+  echo "[OK]"
+  return 0
+}
+
+function CREATE_PACKAGE_CONFIGS()
+{
+  echo ""
+  echo " ===---> Creating config files of all packages ... "
+  echo ""
+
+
+  for d in `cat "$LIRE_SRC_DEP_LIST"`; do
+    echo -n " Creating $d.config ... "
+
+    PACK=`echo "$d" | sed -e ' s/[a-z]/\u&/g'`
+    FILE="${LiRE_DIR}/configs/$d.config"
+    echo "#! /bin/bash"                                     >  $FILE
+    echo "#"                                                >> $FILE
+    echo "# $d config file"                                 >> $FILE
+    echo "#"                                                >> $FILE
+    echo "LIRE_"$PACK"_SCRDIR=\"$LIRE_SRCDIR/$d\""          >> $FILE
+    echo "LIRE_"$PACK"_SRCDIR=\"$LIRE_SRCDIR/$d/$d\""       >> $FILE
+    echo "LIRE_"$PACK"_BUILDDIR=\"$LIRE_BUILDDIR/$d\""      >> $FILE
+    echo "LIRE_"$PACK"_INSTDIR=\"$LIRE_INSTDIR/$d\""        >> $FILE
+    echo "LIRE_"$PACK"_PACKDIR=\"$LIRE_PACKDIR/$d\""        >> $FILE
+    echo "LIRE_"$PACK"_CONFIG=\"$LIRE_CONFDIR/$d.config\""  >> $FILE
+
+    echo "[OK]"
+  done
+
+  return 0
+}

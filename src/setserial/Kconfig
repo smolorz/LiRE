@@ -1,0 +1,7 @@
+
+config LIRE_SETSERIAL_BUILD_SRC
+    bool "    Build new setserial"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_SETSERIAL_INST
+    help
+    ...

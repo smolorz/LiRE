@@ -1,0 +1,7 @@
+
+config LIRE_EIGEN_BUILD_SRC
+    bool "    Build new eigen"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_EIGEN_INST
+    help
+    ...

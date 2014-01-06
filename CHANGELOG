@@ -1,0 +1,529 @@
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.11-alpha3
+Date: 02.07.2012
+
+#ChangeLog
+
+LiRE-0.11-alpha3:
+
+° RACK       0.6.0-git-2012_07_02
+° RACK_RTS   0.3.0-git-2012_07_02
+
+* Added eigen (3.0.5)
+* Added flann (1.7.1)
+* Added pcl (1.5.1)
+
++ Built with new toolchain (ver3)
++ LiRE now can be built for ARM (Beagleboard)
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.11-alpha2
+Date: 07.05.2012
+
+#ChangeLog
+
+LiRE-0.11-alpha2:
+
+° libraw1394 2.0.5
+° libdc1394  2.2.0
+° OpenCV     2.4.0
+° RACK       0.6.0-git-2012_05_07
+° RACK_RTS   0.3.0-git-2012_05_07
+
+* Added expat (2.0.1)
+* Added bzip2 (1.0.6)
+* Added boost (1.40.0)
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10
+Date: 27.02.2012
+
+#ChangeLog
+
+LiRE-0.10:
+
+° Stable Release
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-rc2
+Date: 15.12.2011
+
+#ChangeLog
+
+LiRE-0.10-rc2:
+
+° Xenomai   2.6.0-git-2011_12_15
+° e2fsprogs 1.42
+° openSSL   1.0.0e
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-rc1
+Date: 15.11.2011
+
+#ChangeLog
+
+LiRE-0.10-rc1:
+
+° Xenomai   2.6.0
+° RTnet     0.9.12-git-2011_11_11
+° Busybox   1.19.3
+° RACK      0.6.0-git-2011_11_11
+° pciutils  3.1.8
+° libpng    1.5.6
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta8
+Date: 06.09.2011
+
+#ChangeLog
+
+LiRE-0.10-beta8:
+
+° Xenomai   2.6.0-rc1
+° RTnet     0.9.12-git-2011_09_06
+° Busybox   1.19.2
+° openSSH   5.9p1
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta7
+Date: 02.09.2011
+
+#ChangeLog
+
+LiRE-0.10-beta7:
+
+° RACK      0.6.0-git-2011_08_26
+° RACK_RTS  0.3.0-git-2011_08_26
+° RTnet     0.9.12-git-2011_08_31
+° Kernel    2.6.38.8
+° Xenomai   2.5.6-git-20110721
+° Busybox   1.19.0
+° dhcpcd    5.2.12
+° jpeg      8c
+° libpng    1.5.4
+° ncurses   5.9
+° openSSH   5.8p2
+° openSSL   1.0.0d
+° openvpn   2.2.1
+° stereocam 1.0.3-rts-2011-07-22
+° zlib      1.2.5
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta6
+Date: 19.07.2011
+
+#ChangeLog
+
+LiRE-0.10-beta6:
+
+° No package updates, see git log for an overview of changes since -beta5
+° Release is build with new toolchain, the most important change is the
+  use of gcc 4.3.5 instead of 4.5.1 (bug in RACK's serial_port)
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta5
+Date: 20.04.2011
+
+#ChangeLog
+
+LiRE-0.10-beta5:
+
+° RTnet     0.9.12-git-2011_04_20
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta4
+Date: 19.04.2011
+
+#ChangeLog
+
+LiRE-0.10-beta4:
+
+° RTnet     0.9.12-git-2011_04_19
+° wpa_supplicant 0.7.3 (NEW)
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta3
+Date: 05.04.2011
+
+#ChangeLog
+
+LiRE-0.10-beta3:
+
+° Kernel    2.6.37.6
+° Xenomai   2.5.6
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta2
+Date: 18.02.2011
+
+#ChangeLog
+
+LiRE-0.10-beta2:
+
+° Kernel    2.6.37
+° Xenomai   2.5.5.2-git-20110216
+° RACK      0.6.0-git-2011_02_17
+° RTnet     0.9.12-git-2011_02_18
+° Busybox   1.18.2
+° e2fsprogs 1.41.14
+° hdparm    9.37
+° stereocam 1.0.3-rts-2011-02-16
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.10-beta1
+Date: 26.01.2011
+
+#ChangeLog
+
+LiRE-0.10-beta1:
+
+° RACK      0.6.0-git-2011_01_18
+° RACK_RTS  0.3.0-git-2011_01_17
+° RTnet     0.9.12-git-2011_01_17
+° Kernel    2.6.31.8 (only linux_scnd)
+° Busybox   1.17.3
+° dhcpcd    5.2.10 (NEW)
+° e2fsprogs 1.41.12
+° hdparm    9.36
+° jpeg      8b
+° libpng    1.4.4
+° libusb    1.0.8 (NEW)
+° nano      2.2.6
+° ncurses   5.7 (NEW)
+° openSSH   5.6p1
+° openSSL   1.0.0c
+° pciutils  3.1.7
+° setserial 2.17 (NEW)
+° wlanpoll  0.2
+° zlib      1.2.3
+
+###########################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9
+Date: 25.06.2010
+
+#ChangeLog
+
+LiRE-0.9:
+
+No package has been updated, only internal changes.
+
+###########################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9-rc4
+Date: 04.06.2010
+
+#ChangeLog
+
+LiRE-0.9-rc4:
+
+No package has been updated, only internal changes.
+
+###########################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9-rc3
+Date: 29.04.2010
+
+#ChangeLog
+
+LiRE-0.9-rc3:
+
+° rtnet		0.9.12
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9-rc2
+Date: 30.03.2010
+
+#ChangeLog
+
+LiRE-0.9-rc2:
+
+° rack      0.4.0-git-2010_03_30
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9-rc1
+Date: 25.03.2010
+
+#ChangeLog
+
+LiRE-0.9-rc1:
+
+° Kernel 	2.6.30.8
+° Xenomai 	2.5.1
+° OpenSSL       0.9.8n
+° OpenSSH       5.4p1
+° RACK		0.4.0-git-2010_03_25
+° RACK_RTS	0.2.0-git-2010_03_25
+° OpenVPN	2.1.1
+
+*Added e2fsprogs (1.41.9)
+*Added gsl (1.13)
+*Added pciutils (3.1.4)
+*Added hdparm (9.27)
+*Added wireless_tools (29)
+
+*Added capability to have 2 different kernel on same target!
+ Choose it during boot.
+
+#ChangeLog NOTE:
+Versions from LiRE-0.9-beta3 up to LiRE-0.9-beta8 (the versions between 0.9-beta2 and 0.9-rc1) do *NOT* have an extra changelog so changes may be included in this changelog (0.9-rc1) or not. For detailed info about changed, please consider the git log.
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9-beta2
+Date: 01.09.2009
+
+#ChangeLog
+
+LiRE-0.9-beta2:
+
+° Kernel 	2.6.30.5
+° Xenomai 	2.5-rc3_esd-can
+° RACK		0.4.0-git-2009_09_01
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.9-beta1
+Date: 30.06.2009
+
+#ChangeLog
+
+LiRE-0.9-beta1:
+
+° Kernel 	2.6.30
+° Xenomai 	2.5-rc2
+° Busybox 	1.14.2
+° nano		2.0.9
+° OpenSSL       0.9.8k
+° OpenSSH       5.2p1
+° stereocam	1.0.3-rts-2009-07-03
+° RTnet 	0.9.11
+° RACK		0.4.0-git-2009_07_09
+° RACK_RTS	0.2.0-git-2009_07_09
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.8
+Date: 27.05.2008
+
+#ChangeLog
+
+LiRE V0.8:
+
+° Kernel 	2.6.24.4
+° Xenomai 	2.4.3
+° RTnet 	0.9.10
+° RACK 		0.4.0_27.05.2008
+° OpenSSH       5.0p1
+° OpenSSL       0.9.8g
+
+*Added libmeschach 1.2
+*New libc from SuSE 10.3
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.7.1
+Date: 23.02.2007
+
+#ChangeLog
+
+LiRE V0.7:
+
+° Kernel 	2.6.19.2
+° Xenomai 	2.3.0(+adeos 1.6_06)
+° RTnet 	0.9.8
+° RACK 		0.4.0
+
+*Added GDB support
+*New libc from SuSE 10.1
+*Added 2.4 kernel support
+*Fixed "free(camera->dma_device_file)" in release_camera() (dc1394_capture.c)
+*Removed  RTCAN Packet (now included in Xenomai)
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.6.1
+Date: 18.08.2006
+
+#ChangeLog
+
+LiRE V0.6.1:
+
+° Kernel 	2.6.17.8
+° Xenomai 	2.2.0
+° RTnet 	0.9.4
+° RACK 		0.3.0
+° BusyBox 	1.2.1
+°
+*Added support multiple network devices
+*Added depends_on for every package
+*Added httpd support for /var/httpd/htdocs/
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
+Version: 0.6
+Date: 08.06.2006
+
+#ChangeLog
+
+LiRE V0.6:
+
+° Kernel 	2.6.16.18
+° Xenomai 	2.1.2-svn
+° RTnet		0.9.3-svn
+° Busybox 	1.1.2(patched)*
+° at76c503a 	0.12beta23 (patched)*
+° libdc1394 	1.21
+° libjpeg 	6.2
+° libpng 	1.2.8
+° libraw 	1.2.0  
+° madwifi-old 	svn-2006-05-31
+° nano		1.2.5
+° opencv	0.9.7(patched)*
+° openssh	4.3p2
+° openssl	0.9.8a
+° openvpn	2.0.5
+° spca5xx	0.57-svn
+° wifi-tools	28
+° zlib		1.2.3
+ 
+
+* These sources had to be patched to work properly with LiRE. 
+
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.5
+Date: 11.07.2005
+
+#Release Notes
+* gcc v3.3.1 required
+
+#ChangeLog
+
+Changes from 0.4:
+* Kernel 2.6.10-adeos
+* at76c503a-cvs
+* RTNet 0.8.2-rc2
+* RTAI-3.2
+* Tools Package now default
+* Updated libc
+* Easier RTNet configuration
++ Added SubVersion compatibility
++ Added fstab autoload
++ Added OpenVPN
++ Added madWiFI WLAN Driver
++ Wireless-Tools
+- Removed Kernel 2.4.x Support
+
+
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.4
+Date: 16.02.2005
+
+#Release Notes
+* gcc v3.3.1 required
+
+#ChangeLog
+
+Changes from 0.3.1:
++ Added Kernel 2.6.9
++ Added TwinKernel functionality which allows You to choose between 2.4.x & 2.6.x kernels
++ Added OpenCV Package
++ Added IEEE1394 Package
+* Kernel-Replace-Script now also can replace RTnet and is compatible to 2.4.x & 2.6.x kernels
+
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.3.1(not released)
+Date: 19.01.2005
+
+#Release Notes
+* gcc v3.3.1 required
+
+#ChangeLog
+
+Changes from 0.2.2:
+* Kernel 2.4.27
+* RTAI 3.1-cvs
+* RTNet 0.8.0
+* BusyBox now kernel 2.6.x compatible
++ Added Debug-Pck (ksymoops,tcpdump,pcap driver)
++- Replaced TinyLogin with BusyBox-Login
+* Created Kernel-Replace-Script
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.2.2 (not released)
+Date: 18.12.2004
+
+#Release Notes
+* gcc v2.95.3 required
+
+#ChangeLog
+
+Changes from 0.2.1:
+* created kernelreplacescript
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.2.1
+Date: 30.10.2004
+
+#Release Notes
+* gcc v2.95.3 required
+
+#ChangeLog
+
+Changes from 0.2:
+* BusyBox v1.0
+* RTnet v0.7.1
++ New Script: netboot.install to create netboot Images
+-+ Replaced RAMDisk features with tmpfs
++ Added new Package for Logitech QuickCam Support
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.2
+Date: 6.05.2004
+
+#Release Notes
+* gcc v2.95.3 required
+
+#ChangeLog
+
+Changes from 0.1:
+* Kernel v2.4.21
+* RTAI v24.1.12
+* Tinylogin v1.4
+* monkey v0.8
+* OpenSSH v3.6.1p2
+############################################################################
+## LiRE - LInux Realtime Environment ##
+Version: 0.1 Initial Version
+Date: 02.09.2003
+
+#Release Notes
+* gcc v2.95.3 required
+
+#Log
++ Linux v2.4.19
++ RTAI v24.1.10
++ Busybox v0.60.5
++ Tinylogin v1.2
++ Grub v0.93
++ Monkey v0.6.1
++ Openssh v3.6
+############################################################################

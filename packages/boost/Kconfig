@@ -1,0 +1,8 @@
+
+config LIRE_BOOST_INST
+    bool "  Install Boost libraries"
+    default y
+    select LIRE_EXPAT_INST
+    select LIRE_BZIP2_INST
+    help
+    ...text...

@@ -1,0 +1,7 @@
+
+config LIRE_WLANPOLL_INST
+    bool "  Install Wlanpoll"
+    default y
+    depends on LIRE_WIRELESS_TOOLS_INST
+    help
+    Install wlanpoll to automatically (re-)connect to (new) APs if current link quality goes below a given value

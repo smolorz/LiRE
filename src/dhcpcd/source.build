@@ -1,0 +1,154 @@
+#! /bin/bash
+
+#
+# dhcpcd build script
+# 2011-01-14 Sascha Kruse <knopwob@googlemail.com>
+#
+
+# name of this package
+PACKAGE="dhcpcd"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_DHCPCD_SRCDIR/configure"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # configure dhcpcd
+    #
+    echo " Configure dhcpcd... "
+
+    cd "$LIRE_DHCPCD_SRCDIR"
+    $LIRE_DHCPCD_SRCDIR/configure  --target=${host_alias} --host=${host_alias}
+
+    [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " configure [OK]"
+
+
+    #
+    # build dhcpcd
+    #
+    echo " Building dhcpcd... "
+
+    make 
+
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+    #
+    # strip dhcpcd
+    #
+    echo " strip dhcpcd"
+    ${STRIP} -s dhcpcd
+    [ $? -gt 0 ] && { echo "strip dhcdcp [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "strip dhcpcd [OK]"
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    cd "$LIRE_DHCPCD_SRCDIR"
+    echo " make install"
+    make DESTDIR="$LIRE_DHCPCD_INSTDIR" _proginstall
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    #
+    # create tar.bz2
+    #
+    TAR="$PACKAGE.tar.bz2"
+    DEST="$LIRE_DHCPCD_PACKDIR/"
+
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" sbin/*
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+
+    
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

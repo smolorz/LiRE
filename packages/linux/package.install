@@ -1,0 +1,41 @@
+#! /bin/bash
+
+#
+# Linux install script
+#
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# don't touch this - start -
+[ ! -f scripts/install/LIRE_INSTALL_SCRIPTS ] && return 1;
+. scripts/install/LIRE_INSTALL_SCRIPTS
+# don't touch this - stop -
+
+#
+# INIT VALUES
+#
+
+# name of this package
+PACKAGE="linux"
+
+LIRE_INIT_INSTALL
+#
+# You can use this values now:
+#   INFO: all dirs and files were given in absolute path
+#
+#   all values in .lire_config
+#   all values in LIRE.config
+#
+# ATTENTION: If you have an error in your install script, you have to call
+#            LIRE_EXIT_INSTALL $errval
+#
+#========== START YOUR INSTALL HERE  ==========================================
+#
+# You are in the package directory LIRE_PACKDIR (.....LIRE/packages/$PACKAGE)
+#
+
+LIRE_EXTRACT_TAR_ARCHIVE
+
+#========== STOP YOUR ROOT INSTALL HERE  ======================================
+
+LIRE_EXIT_INSTALL 0

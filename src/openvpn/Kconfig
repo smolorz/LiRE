@@ -1,0 +1,9 @@
+
+config LIRE_OPENVPN_BUILD_SRC
+    bool "    Build new OpenVPN"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_OPENVPN_INST
+    select LIRE_OPENSSL_BUILD_SRC 
+    help
+    If the package is too old, you can build a new package from the LIRE-source.
+    The LIRE-source have to be linked in the LIRE-SRC directory.

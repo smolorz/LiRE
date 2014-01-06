@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#
+# OpenVPN profile start script
+#
+# 2010-05-06 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+. /etc/openvpn/profiles/default
+
+
+if [ $OPENVPN_PROFILE_VIRT_IP == "DHCP" ]; then
+    echo " using DHCP as OPENVPN_PROFILE_VIRT_IP "
+    echo "  this may or may not work..."
+    ifconfig $dev netmask 255.255.255.0 mtu 1500
+    dhcpcd $dev
+    sleep 1
+else
+    ifconfig $dev $OPENVPN_PROFILE_VIRT_IP netmask 255.255.255.0 mtu 1500
+fi

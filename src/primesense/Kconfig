@@ -1,0 +1,8 @@
+
+config LIRE_PRIMESENSE_BUILD_SRC
+    bool "    Build PrimeSense driver library"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_PRIMESENSE_INST
+    select LIRE_OPENNI_BUILD_SRC
+    help
+    ...

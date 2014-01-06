@@ -1,0 +1,29 @@
+#!/bin/bash
+
+USAGE() {
+    echo "$0 qemu_image target_dir"
+    exit 1
+}
+
+qemu_image=$1
+target_dir=$2
+machine_name="LiRE-$RANDOM"
+
+if [ -z "$qemu_image" -o -z "$target_dir" ]; then
+    USAGE
+fi
+
+temp_dir=$(mktemp -d)
+vmdk_image="$temp_dir/LiRE.vmdk"
+VBoxManage convertfromraw $qemu_image $vmdk_image
+VBoxManage createvm --name $machine_name --ostype "Linux" --register 
+VBoxManage storagectl $machine_name --name "SATA Controller" --add sata
+VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium $vmdk_image
+VBoxManage export $machine_name --output "$target_dir/LiRE.ovf"
+VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium none
+VBoxManage unregistervm $machine_name --delete
+
+
+rm -r $temp_dir
+sed -i "s/$machine_name/LiRE/g" "$target_dir/LiRE.ovf"
+

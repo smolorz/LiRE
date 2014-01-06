@@ -1,0 +1,11 @@
+--- openni/Platform/Linux/CreateRedist/Redist_OpenNi.py.orig	2012-08-28 11:20:41.083663857 +0200
++++ openni/Platform/Linux/CreateRedist/Redist_OpenNi.py	2012-08-28 11:18:57.683180823 +0200
+@@ -347,7 +347,7 @@ if PLATFORM == 'CE4100':
+     samples_list.remove('NiViewer')
+     samples_list.remove('NiSimpleViewer')
+ 
+-if PLATFORM == 'Arm':
++if PLATFORM == 'Arm' or PLATFORM == 'x86':
+     samples_list.remove('NiUserTracker')
+     samples_list.remove('NiViewer')
+     samples_list.remove('NiSimpleViewer')

@@ -1,0 +1,7 @@
+
+config LIRE_HDPARM_BUILD_SRC
+    bool "    Build hdparm"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_HDPARM_INST
+    help
+    Builds the hdparm package.

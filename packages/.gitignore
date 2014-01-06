@@ -1,0 +1,4 @@
+*.tar.bz2
+.*_md5
+version
+depends_on

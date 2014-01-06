@@ -1,0 +1,6 @@
+
+config LIRE_EIGEN_INST
+    bool "  Install eigen"
+    default n
+    help
+    ...text...

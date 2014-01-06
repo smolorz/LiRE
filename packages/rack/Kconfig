@@ -1,0 +1,183 @@
+
+config LIRE_RACK_INST
+    bool "  Install Robotic Application Construction Kit (RACK)"
+    default y
+    select LIRE_XENOMAI_INST
+    help
+
+menu "  Dependencies"
+
+depends on LIRE_RACK_INST
+
+config LIRE_RACK_RTNET_SUPPORT
+    bool "Enable RTnet support"
+    default y
+    select LIRE_RTNET_INST
+    help
+
+config LIRE_RACK_LIBRAW1394_SUPPORT
+    bool "Enable libraw1394 support"
+    default y
+    select LIRE_LIBRAW1394_INST
+    help
+
+config LIRE_RACK_LIBDC1394_SUPPORT
+    bool "Enable libdc1394 support"
+    default y
+    select LIRE_RACK_LIBRAW1394_SUPPORT
+    select LIRE_LIBDC1394_INST
+    help
+
+config LIRE_RACK_LIBJPEG_SUPPORT
+    bool "Enable libjpeg support"
+    default y
+    select LIRE_LIBJPEG_INST
+    help
+
+config LIRE_RACK_LIBPNG_SUPPORT
+    bool "Enable libpng support"
+    default y
+    select LIRE_LIBPNG_INST
+    select LIRE_RACK_ZLIB_SUPPORT
+    help
+
+config LIRE_RACK_OPENCV_SUPPORT
+    bool "Enable opencv support"
+    default y
+    select LIRE_RACK_LIBRAW1394_SUPPORT
+    select LIRE_RACK_LIBDC1394_SUPPORT
+    select LIRE_RACK_LIBJPEG_SUPPORT
+    select LIRE_RACK_LIBPNG_SUPPORT
+    select LIRE_OPENCV_INST
+    help
+
+config LIRE_RACK_GSL_SUPPORT
+    bool "Enable gsl support"
+    default y
+    select LIRE_GSL_INST
+    help
+
+config LIRE_RACK_ZLIB_SUPPORT
+    bool "Enable zlib support"
+    default y
+    select LIRE_ZLIB_INST
+    help
+
+config LIRE_RACK_LIBUSB_SUPPORT
+    bool "Enable libusb support"
+    default y
+    select LIRE_LIBUSB_INST
+    help
+
+config LIRE_RACK_BOOST_SUPPORT
+    bool "Enable boost support for RACK"
+    default y
+    select LIRE_BOOST_INST
+    help
+
+endmenu
+
+menu "  Rack Target Configuration"
+    depends on LIRE_RACK_INST
+
+comment "TiMS"
+
+config LIRE_RACK_TARGET_TIMS_RTNET_CONFIG
+    string "RTnet config file on target"
+    default ""
+    help
+
+config LIRE_RACK_TARGET_TIMS_RTNET_BUFFERS
+    int "Number of RTnet buffers (rtskb) in TiMS kernel module"
+    default 200
+    help
+
+config LIRE_RACK_TARGET_TIMS_MSG_SIZE
+    int "Max Message size (in KByte)"
+    default 5192
+    help
+
+config LIRE_RACK_TARGET_TIMS_MSG_SLOTS
+    int "Max Message slots"
+    default 2
+    help
+
+config LIRE_RACK_TARGET_TIMS_DRIVER_LOG_LEVEL
+    int "Driver module log level"
+    default 2
+    help
+    Log Level 0-5
+
+config LIRE_RACK_TARGET_TIMS_CLOCK_SYNC_MODE
+    int "TIMS Clock Sync Mode"
+    default 0
+    help
+    SYNC_NONE           0
+    SYNC_RTNET          1
+    SYNC_CAN_MASTER     2
+    SYNC_CAN_SLAVE      3
+    SYNC_SER_MASTER     4
+    SYNC_SER_SLAVE      5
+				    
+config LIRE_RACK_TARGET_TIMS_CLOCK_SYNC_DEV
+    string "TIMS Clock Sync Device"
+    default ""
+				    
+config LIRE_RACK_TARGET_TIMS_CLOCK_SYNC_CAN_ID
+    int "TIMS CAN ID"
+    default 0
+						    
+
+comment "TiMS Message Client"
+
+config LIRE_RACK_TARGET_TIMS_CLIENT_START
+    bool "Start client"
+    default y
+    help
+    ...text...
+
+config LIRE_RACK_TARGET_TIMS_CLIENT_ROUTER_IP
+    string "Connect to Router IP"
+    default 127.0.0.1
+    help
+    ...text...
+
+config LIRE_RACK_TARGET_TIMS_CLIENT_ROUTER_PORT
+    int "Connect to Server Port"
+    default 2000
+    help
+    ...text...
+
+config LIRE_RACK_TARGET_TIMS_CLIENT_LOG_LEVEL
+    int "Log level"
+    default 0
+    help
+    Log Level 0,1 or 2
+
+comment "TiMS Message Server"
+
+config LIRE_RACK_TARGET_TIMS_ROUTER_START
+    bool "Start Server"
+    default y
+    help
+    ...text...
+
+config LIRE_RACK_TARGET_TIMS_ROUTER_LISTEN_IP
+    string "Listen for clients with IP"
+    default ""
+    help
+    ...text...
+
+config LIRE_RACK_TARGET_TIMS_ROUTER_PORT
+    int "Listen on Port"
+    default 2000
+    help
+    ...text...
+
+config LIRE_RACK_TARGET_TIMS_ROUTER_LOG_LEVEL
+    int "Log level"
+    default 0
+    help
+    Log Level 0,1 or 2
+
+endmenu

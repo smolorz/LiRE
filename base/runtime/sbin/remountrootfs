@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [[ -z $1 ]] ; then 
+	echo
+	echo "usage remountrootfs [ro|rw]"
+	echo
+	exit
+fi
+
+mount -o remount -o $1 rootfs / >/dev/null 2>/dev/null

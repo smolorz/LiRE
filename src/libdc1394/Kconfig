@@ -1,0 +1,9 @@
+
+config LIRE_LIBDC1394_BUILD_SRC
+    bool "    Build new libdc1394"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_LIBDC1394_INST
+    select LIRE_LIBRAW1394_BUILD_SRC
+    help
+    If the package is too old, you can build a new package from the LIRE-source.
+    The LIRE-source have to be linked in the LIRE-SRC directory.

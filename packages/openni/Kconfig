@@ -1,0 +1,7 @@
+
+config LIRE_OPENNI_INST
+    bool "  Install OpenNI"
+    default y
+    select LIRE_LIBUSB_INST
+    help
+    ...text...

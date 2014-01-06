@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#
+# rtnet_to_depends_on Skript
+#
+
+#
+# 2009-11-27 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+
+# =============DON'T TOUCH THIS============ #
+# ==================START================== #
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+. .lire_config
+
+# =============DON'T TOUCH THIS============ #
+# ===================STOP================== #
+
+
+# =============START YOUR 'prepare' STUFF HERE============= #
+
+
+echo ""
+echo -n " Checking if rtnet is marked for install... "
+
+
+#
+# Check if rtnet should be installed at all
+#
+
+if [ "$CONFIG_LIRE_RTNET_INST" == "y" ]; then
+
+	echo "YES"
+
+
+	#
+	# Check if rack should be installed at all
+	#
+	echo -n " Checking if rack is marked for install... "
+	if [ "$CONFIG_LIRE_RACK_INST" == "y" ]; then
+
+		echo "YES"
+		echo ' Adding "rtnet" to src/rack/depends_on...'
+
+		[ ! -f ${LiRE_DIR}/src/rack/depends_on ] && { echo " ERROR: can't find src/rack/depends_on "; exit 1; }
+
+		if [ `grep -c "rtnet" ${LiRE_DIR}/src/rack/depends_on` -gt 0 ]; then
+
+			echo " NO NEED. It is still there -> skipping"
+
+		else
+			echo "rtnet" >> ${LiRE_DIR}/src/rack/depends_on
+			[ $? -gt 0 ] && { echo " ERROR occured in script. Exiting... "; exit 1; }
+			echo " DONE!"
+		fi
+	fi
+
+
+	#
+	# Check if rack_scnd should be installed at all
+	#
+	echo -n " Checking if rack_scnd is marked for install... "
+	if [ "$CONFIG_LIRE_RACK_SCND_INST" == "y" ]; then
+
+		echo "YES"
+		echo ' Adding "rtnet" to src/rack_scnd/depends_on...'
+
+		[ ! -f ${LiRE_DIR}/src/rack_scnd/depends_on ] && { echo " ERROR: src/rack_scnd/depends_on doesn't exist "; exit 1; }
+
+		if [ `grep -c "rtnet" ${LiRE_DIR}/src/rack_scnd/depends_on` -gt 0 ]; then
+
+			echo " NO NEED. It is still there -> skipping"
+
+		else
+			echo "rtnet" >> ${LiRE_DIR}/src/rack_scnd/depends_on
+			[ $? -gt 0 ] && { echo " ERROR occured in script. Exiting... "; exit 1; }
+			echo " DONE!"
+		fi
+	fi
+
+else
+
+	echo "NO"
+	echo " No need to add rtnet to src/rack_scnd/depends_on... skipping"
+
+fi
+
+
+#
+# Give lire_prepare no need to be confused ;-)
+#
+
+exit 0;
+
+
+# =============STOP YOUR 'prepare' STUFF HERE============= #
+

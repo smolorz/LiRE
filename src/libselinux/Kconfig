@@ -1,0 +1,8 @@
+
+config LIRE_LIBSELINUX_BUILD_SRC
+    bool "    Build new libselinux"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_LIBSELINUX_INST
+    select LIRE_LIBSEPOL_BUILD_SRC
+    help
+    ...

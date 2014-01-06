@@ -1,0 +1,6 @@
+
+config LIRE_EXPAT_INST
+    bool "  Install Expat XML Parser"
+    default y
+    help
+    ...text...

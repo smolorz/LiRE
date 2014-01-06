@@ -1,0 +1,7 @@
+
+config LIRE_WLANPOLL_BUILD_SRC
+    bool "    Build Wlanpoll"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_WLANPOLL_INST
+    help
+    Build wlanpoll from source

@@ -1,0 +1,114 @@
+#! /bin/bash
+
+#
+# LIRE_INSTALL_SCRIPTS
+# 2005-12-01 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+LIRE_EXTRACT_TAR_ARCHIVE()
+{
+
+    if [ "$PACKAGE" == "" ]; then
+        echo " ERROR: invalid package name $PACKAGE "
+        exit 1
+    fi
+
+    if [ ! -f "$LIRE_PACKDIR/$PACKAGE/version" ]; then
+        VERSION="unknown"
+    else
+        VERSION=`cat "$LIRE_PACKDIR/$PACKAGE/version"`
+    fi
+
+    CURR_DIR=`pwd`
+    cd "$LIRE_PACKDIR/$PACKAGE"
+
+    FILE="$PACKAGE.tar.bz2"
+    echo -n " Searching for $FILE ... "
+    if [ -f "$FILE" ]; then
+        echo "[version $VERSION]"
+        echo -n " Extracting $FILE to $LIRE_OUTDIR ... "
+        tar -xjf "$FILE" -C "$LIRE_OUTDIR"
+        [ $? -gt 0 ] && { echo " [ERROR]"; exit 1; }
+        echo " [OK]"
+    else
+        echo " [NOT FOUND]"
+    fi
+
+    cd "$CURR_DIR"
+}
+
+LIRE_INIT_INSTALL()
+{
+  [ "$PACKAGE" == "" ] && { echo "ERROR: Invalid Package name "; exit 1; }
+
+  echo ""
+  echo " ===---> $PACKAGE install script"
+  echo ""
+
+  [ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+  . .lire_config
+  . "${LiRE_DIR}/configs/LIRE.config"
+
+  # switch to the package directory
+  cd "$LIRE_PACKDIR/$PACKAGE"
+}
+
+LIRE_EXIT_INSTALL()
+{
+  [ "$1" == "" ] && { echo " No return code -> EXIT"; exit 1; }
+
+  echo " -> $PACKAGE install script completed"
+  cd "$LIRE_DIR"
+  return $1
+}
+
+#
+# creates a character device
+#
+# use LIRE_CREATE_CHAR_DEVICE "DEVICENAME" "MAJOR" "MINOR" "MODE"
+LIRE_CREATE_CHAR_DEVICE()
+{
+
+  if [ "$#" -lt "4" ]; then
+    echo "LIRE_CREATE_CHAR_DEVICE needs at least 4 arguments"
+    return -1
+  fi
+
+#
+# param $2 has to be a number between 0 and 255 (Major number)
+#
+
+echo $2 | egrep -q '^[[:space:]]*[+-]?[[:space:]]*[[:digit:]]+[[:space:]]*$' ||
+{ echo "LIRE_CREATE_CHAR_DEVICE: arg 2 ($2) is no digit "; return -1; }
+
+[ "$2" -lt "0" -o "$2" -gt "255" ] &&
+{ echo "LIRE_CREATE_CHAR_DEVICE: arg 2 ($2) is an invalid value (0-255)"; return -1; }
+
+#
+# param $3 has to be a number between 0 and  255 (Minor number)
+#
+echo $3 | egrep -q '^[[:space:]]*[+-]?[[:space:]]*[[:digit:]]+[[:space:]]*$' ||
+{ echo "LIRE_CREATE_CHAR_DEVICE: arg 3 ($3) is no digit "; return -1; }
+
+[ "$3" -lt "0" -o "$3" -gt "255" ] &&
+{ echo "LIRE_CREATE_CHAR_DEVICE: arg 3 ($3) is an invalid value (0-255)"; return -1; }
+
+#
+# param $4 has to be a mode 777 = (rwxrwxrwx) or 666 = rw-rw-rw ...
+#
+echo $4 | egrep -q '^[[:space:]]*[[0-6]]?[[0-6]]?[[0-6]]?[[:space:]]*$'||
+{ echo "ERROR: Argument 4 ($4) is not a mode (000-666)"; return -2; }
+
+
+DEVNAME=$1
+MAJOR=$2
+MINOR=$3
+MODE=$4
+
+if [ ! -c $LIRE_OUTDIR$DEVNAME ]; then
+  echo "Create character device @ $LIRE_OUTDIR$DEVNAME, major: $MAJOR, minor: $MINOR, mode: $MODE"
+  mknod -m$MODE "$LIRE_OUTDIR$DEVNAME" c $MAJOR $MINOR > /dev/null
+  [ $? -gt 0 ] && { exit 1; }
+fi
+
+}

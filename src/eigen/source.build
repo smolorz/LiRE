@@ -1,0 +1,135 @@
+#! /bin/bash
+
+#
+# eigen build script
+# 2012-03-09 Sascha Kruse <knopwob@googlemail.com
+#
+
+# name of this package
+PACKAGE="eigen"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_EIGEN_SRCDIR/CMakeLists.txt"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    TOOLCHAIN_CMAKE="$LIRE_EIGEN_SRCDIR/toolchain.cmake"
+    [ -f $TOOLCHAIN_CMAKE ] && rm $TOOLCHAIN_CMAKE
+    echo "
+SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_SYSTEM_VERSION 1)
+
+SET(CMAKE_C_COMPILER ${CC})
+SET(CMAKE_CXX_COMPILER ${CXX})
+
+SET(CMAKE_FIND_ROOT_PATH )
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAMM NEVER)
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)" > $TOOLCHAIN_CMAKE
+
+    cmake -DCMAKE_INSTALL_PREFIX="$LIRE_EIGEN_INSTDIR" "$LIRE_EIGEN_SRCDIR" \
+        -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_CMAKE"
+
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+
+    echo " make install $PACKAGE"
+    make install
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+    DEST="$LIRE_EIGEN_PACKDIR/"
+    TAR="$LIRE_EIGEN_SRCDIR/$PACKAGE.tar.bz2"
+
+    #
+    # create tar.bz2
+    #
+
+    echo -n " Creating $TAR ... "
+    tar -cjvf $TAR --files-from /dev/null
+    mv $TAR $DEST
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

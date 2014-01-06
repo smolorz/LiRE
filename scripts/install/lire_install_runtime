@@ -1,0 +1,56 @@
+#! /bin/bash
+
+#
+# LIRE runtime install script
+# 2006-02-21 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2009-10-29 Oliver Weidner (Oliver.Weidner@gmail.com)
+# 2010-11-06 Sascha Kruse (knopwob@gmail.com)
+#
+
+#
+# copy runtime directory
+#
+RUNTIMEDIR="$LIRE_BASEDIR/runtime"
+d="$RUNTIMEDIR"
+
+FILES=`find $d -name '*' | \
+       grep -v .svn | \
+       grep -v CVS | \
+       grep -v .gitignore | \
+       grep -v "~"`
+
+for f in $FILES; do
+    if [ -d $f ]; then
+        SRCDIR="$f"
+	DESTDIR=$LIRE_OUTDIR`echo $SRCDIR | sed -e 's#^'$d'##g;'`
+        #echo "Creating directory: $DESTDIR"
+        mkdir -p $DESTDIR
+        [ $? -ne 0 ] && { echo " Can't create $DESTDIR"; EXIT_INSTALL 1; }
+    fi
+
+    if [ -f $f ]; then
+        SRCDIR=`dirname $f`
+        DESTDIR=$LIRE_OUTDIR`echo $SRCDIR | sed -e 's#^'$d'##g;'`
+        #echo "Copy $f to $DESTDIR"
+        cp -f $f $DESTDIR 
+        [ $? -ne 0 ] && { echo " Can't copy $f"; EXIT_INSTALL 1; }
+    fi
+done
+
+#adds LiRE version to motd.1
+echo " " >> "$LIRE_OUTDIR/etc/motd.1"
+echo "LiRE VERSION:  `echo $CONFIG_LIRE_VERSION`" >> "$LIRE_OUTDIR/etc/motd.1"
+
+#
+# copy LiRE_devices
+#
+NAME="LiRE_devices"
+TAR="$NAME.tar.bz2"
+FILE="$LIRE_BASEDIR/$TAR"
+
+[ ! -f "$FILE" ] && { echo " Can't find $FILE"; exit 1; }
+
+#extracting needs root permissions, so we do it in lire_core_install.
+#But since we wan't to separate lire_core_install as much as possible
+#we copy it to $LIRE_OUTDIR so that lire_core_install can find it there.
+cp "$FILE"  "$LIRE_OUTDIR/.LiRE_devices.tar.bz2"

@@ -1,0 +1,93 @@
+#! /bin/bash
+
+#
+# LIRE_CHECK_FUNCTIONS
+# 2005-12-02 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
+#
+
+# The sourcedir of a package has been linked into the LIRE source directory,
+# but no depend file was found in it. This function creates a self-made depfile
+# and save it into the package source directory.
+#
+#   $1 = this packages
+#
+# Needs: list of all packages
+# Creates LIRE_DIR/src/<PACKAGE>/$LIRE_PKG_DEPEND_FILE
+function CREATE_OWN_DEPFILE()
+{
+    # first list all packages
+    echo ""
+    echo " *** List of all packages ***"
+    i=0
+    for p in `cat "$LIRE_ALL_PACK_LIST"`; do
+        [ "$p" == $1 ] && { continue; }
+        echo " [$i] - $p"
+        package[$i]=$p
+        ((i=$i+1))
+    done
+
+    FILE="$LIRE_SRCDIR/$1/$1/$LIRE_PKG_DEPEND_FILE"
+    touch $FILE
+
+    echo ""
+    echo " Enter the package numbers needed by package $1 (separated by space)"
+    echo -n " : "
+    read numbers
+    echo ""
+    echo " Package $p depends on:"
+    for no in $numbers;do
+        echo " -> ${package[$no]}"
+        echo "${package[$no]}" >> $FILE
+    done
+    echo " done"
+}
+
+# returns 1 if package shall be built (enabled in LIRE config)
+#
+#   $1 = package
+#
+function PACK_BUILD_ENABLED()
+{
+    PACK=`echo "$1" | sed -e ' s/[a-z]/\u&/g'`
+    BUILD=`cat $LIRE_CONFIG_FILE | \
+    grep "^CONFIG_LIRE_"$PACK"_BUILD_SRC" | \
+    gawk -F"=" '{print$2}' | sed -e ' s/"//g'`
+
+    if [ "$LIRE_BUILD_SRC" == "y" -a "$BUILD" == "y" ]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+# returns 1 if package shall be installed (enabled in LIRE config)
+#
+#   $1 = package
+#
+function PACK_INSTALL_ENABLED()
+{
+    PACK=`echo "$1" | sed -e ' s/[a-z]/\u&/g'`
+    INST=`cat $LIRE_CONFIG_FILE | \
+    grep "^CONFIG_LIRE_"$PACK"_INST" | \
+    gawk -F"=" '{print$2}' | sed -e ' s/"//g'`
+
+    if [ "$INST" == "y" ]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+# returns 1 if LIRE shall built packages (build enabled in LIRE config)
+#
+#   $1 = package
+#
+function BUILD_ENABLED()
+{
+    if [ "$LIRE_BUILD_SRC" == "y" ]; then
+        return 1
+    else
+        return 0
+    fi
+}

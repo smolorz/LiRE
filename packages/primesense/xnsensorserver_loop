@@ -1,0 +1,20 @@
+#! /bin/sh
+
+################################################################################
+#
+# PrimeSense XnSensorServer loop
+#
+################################################################################
+
+. /etc/lire.conf
+
+PROG="XnSensorServer_prime"
+
+[ ! -x `which $PROG` ] && { exit 1; }
+
+while(true); do
+    echo "Starting XnSensorServer_prime ..."
+    $PROG
+
+    sleep 1
+done

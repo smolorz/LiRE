@@ -1,0 +1,6 @@
+
+config LIRE_FLANN_INST
+    bool "  Install flann"
+    default y
+    help
+    ...text...

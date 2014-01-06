@@ -1,0 +1,7 @@
+
+config LIRE_BUSYBOX_BUILD_SRC
+    bool "    Build new busybox"
+    default y
+    depends on LIRE_BUILD_SRC
+    help
+    ...

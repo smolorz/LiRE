@@ -1,0 +1,130 @@
+config LIRE_VERSION
+    string "LiRE-Version"
+    default "CHANGE ME"
+
+source "packages/Kconfig"
+source "src/Kconfig"
+
+menu "Image"
+
+config LIRE_OUTDIR
+    string "LIRE output directory"
+    default "/YOUR/PATH/LiRE-0.9-betaX/targetfs"
+    help
+    Absolute path to a LIRE-install directory (e.g. /tmp/LIRE-install).
+
+choice
+    prompt "Image type"
+    default LIRE_DISK
+
+
+config LIRE_DISK
+    bool "Disk"
+    help
+
+config LIRE_NETBOOT
+    bool "Netboot"
+    help
+
+config LIRE_QEMU
+    bool "QEMU"
+    help
+
+config LIRE_ISO
+    bool "ISO (CD-ROM)"
+    help
+
+config LIRE_VIRTUALBOX
+    bool "Virtualbox"
+    help
+
+endchoice
+
+config LIRE_BUILD_REMOTELY
+    bool "Use build_server for parts that need root-privileges"
+    default y
+    help
+    ...
+
+config LIRE_INSTALL_HOST
+    depends on LIRE_BUILD_REMOTELY
+    string "Hostname of the install server"
+    default localhost
+    help
+    ...
+    
+config LIRE_INSTALL_PORT
+    depends on LIRE_BUILD_REMOTELY
+    int "Portnumber of the install server"
+    default 56000
+    help
+    ...
+
+config LIRE_HOST_SYSLINUX_DIR
+    string "Host syslinux directory"
+    default "/usr/lib/syslinux"
+    help
+    The directory in which isolinux.bin and menu.c32 can be found.
+
+config LIRE_IMGNAME
+    string "Image name"
+    default "spb.nb" if LIRE_NETBOOT
+    default "lireQE.img" if LIRE_QEMU
+    default "lire.iso" if LIRE_ISO
+    depends on LIRE_NETBOOT || LIRE_QEMU || LIRE_ISO
+    help
+
+config LIRE_IMGSIZE
+    int "Image size"
+    default 100000
+    depends on LIRE_NETBOOT || LIRE_QEMU || LIRE_ISO || LIRE_VIRTUALBOX
+    help
+
+config LIRE_BOOTOPTIONS
+    string "Boot parameters"
+    default "vga=773"
+    depends on LIRE_NETBOOT || LIRE_ISO
+    help
+
+config LIRE_ISO_CUSTOM_DIR
+    string "ISO Custom directory"
+    default ""
+    depends on LIRE_ISO
+    help
+    The content from this directory will be copied into the iso image
+
+config LIRE_KEEP_IMGS
+    bool "Keep intermediate images"
+    depends on LIRE_NETBOOT
+    help
+
+endmenu
+
+menu "Target debugging"
+
+config LIRE_GDB_INST
+    bool "  Install GDB (Debugger)"
+    depends on LIRE_CROSS_COMPILE
+    default n
+    help
+    ...text...
+
+config LIRE_GDB_SERVER_ONLY
+    bool "  Install only gdbserver"
+    depends on LIRE_GDB_INST
+    default y
+    help
+    The gdb binary is quite large and restricted to console operation.
+    In contrast, the small gdbserver can be used remotely with any
+    gdb-backend, graphical ones included.
+
+config LIRE_STRACE_INST
+    bool "  Install strace"
+    depends on LIRE_CROSS_COMPILE
+    default y
+    help
+    ...text...
+
+endmenu
+
+source "base/Kconfig"

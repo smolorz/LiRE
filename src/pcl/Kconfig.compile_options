@@ -1,0 +1,25 @@
+
+menu "Pcl compile options"
+    depends on LIRE_PCL_BUILD_SRC
+config LIRE_PCL_HAS_SSE
+    bool "    SSE"
+    default y
+    help
+    ...
+config LIRE_PCL_HAS_SSE2
+    bool "    SSE2"
+    default y
+    help
+    ...
+config LIRE_PCL_HAS_SSE3
+    bool "    SSE3"
+    default y
+    help
+    ...
+config LIRE_PCL_HAS_SSE4_1
+    bool "    SSE4_1"
+    default n
+    help
+    ...
+
+endmenu

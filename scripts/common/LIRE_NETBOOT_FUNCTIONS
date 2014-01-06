@@ -1,0 +1,107 @@
+#! /bin/bash
+
+#
+# LIRE_NETBOOT_FUNCTIONS
+# 2006-02-12 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-06-29 Christoph Mueller (christoph@mueller-varas.de) 
+#
+
+NETBOOT_UMOUNT()
+{
+  echo -n " Cleaning ... "
+  MOUNTED=`mount | grep -c $LIRE_NB_MOUNTDIR`
+
+  while ( [ $MOUNTED -gt 0 ] ); do
+    umount $LIRE_NB_MOUNTDIR
+    MOUNTED=`expr $MOUNTED - 1`
+  done
+
+  rm -rf $LIRE_NB_MOUNTDIR
+  rm -f  $LIRE_NB_IMAGE
+  rm -f  $LIRE_REAL_OUTDIR/bzImage
+
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+}
+
+NETBOOT_CREATE_IMAGE()
+{
+  echo -n " Creating Netboot mount directory ... "
+  mkdir -p "$LIRE_NB_MOUNTDIR"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+  echo -n " Creating image ... "
+  dd if=/dev/zero of="$LIRE_NB_IMAGE" count="$LIRE_NB_IMAGESIZE" bs=1024 2>/dev/null
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+  echo -n " Creating image filesystem ... "
+  mke2fs -q -F -b 1024 -m 0 "$LIRE_NB_IMAGE" 2>/dev/null
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+  echo -n " Mounting netboot image ... "
+  mount -o loop "$LIRE_NB_IMAGE" "$LIRE_NB_MOUNTDIR"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+}
+
+NETBOOT_COMPLETE_IMAGE()
+{
+  echo -n " Copy bzImage ... "
+  cp "$LIRE_NB_MOUNTDIR/boot/bzImage" "$LIRE_REAL_OUTDIR"
+  [ $? -gt 0 ] && { echo "[FAILED]"; NETBOOT_UMOUNT; exit 1; }
+  echo "[OK]"
+
+  echo -n " Removing boot directory ... "
+  rm -rf "$LIRE_NB_MOUNTDIR/boot"
+  [ $? -gt 0 ] && { echo "[FAILED]"; NETBOOT_UMOUNT; exit 1; }
+  echo "[OK]"
+
+  echo -n " Unmounting netboot image ... "
+  umount "$LIRE_NB_MOUNTDIR"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+  echo -n " Remove mount directory ... "
+  rmdir "$LIRE_NB_MOUNTDIR"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+  echo -n " Compressing root filesystem image ... "
+  gzip -c -9 "$LIRE_NB_IMAGE" > "$LIRE_NB_IMAGE.gz"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo "[OK]"
+
+  echo -n " Remove netboot image ... "
+  rm "$LIRE_NB_IMAGE"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo " [OK]"
+
+  echo
+  echo " boot options: $LIRE_NB_BOOTOPTS"
+  echo
+
+  echo -n " Writing netboot image ... "
+  mkelf-linux --output=$LIRE_NB_IMAGE $LIRE_REAL_OUTDIR/bzImage \
+              $LIRE_NB_IMAGE.gz --rootdir=/dev/ram0 \
+              --append="ramdisk_size=$LIRE_NB_IMAGESIZE $LIRE_NB_BOOTOPTS"
+  [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+  echo " [OK]"
+
+  if [ "$CONFIG_LIRE_KEEP_IMGS" != "y" ]; then
+    echo -n " Removing bzImage ... "
+    rm -f $LIRE_REAL_OUTDIR/bzImage
+    [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+    echo " [OK]"
+
+    echo -n " Removing compressed netboot image ... "
+    rm $LIRE_NB_IMAGE.gz
+    [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+    echo " [OK]"
+  fi
+
+  echo " Netboot image has been created"
+}

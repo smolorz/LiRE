@@ -1,0 +1,8 @@
+
+config LIRE_LINUX_SCND_BUILD_SRC
+    bool "    Build new _SECOND_ Linux kernel"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_LINUX_SCND_INST
+    help
+    Here you can build the second linux kernel. You *SHOULD* build it instead of using the "binary".
+    Therefore it's the default. Maybe it's better to leave it ALL default.

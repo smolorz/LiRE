@@ -1,0 +1,8 @@
+
+config LIRE_LINUX_BUILD_SRC
+    bool "    Build new Linux kernel"
+    default y
+    depends on LIRE_BUILD_SRC
+    help
+    If the package is too old, you can build a new linux package from the LIRE-linux source.
+    The LIRE-linux source have to be linked in the LIRE-SRC directory.

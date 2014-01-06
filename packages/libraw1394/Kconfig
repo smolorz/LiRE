@@ -1,0 +1,6 @@
+
+config LIRE_LIBRAW1394_INST
+    bool "  Install libraw1394"
+    default n
+    help
+    ...text...

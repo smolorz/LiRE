@@ -1,0 +1,7 @@
+
+config LIRE_POLICYCOREUTILS_BUILD_SRC
+    bool "    Build new policycoreutils"
+    depends on LIRE_BUILD_SRC && LIRE_POLICYCOREUTILS_INST
+    select LIRE_LIBSELINUX_BUILD_SRC
+    help
+    ...

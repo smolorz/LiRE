@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+
+#
+# BEGIN gitclean
+#
+
+#
+# 16-09-2009 (current LiRE development version: 0.9-beta3)
+# This script was written by Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+
+. "${LiRE_DIR}/configs/LIRE.config"
+
+ 
+if [ `cat .lire_config | grep CONFIG_LIRE_DISK | cut -d= -f 2` == y ]; then
+	echo 'Now running root part for deleting ".gitignore" files in CF card directory'
+	echo 'Switching to user root:'
+	su -c $LIRE_ISCRDIR/gitclean_root_part
+	echo '.........'
+	echo 'Leaving root mode... you are safe again, for now :-)'
+	echo "$LIRE_REAL_OUTDIR and its subdirs are now clean from gitignore files"
+else
+	echo 'The gitclean script only works for cfcard install method'
+	exit 1
+fi
+
+#
+# END gitclean
+#

@@ -1,0 +1,7 @@
+
+config LIRE_OPENSSL_BUILD_SRC
+    bool "    Build new OpenSSL"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_OPENSSL_INST
+    help
+    ...

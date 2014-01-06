@@ -1,0 +1,172 @@
+#! /bin/bash
+
+#
+# Xenomai build script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# name of this package
+PACKAGE="xenomai"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_XENOMAI_SRCDIR/configure"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # build Xenomai userspace part
+    #
+    echo " Configure Xenomai userspace part ... "
+
+    $LIRE_XENOMAI_SRCDIR/configure --prefix=$LIRE_XENOMAI_INSTDIR/usr
+    [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " configure [OK]"
+
+
+    #
+    # build Xenomai userspace part
+    #
+    echo " Building Xenomai userspace part ... "
+
+    make -j$CONFIG_LIRE_BUILD_JOBS
+
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    echo " make install"
+    make SUDO=false install-strip
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+    # remove .la files
+    rm ${LIRE_XENOMAI_INSTDIR}/usr/lib/*.la
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf tar
+    mkdir -p tar/usr/bin
+    mkdir -p tar/usr/lib
+
+    # copy files
+    echo -n " Copy binaries ... "
+    cp -fd usr/bin/clocktest usr/bin/cyclictest usr/bin/irq* usr/bin/*latency usr/bin/rtcan* usr/bin/switchtest tar/usr/bin
+    echo -n " Copy libraries ... "
+    cp -fd usr/lib/libnative.so.* usr/lib/libpthread_rt.so.* usr/lib/librtdk.so.* usr/lib/librtdm.so.* usr/lib/libxenomai.so.* tar/usr/lib
+    if [ -d usr/sbin ]; then
+        mkdir -p tar/usr/sbin
+        cp -fd usr/sbin/rtcanconfig usr/sbin/rtps tar/usr/sbin
+    fi
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    #
+    # create tar.bz2
+    #
+    TAR="$PACKAGE.tar.bz2"
+    DEST="$LIRE_XENOMAI_PACKDIR/"
+
+    cd tar
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+
+    #
+    # remove tar directory
+    #
+    rm -rf tar
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

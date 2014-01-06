@@ -1,0 +1,175 @@
+#! /bin/sh
+
+#
+# LiRE rc script
+#
+# Start of Unix
+#
+# 2006-02-21 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-02-21 Christoph Mueller (christoph@mueller-varas.de)
+
+# load lire config
+
+if [ ! -f "/etc/lire.conf" ]; then
+    echo "lire.conf not found"
+    exit 1
+else
+    . "/etc/lire.conf"
+fi
+
+#
+# export PATH
+#
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:
+export PATH
+
+#
+# little cleaning
+#
+echo
+echo
+
+#
+# create tmpfs directories (syslogd needs /var/log)
+#
+if [ "$TARGET_TMPFS_SUPPORT" == "y" ]; then
+    # remove all ";"
+    DIRS=`echo "$TARGET_TMPFS_DIRS" | sed -e's/;/ /g'`
+    echo "MOUNT TMPFS TO"
+    for d in $DIRS; do
+        if [ -d $d ]; then
+            if [ "$SELINUX_ENABLE" == "y" ]; then
+                ls -kd $d | read context
+                mount -w -t tmpfs tmpfs $d > /dev/null 2> /dev/null
+                setfilecon $context $d
+            else
+                mount -w -t tmpfs tmpfs $d > /dev/null 2> /dev/null
+            fi
+            echo "                  $d"
+        else
+            echo "       not found: $d"
+        fi
+    done
+    echo
+fi
+
+#
+# Redirect Kernel Messages (before enable syslogd)
+#
+if [ $TARGET_SYSLOGCONSOLE -gt 0 ]; then
+    > /dev/tty$TARGET_SYSLOGCONSOLE
+    setlogcons $TARGET_SYSLOGCONSOLE
+fi
+
+#
+# copy /dev to tmpfs
+#
+
+if [ "$TARGET_DEV_ON_TMPFS" == "y" ]; then
+    mount --bind /dev /var/dev.old
+    mount -w -t tmpfs tmpfs /var/dev.new
+    cp -ar /var/dev.old/* /var/dev.new
+    mount --bind /var/dev.new /dev
+fi
+
+#
+# starting system log daemon
+#  -> needs write access to /dev/log
+#
+if [ "$TARGET_LAUNCH_SYSLOGD" == "y" ]; then
+    echo "Starting syslogd ... "
+    /sbin/syslogd -S
+fi
+
+#
+# mount root rw ?
+#
+if [ "$TARGET_REMOUNT_ROOT_RW" == "y" ]; then
+    remountrootfs rw
+    echo "REMOUNT                   rootfs writable"
+    echo " "
+fi
+
+#
+# Mount all of /etc/fstab (/proc, /dev/pts and /sys)
+#
+mount -a
+
+#
+# loading kernel modules
+# -> this should come as first as possible
+#    and it seems here is the place
+#
+/etc/rc.d/lire_modules
+
+# mount usbfs
+# This needs to be done after lire_modules, since 
+# the usb-modules must be loaded
+if [ "$TARGET_USB_SUPPORT" == "y" ]; then
+    mount -t usbfs usbfs /proc/bus/usb
+fi
+
+#
+# setting hostname of this SPB
+# (should be unique)
+#
+hostname "$TARGET_HOSTNAME"
+
+#
+# Start Ethernet
+#
+/etc/rc.d/lire_ethernet
+
+#
+# Start WLAN
+#
+/etc/rc.d/lire_wlan
+
+#
+# loopback device
+#
+ifconfig lo up 127.0.0.1
+
+
+
+
+#
+# Set keymap
+#
+if [ "$TARGET_KEYMAP" == "DE" ]; then
+    echo "LOADING               keymap"
+    loadkmap < /usr/kbd/de-latin1-nodeadkeys.keymap
+fi
+
+#
+# package manager
+#
+if [ "$TARGET_RUN_spb_pack_manager" == "y" ]; then
+    /etc/rc.d/lire_package_boot_manager
+fi
+
+#
+# HTTP server
+#
+if [ "$TARGET_LAUNCH_HTTPD" == "y" ]; then
+    httpd -h /var/httpd/htdocs
+fi
+
+#
+# run custom script
+#
+if [ -f "/etc/rc.d/lire_custom_start" ]; then
+    /etc/rc.d/lire_custom_start
+fi
+
+
+echo ""
+echo "LiRE HOSTNAME: [$TARGET_HOSTNAME]"
+echo ""
+
+#
+# show lire logo
+#
+cat /etc/motd.1
+
+beep -f 600 -l 200 -r $TARGET_NR_READY_BEEPS

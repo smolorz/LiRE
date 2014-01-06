@@ -1,0 +1,446 @@
+#! /bin/bash
+
+#
+# LIRE_LIST_FUNCTIONS
+# 2006-02-12 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
+#
+
+#
+# !!! WARNING !!!
+# -> LIRE.config HAVE TO BE LOADED FIRST
+#
+
+#
+# ALL LIST
+#
+
+# Clear the list of all packages
+function RESET_ALL_LIST()
+{
+  rm -f "$LIRE_ALL_PACK_LIST"
+  touch "$LIRE_ALL_PACK_LIST"
+}
+
+# Creates a new list of all packages
+function FILL_ALL_LIST()
+{
+  ALL_PACKS=`/bin/ls -A "${LiRE_DIR}/packages" | \
+             grep -v "Kconfig" | \
+             grep -v ".svn" | \
+             grep -v $LIRE_PKG_DEPEND_FILE`
+
+  echo -n " Creating list of all packages ...  "
+
+  for p in "$ALL_PACKS"; do
+      echo "$p" >> "$LIRE_ALL_PACK_LIST"
+  done
+
+  #cat $LIRE_ALL_PACK_LIST | sed s/^/"   found package -> "/g;
+  echo "[OK]"
+  return 0
+}
+
+# Deletes the old and creates a new list of all packages
+function CREATE_ALL_LIST()
+{
+  RESET_ALL_LIST
+  FILL_ALL_LIST
+  [ $? -gt 0 ] && { echo "Can't create list of all packages"; return 1; }
+  return 0
+}
+
+#
+# INSTALL LIST
+#
+
+# Clear the list of all packages which shall be installed
+function RESET_INSTALL_LIST()
+{
+  rm -f "$LIRE_BIN_INST_LIST"
+  touch "$LIRE_BIN_INST_LIST"
+}
+
+# Creates the list of all packages which shall be installed
+# A new list of all packages will be created
+function FILL_INSTALL_LIST()
+{
+    echo ""
+    echo " ===---> Creating package install list ... "
+    echo ""
+
+    # create list of all packages before generating build list
+    CREATE_ALL_LIST
+    echo ""
+
+    # force installation of linux and busybox
+    echo "linux" >> "$LIRE_BIN_INST_LIST"
+    echo "busybox" >> "$LIRE_BIN_INST_LIST"
+
+    for p in `cat "$LIRE_ALL_PACK_LIST"`; do
+        PACK=`echo "$p" | sed -e ' s/[a-z]/\u&/g'`
+        PACK_CONFIG="CONFIG_LIRE_"$PACK"_INST"
+        IN_CONF=`grep "$PACK_CONFIG" "$LIRE_CONFIG_FILE"`
+        if [ "$IN_CONF" == "$PACK_CONFIG=y" ]; then
+            echo "$p" >> "$LIRE_BIN_INST_LIST"
+            echo "   install -> $p"
+        fi
+    done
+    return 0
+}
+
+# Deletes and creates the list of all packages which shall be installed
+function CREATE_INSTALL_LIST()
+{
+  RESET_INSTALL_LIST
+  FILL_INSTALL_LIST
+  [ $? -gt 0 ] && { echo "Can't create list of install packages"; return 1; }
+  return 0
+}
+
+#
+# BINARY DEPEND LIST
+#
+
+function RESET_BIN_DEPEND_LIST()
+{
+  rm -f "$LIRE_BIN_DEP_LIST"
+  touch "$LIRE_BIN_DEP_LIST"
+}
+
+function FILL_BIN_DEPEND_LIST()
+{
+  echo ""
+  echo " ===---> Creating binary dependency list ... "
+  echo ""
+  GO=1
+  while( [ $GO -eq 1 ] ); do
+
+    DMY=""
+
+    # remove all packages in dep list out of the build list
+    for d in `cat $LIRE_BIN_DEP_LIST`; do
+      IN_INST=`cat $LIRE_BIN_INST_LIST | grep -cx $d`
+      if [ $IN_INST -gt 0 ]; then
+        #echo " Removing package $d from inst list"
+        DMY=$DMY"/^"$d"$/D; "
+      fi
+    done
+
+    CMD=`echo "sed -e '$DMY' $LIRE_BIN_INST_LIST"`
+
+    echo $CMD | bash > "$LIRE_BIN_INST_LIST.new"
+    mv "$LIRE_BIN_INST_LIST.new" "$LIRE_BIN_INST_LIST"
+
+    # check install list, if it is empty -> return
+    DMY=`cat "$LIRE_BIN_INST_LIST"`
+    if [ "$DMY" == "" ]; then
+        echo " Install list is empty, all dependencies resolved"
+        break
+    fi
+
+    # no package is moved from inst to dep list
+    INSERT=0
+
+    # for every package in install list
+    #  -> check if the packages in $LIRE_PKG_DEPEND_FILE are in dp list
+    for p in `cat $LIRE_BIN_INST_LIST`; do
+        NEEDED_PACK=""
+        DEPS_OK=1
+        DEP_FILE="$LIRE_SRCDIR/$p/$LIRE_PKG_DEPEND_FILE"
+        for d in `cat $DEP_FILE`; do
+            IN_DEPLIST=`cat $LIRE_BIN_DEP_LIST | grep -cx $d`
+            if [ $IN_DEPLIST -eq 0 ]; then
+                #echo "  Package $p -> needed package $d not found"
+                NEEDED_PACK="$d"
+                DEPS_OK=0
+                break
+            fi
+        done
+        if [ $DEPS_OK -eq 1 ]; then
+            echo " Add package $p"
+            echo "$p" >> "$LIRE_BIN_DEP_LIST"
+            INSERT=1
+        fi
+    done
+
+    if [ $INSERT -eq 0 ]; then
+        echo -n " Searching for package $p in all list ... "
+        IN_ALLLIST=`cat "$LIRE_ALL_PACK_LIST" | grep -cx $d`
+        if [ $IN_ALLLIST -eq 0 ]; then
+          echo "[NOT FOUND]"
+          echo " ERROR: can't resolve dependencies of package $p, need package $NEEDED_PACK"
+          return 1
+        fi
+
+        echo "[FOUND]"
+        FILL_INSTALL_LIST $NEEDED_PACK
+        RESET_BIN_DEPEND_LIST
+
+    fi
+  done
+
+  cat "$LIRE_BIN_DEP_LIST" | sed -e ' s/^/ -> /g'
+  return 0
+}
+
+function CREATE_BIN_DEPEND_LIST()
+{
+  RESET_BIN_DEPEND_LIST
+  FILL_BIN_DEPEND_LIST
+  [ $? -gt 0 ] && { echo "Can't create binary depend list"; return 1; }
+  return 0
+}
+
+
+#
+# BUILD LIST
+#
+
+# Clear the list of all packages which shall be built
+function RESET_BUILD_LIST()
+{
+  rm -f "$LIRE_SRC_BUILD_LIST"
+  touch "$LIRE_SRC_BUILD_LIST"
+}
+
+# Creates the list of all packages which shall be built
+# A new list of all packages will be created
+function FILL_BUILD_LIST()
+{
+    echo ""
+    echo " ===---> Creating source build list ... "
+    echo ""
+
+    # create list of all packages before generating build list
+    CREATE_ALL_LIST
+    echo ""
+
+    for p in `cat "$LIRE_ALL_PACK_LIST"`; do
+        PACK=`echo "$p" | sed -e ' s/[a-z]/\u&/g'`
+        PACK_CONFIG="CONFIG_LIRE_"$PACK"_BUILD_SRC"
+        IN_CONF=`grep "$PACK_CONFIG" "$LIRE_CONFIG_FILE"`
+        if [ "$IN_CONF" == "$PACK_CONFIG=y" ]; then
+            echo "$p" >> "$LIRE_SRC_BUILD_LIST"
+            echo "   build -> $p"
+        else
+            # check external package
+            if [ "$1" == "$p" ]; then
+            echo "$p" >> "$LIRE_SRC_BUILD_LIST"
+            echo "   force build -> $p"
+            fi
+        fi
+    done
+    return 0
+}
+
+# Deletes and creates the list of all packages which shall be built
+function CREATE_BUILD_LIST()
+{
+  RESET_BUILD_LIST
+  FILL_BUILD_LIST
+  [ $? -gt 0 ] && { echo "Can't create build list "; return 1; }
+  return 0
+}
+
+#
+# SOURCE DEPEND LIST
+#
+
+function RESET_SRC_DEPEND_LIST()
+{
+  rm -f "$LIRE_SRC_DEP_LIST"
+  touch "$LIRE_SRC_DEP_LIST"
+}
+
+function FILL_SRC_DEPEND_LIST()
+{
+  echo ""
+  echo " ===---> Creating source dependency list ... "
+  echo ""
+  GO=1
+  while( [ $GO -eq 1 ] ); do
+
+    DMY=""
+
+    # remove all packages in dep list out of the build list
+    for d in `cat $LIRE_SRC_DEP_LIST`; do
+      IN_BUILD=`cat $LIRE_SRC_BUILD_LIST | grep -cx $d`
+      if [ $IN_BUILD -gt 0 ]; then
+        echo " Removing package $d from build list"
+        DMY=$DMY"/^"$d"$/D; "
+      fi
+    done
+
+    CMD=`echo "sed -e '$DMY' $LIRE_SRC_BUILD_LIST"`
+
+    echo $CMD | bash > "$LIRE_SRC_BUILD_LIST.new"
+    mv "$LIRE_SRC_BUILD_LIST.new" "$LIRE_SRC_BUILD_LIST"
+
+    # check build list, if it is empty -> return
+    DMY=`cat "$LIRE_SRC_BUILD_LIST"`
+    if [ "$DMY" == "" ]; then
+        echo " Build list is empty, all dependencies resolved"
+        break
+    fi
+
+    # no package is moved from build to dep list
+    INSERT=0
+
+    # for every package in build list
+    #  -> check if the packages in $LIRE_PKG_DEPEND_FILE are in dp list
+    for p in `cat $LIRE_SRC_BUILD_LIST`; do
+        NEEDED_PACK=""
+        DEPS_OK=1
+        DEP_FILE="$LIRE_SRCDIR/$p/$LIRE_PKG_DEPEND_FILE"
+        for d in `cat $DEP_FILE`; do
+            IN_DEPLIST=`cat $LIRE_SRC_DEP_LIST | grep -cx $d`
+	    if [ "$p" == "rack" ] && [ "$CONFIG_LIRE_RACK_RTNET_SUPPORT" == "y" ]; then
+	    IN_DEPLIST=`cat $LIRE_SRC_DEP_LIST | grep -cx rtnet`
+	    fi
+            if [ $IN_DEPLIST -eq 0 ]; then
+                echo "  Package $p -> needed package $d not found"
+            	NEEDED_PACK="$d"
+                DEPS_OK=0
+                break
+            fi
+        done
+        if [ $DEPS_OK -eq 1 ]; then
+            echo " Add package $p to dep list"
+            echo "$p" >> "$LIRE_SRC_DEP_LIST"
+            INSERT=1
+        fi
+    done
+
+    if [ $INSERT -eq 0 ]; then
+        echo -n " Searching for package $p in all list ... "
+        IN_ALLLIST=`cat "$LIRE_ALL_PACK_LIST" | grep -cx $d`
+        if [ $IN_ALLLIST -eq 0 ]; then
+          echo "[NOT FOUND]"
+          echo " ERROR: can't resolve dependencies of package $p, need package $NEEDED_PACK"
+          return 1
+        fi
+
+        echo "[FOUND]"
+        FILL_BUILD_LIST $NEEDED_PACK
+        RESET_SRC_DEPEND_LIST
+
+    fi
+  done
+
+  cat "$LIRE_SRC_DEP_LIST" | sed -e ' s/^/ -> /g'
+  return 0
+}
+
+function CREATE_SRC_DEPEND_LIST()
+{
+  RESET_SRC_DEPEND_LIST
+  FILL_SRC_DEPEND_LIST
+  [ $? -gt 0 ] && { echo "Can't create source depend list"; return 1; }
+  return 0
+}
+
+#
+# GET LIST
+#
+
+function UPDATE_SOURCE_GET_LIST()
+{
+  LIRE_CHECK_ARG $1
+
+  echo " Sources of package $1 downloaded -> searching for packages depending on $1 ..."
+  for a in `cat "$LIRE_SRC_BUILD_LIST"`; do
+
+    IN_GET_LIST=`cat "$LIRE_SRC_GET_LIST" | grep -cx $a`
+    IN_GOT_LIST=`cat "$LIRE_SRC_GOT_LIST" | grep -cx $a`
+
+    DEP_FILE="$LIRE_SRCDIR/$a/$LIRE_PKG_DEPEND_FILE"
+
+    if [ ! -f $DEP_FILE ]; then
+      [ $? -ne 0 ] && { echo " depends_on file of package $a not found"; return 1; }
+    fi
+
+    NEEDED=`cat $DEP_FILE | grep -cx $1`
+    if [ $NEEDED -gt 0 ]; then
+
+      echo -n "  Package $a depends on $1 ... "
+
+      if [ $IN_GET_LIST -gt 0 ]; then
+        echo "[SKIP], it's in get list"
+      elif [ $IN_GOT_LIST -gt 0 ]; then
+        echo "[SKIP], it's downloaded yet"
+      else
+        echo "[ADDED] to get list"
+        echo "$a" >> "$LIRE_SRC_GET_LIST"
+      fi
+
+    fi
+  done
+
+  return 0
+}
+
+function UPDATE_BINARY_GET_LIST()
+{
+  LIRE_CHECK_ARG $1
+
+  echo " $1 package binary downloaded -> searching for packages depending on $1 ..."
+  for a in `cat "$LIRE_BIN_INST_LIST"`; do
+
+    IN_GET_LIST=`cat "$LIRE_BIN_GET_LIST" | grep -cx $a`
+    IN_GOT_LIST=`cat "$LIRE_BIN_GOT_LIST" | grep -cx $a`
+
+    DEP_FILE="$LIRE_SRCDIR/$a/$LIRE_PKG_DEPEND_FILE"
+
+    if [ ! -f $DEP_FILE ]; then
+      [ $? -ne 0 ] && { echo " depends_on file of package $a not found"; return 1; }
+    fi
+
+    NEEDED=`cat $DEP_FILE | grep -cx $1`
+    if [ $NEEDED -gt 0 ]; then
+
+      echo -n "  Package $a depends on $1 ... "
+
+      if [ $IN_GET_LIST -gt 0 ]; then
+        echo "[SKIP], it's in get list"
+      elif [ $IN_GOT_LIST -gt 0 ]; then
+        echo "[SKIP], it's downloaded yet"
+      else
+        echo "[ADDED] to get list"
+        echo "$a" >> "$LIRE_BIN_GET_LIST"
+      fi
+
+    fi
+  done
+
+  return 0
+}
+
+# returns 1 if package is in build list (in $LIRE_BIN_INST_LIST)
+#
+#   $1 = package
+#
+function IN_BUILD_LIST()
+{
+    INLIST=`cat "$LIRE_SRC_BUILD_LIST" | grep -c $1`
+    if [ $INLIST -eq 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# returns 1 if package is in build list (in $LIRE_SRC_BUILD_LIST)
+#
+#   $1 = package
+#
+function IN_INSTALL_LIST()
+{
+    INLIST=`cat "$LIRE_BIN_INST_LIST" | grep -c $1`
+    if [ $INLIST -eq 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+

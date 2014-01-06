@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#
+# Openvpn default Profile
+#
+# Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+
+# IMPORTANT NOTE:
+# All of the following options _MUST_ be initialized with a valid value.
+
+
+OPENVPN_PROFILE_NIC="wlan0"
+# The NIC (network interface connector) device which shall be used by Openvpn.
+# Examples:
+# "wlan0", "eth0", "eth1", "ath0", ...
+
+OPENVPN_PROFILE_IP="DHCP"
+# This is NOT your IP corresponding to the Openvpn tunnel
+# but for the device which does the tunneling.
+# For the IP corresponding to the tunnel see OPENVPN_PROFILE_VIRT_IP down below.
+# Valid values are "DHCP", or a valid IP address (see examples)
+# Use "DHCP" unsless there is no DHCP server available in your environment,
+# or you know what you are doing!
+# Examples:
+# "DHCP", "192.168.2.115", "1.3.3.7", ...
+
+OPENVPN_PROFILE_CONF_PATH="/etc/openvpn/certs/default/OpenVPN.conf"
+# The path to the config file, used by Opnvpn to manage the connection.
+
+OPENVPN_PROFILE_GW="192.168.2.1"
+# The Gateway OpenVPN should use for tunneling (default is "192.168.2.1").
+# Examples are any valid IPv4 addresses:
+# "192.168.2.1", "10.0.0.100", ...
+# _NOT_ "DHCP"
+
+OPENVPN_PROFILE_VIRT_IP="xx.xx.xx.xx"
+# This is the IP your tunneling device (usually tap0) should use.
+# That means that this is the IP on which your SPB will be available.
+# For example if you want to 'ssh' on it from your desktop PC.
+# One can say this is the TARGET_MAIN_IP for users of OpenVPN.
+# Examples: "10.0.0.43", ...
+
+OPENVPN_PROFILE_SSID=""
+# This option specifies the WLAN SSID which shall be used by OPENVPN_PROFILE_NIC.
+# The default depends: The obvious default is "" (that means leaving it blank)
+# VERY IMPORTANT:
+# If you do *NOT* use a WLAN device here you *MUST* leave it blank: ""

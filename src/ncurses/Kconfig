@@ -1,0 +1,7 @@
+
+config LIRE_NCURSES_BUILD_SRC
+    bool "    Build new ncurses library"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_NCURSES_INST
+    help
+    ...

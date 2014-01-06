@@ -1,0 +1,782 @@
+#! /bin/bash 
+
+#
+# LIRE_LIST_FUNCTIONS
+# 2006-02-21 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2006-04-21 Christoph Mueller (christoph@mueller-varas.de)
+#
+
+#
+# !!! WARNING !!!
+# -> LIRE.config HAVE TO BE LOADED FIRST
+#
+
+
+. $LIRE_CSCRDIR/LIRE_BUILD_FUNCTIONS
+
+
+if [ "$(hostname --long)" == "$LIRE_SCP_UPDATE_SERVER" -o \
+        "$(hostname)" == "$LIRE_SCP_UPDATE_SERVER" -o \
+        "$(hostname -i)" == "$LIRE_SCP_UPDATE_SERVER" ]; then
+    SCP_UPDATE_SERVER_IS_LOCAL="y"
+else
+    SCP_UPDATE_SERVER_IS_LOCAL="n"
+fi
+
+
+################################################################################
+# COMMON
+################################################################################
+
+# EXIT ON ERROR
+function CHECK_USERNAME()
+{
+    LIRE_DEFNAME=`whoami`
+
+    #We don't need to ask for the username, if the SCP_UPDATE_SERVER is the
+    #local machine.
+    if [ "$SCP_UPDATE_SERVER_IS_LOCAL" != "y" ]; then
+        echo -n " Username for $LIRE_SCP_UPDATE_SERVER [$LIRE_DEFNAME] : "
+        read LIRE_UNAME
+        [ "$LIRE_UNAME" == "" ] && { LIRE_UNAME="$LIRE_DEFNAME"; }
+        [ "$LIRE_UNAME" == "" ] && { echo " Invalid username -> EXIT"; return 1; }
+        echo " Using name: $LIRE_UNAME"
+    else
+        LIRE_UNAME=$(whoami)
+    fi
+    return 0
+}
+
+# EXIT ON ERROR
+function LIRE_CHECK_ARG()
+{
+    [ "$1" == "" ] && { echo " No argument -> EXIT"; return 1; }
+
+    for pack in `cat "$LIRE_ALL_PACK_LIST"`; do
+        [ "$pack" == "$1" ] && { return 0; }
+    done
+
+    echo " Invalid package $1 -> EXIT"
+    return 1
+}
+
+
+# Download a file from the ftp-server,ssh or local directory
+# The directories and server names have to be changed in the file
+# LIRE_CONFIG_FUNCTIONS
+#
+#   $1 = package
+#   $2 = file on the update server
+#   $3 = destination DIRECTORY (not file)
+#
+function DOWNLOAD_SRC_FILE()
+{
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    [ ! -d $3 ] && { echo " Invalid destination directory"; return 1; }
+
+    PACK=`echo "$1" | sed -e ' s/[a-z]/\u&/g'`
+    SECUREDIR=`cat $LIRE_CONFIG_FILE | \
+                grep "^CONFIG_LIRE_"$PACK"_SCP_SRC_DIR" | \
+                gawk -F"=" '{print$2}' | sed -e ' s/"//g'`
+
+    FILE=$2
+
+    if [ "$SECUREDIR" == "" ]; then
+	# check if $CONFIG_LIRE_UPDATE_DIR is an url or directory
+	COUNTDP=`echo $CONFIG_LIRE_UPDATE_DIR | grep ":" | wc -l`
+	UPDATEDIR="$CONFIG_LIRE_UPDATE_DIR/sources/$1"
+	if [ "$COUNTDP" == "1" ]; then
+          # use ftp
+          echo " FTP: Get $FILE from $UPDATEDIR"
+
+          wget -N -nv $UPDATEDIR/$FILE -P $3
+          [ $? -ne 0 ] && { echo "Error while getting $2"; return 1; }
+       else
+          # use copy
+          echo " FILE: GET $FILE from $UPDATEDIR"
+	 
+	  cp -u $UPDATEDIR/$FILE $3
+       fi
+	
+   elif [ "$SCP_UPDATE_SERVER_IS_LOCAL" == "y" ]; then
+       cp -u $SECUREDIR/$FILE $3
+   else
+        # use scp
+        SCPDIR="$LIRE_SCP_UPDATE_SERVER:$SECUREDIR"
+        echo " SCP: Get $FILE from $SCPDIR"
+
+
+        scp $LIRE_UNAME@$SCPDIR/$FILE $3
+        [ $? -ne 0 ] && { return 1; }
+    fi
+
+    return 0
+}
+
+function DOWNLOAD_BIN_FILE()
+{
+    # argument 1 = package    e.g. rack
+    # argument 2 = srcfile    file on the update server
+    # argument 3 = destdir    destination DIRECTORY
+
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    PACK=`echo "$1" | sed -e ' s/[a-z]/\u&/g'`
+    SECUREDIR=`cat $LIRE_CONFIG_FILE | \
+                grep "^CONFIG_LIRE_"$PACK"_SCP_PACK_DIR" | \
+                gawk -F"=" '{print$2}' | sed -e ' s/"//g'`
+
+    echo $SECUREDIR
+    FILE=$2
+
+    if [ "$SECUREDIR" == "" ]; then
+      	# check if $CONFIG_LIRE_UPDATE_DIR is an url or directory
+	COUNTDP=`echo $CONFIG_LIRE_UPDATE_DIR | grep ":" | wc -l`
+	UPDATEDIR="$CONFIG_LIRE_UPDATE_DIR/binaries/$1"
+	if [ "$COUNTDP" == "1" ]; then
+          # use ftp
+          echo " FTP: Get $FILE from $UPDATEDIR"
+
+          wget -N -nv $UPDATEDIR/$FILE -P $3
+          [ $? -ne 0 ] && { echo "Error while getting $2"; return 1; }
+       else
+          # use copy
+          echo " FILE: GET $FILE from $UPDATEDIR"
+	 
+	  cp -u $UPDATEDIR/$FILE $3
+       fi
+	
+   elif [ "$SCP_UPDATE_SERVER_IS_LOCAL" == "y" ]; then
+       cp -u $SECUREDIR/$FILE $3
+    else
+        # use scp
+        SCPDIR="$LIRE_SCP_UPDATE_SERVER:$SECUREDIR"
+        echo " SCP: Get $FILE from $SCPDIR"
+
+
+        scp $LIRE_UNAME@$SCPDIR/$FILE $3
+        [ $? -ne 0 ] && { return 1; }
+    fi
+
+    return 0
+}
+
+# Creates the package directory in the LIRE source download directory
+# $LIRE_SRC_DOWNLOAD_DIR/$p
+#
+#   $1 = package
+#
+function CREATE_SOURCE_DL_DIR()
+{
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    DEST_DIR="$LIRE_SRC_DOWNLOAD_DIR/$1"
+
+    if [ ! -d "$DEST_DIR" ]; then
+        echo -n " Creating $DEST_DIR ... "
+        mkdir -p $DEST_DIR
+        [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+        echo "[OK]"
+    fi
+    return 0
+}
+
+# Gets the version files of a package first. After selecting the wanted version
+# the sources will be downloaded into the LIRE source download directory.
+# If the directory exists, LIRE can it replace it by the new one.
+# After downloading and extracting the sources you will be asked for the
+# dirname, which will be linked into the LIRE source dir.
+# WARNING: The depfile will not be downloaded !!!.
+#
+#   $1 = package
+#
+function GET_SOURCE()
+{
+  echo ""
+
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+  GSP=$1
+
+  CREATE_SOURCE_DL_DIR $GSP
+
+  SRCDIR="$LIRE_SRC_DOWNLOAD_DIR/$GSP"
+  TMPDIR="$SRCDIR/tmp"
+
+  if [ -d $TMPDIR ]; then
+    echo -n " Remove old temp directory ... "
+    rm -rf $TMPDIR
+    [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+    echo "[OK]"
+  fi
+
+  echo -n " Create new temp directory ... "
+  mkdir -p $TMPDIR
+  [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+  echo "[OK]"
+
+  #choose version_unstable automatically, if build bleeding edge
+  #is aktivated in menuconfig
+  if [ "$CONFIG_LIRE_BUILD_BLEEDING_EDGE" == "y" ]; then
+    echo "get $GSP version file ... "
+    DOWNLOAD_SRC_FILE $GSP "version_unstable" "$SRCDIR"
+    [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+    VERS="$SRCDIR/version_unstable"
+    EXT="_unstable"
+    TAR_FILE="$GSP${EXT}.tar.*"
+    VERS_FILE="version${EXT}"
+    VERSION=`cat ${VERS}`
+  else
+    IDX=1
+    echo " Get $GSP version files ... "
+    DOWNLOAD_SRC_FILE $GSP "version_stable" "$SRCDIR"
+    [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+    VERS[$IDX]="$SRCDIR/version_stable"
+    EXT[$IDX]="_stable"
+    IDX=`expr $IDX + 1`
+  
+    DOWNLOAD_SRC_FILE $GSP "version_unstable" "$SRCDIR"
+    [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+    VERS[$IDX]="$SRCDIR/version_unstable"
+    EXT[$IDX]="_unstable"
+    IDX=`expr $IDX + 1`
+  
+  
+    NR_OF_VERSIONS=$IDX
+    IDX=1
+  
+    echo ""
+    echo " Choose the version:"
+    echo ""
+    echo "[0] : EXIT"
+    while ( [ $IDX -lt $NR_OF_VERSIONS ] ); do
+      VERSION=`cat "${VERS[$IDX]}"`
+      echo "[$IDX] : $VERSION, file: $GSP${EXT[$IDX]}"
+      IDX=`expr $IDX + 1`
+    done
+    echo ""
+    echo -n " -> : "
+    read key
+  
+    [ "$key" == "0" ] && { return 1; }
+    [ "$key" == "" ]  && { return 1; }
+    [ $key -ge $IDX ] && { echo " Invalid value -> EXIT"; return 1; }
+  
+    TAR_FILE="$GSP${EXT[$key]}.tar.*"
+    VERS_FILE="version${EXT[$key]}"
+    VERSION=`cat ${VERS[$key]}`
+  fi
+  #
+  # check directory and ask for replace
+  #
+  SRC_DEST_DIR="$SRCDIR/$GSP-$VERSION"
+  echo ""
+  if [ -d $SRC_DEST_DIR ]; then
+    echo " $SRC_DEST_DIR exists !!"
+    echo -n " Replace old directory [Y/n] : "
+    read key
+    if [ "$key" == "" -o "$key" == "Y" -o "$key" == "y" ]; then
+      # remove old dir and get new sources
+      REPLACE=1
+      NEEDED=1
+    else
+      # use old directory
+      REPLACE=0
+      NEEDED=0
+    fi
+  else
+    # get sources
+    NEEDED=1
+    REPLACE=0
+  fi
+
+  if [ $NEEDED -eq 1 ]; then
+
+    echo " Get $GSP package source -> $TAR_FILE, version $VERSION"
+    DOWNLOAD_SRC_FILE $GSP "$TAR_FILE" "$SRCDIR"
+    [ $? -gt 0 ] && { return 1; }
+
+    #
+    # extracting files
+    #
+    echo -n " Extracting $GSP to $TMPDIR ... "
+    # get file extension
+    TAR_FILE=`cd $SRCDIR; /bin/ls $TAR_FILE`
+    ext=`echo $TAR_FILE | cut -f3 -d"."`
+    
+    if [ "$ext" == "bz2" ]; then
+	tar xjf "$SRCDIR/$TAR_FILE" -C $TMPDIR
+    else
+	tar xzf "$SRCDIR/$TAR_FILE" -C $TMPDIR
+    fi
+    [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+    echo "[OK]"
+
+    SRC_SRC_DIR=`/bin/ls -d -1 $TMPDIR/*`
+
+    #
+    # return if more than 1 directory in $TMPDIR
+    #
+    ANZ=`echo $SRC_SRC_DIR | grep -c $TMPDIR`
+    [ $ANZ -gt 1 ] && {
+        echo " More than one directory in $TMPDIR -> EXIT"
+        return 1
+    }
+
+    echo " Use $GSP source in $SRC_SRC_DIR"
+
+    if [ $REPLACE -eq 1 ]; then
+
+        echo -n " Removing $SRC_DEST_DIR ... "
+        rm -rf "$SRC_DEST_DIR"
+        [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+        echo "[OK]"
+
+    fi
+
+    echo " move $SRC_SRC_DIR to $SRC_DEST_DIR"
+    mv -f "$SRC_SRC_DIR" "$SRC_DEST_DIR"
+
+  else
+    echo " Skip getting $GSP source, version $VERSION ... "
+  fi
+
+  echo -n " Remove temp directory ... "
+  rm -rf $TMPDIR
+  [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+  echo "[OK]"
+
+  #
+  # create link in LIRE sourcedir
+  #
+
+  DIRNAMES=`/bin/ls -d -1 $SRCDIR/*`
+  echo ""
+  echo " Existing Directories in $SRCDIR"
+  echo ""
+  IDX=0
+  for d in $DIRNAMES; do
+    [ -d $d ] && {
+      echo " [$IDX]:    $d"
+      DIR[$IDX]="$d"
+      IDX=`expr $IDX + 1`
+    }
+  done
+
+  #
+  # ask dir, if more than one exists
+  #
+  if [ $IDX -gt 1 ]; then
+    echo " [ENTER] currently downloaded version ($VERSION)"
+    echo ""
+    echo -n " Create link with source directory: "
+    read key
+
+    [ "$key" == "" ] && key=$IDX
+
+    if [ "$key" -lt "0" -o "$key" -ge "$IDX" ]; then
+        LINKDIR="$SRC_DEST_DIR"
+    else
+        LINKDIR="${DIR[$key]}"
+    fi
+  else
+    echo " Only one directory found, link directory $SRC_DEST_DIR"
+    LINKDIR="$SRC_DEST_DIR"
+  fi
+
+  LIRE_LINK_DIR="$LIRE_SRCDIR/$GSP/$GSP"
+  if [ -d $LIRE_LINK_DIR ]; then
+      echo " Remove old link: $LIRE_LINK_DIR ... "
+      rm -f $LIRE_LINK_DIR
+      [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+  fi
+
+  echo -n " Creating link: $LINKDIR -> $LIRE_LINK_DIR ... "
+  ln -sf "$LINKDIR" "$LIRE_LINK_DIR"
+  [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+  echo "[OK]"
+
+  echo -n " Create version file : $LIRE_LINK_DIR/$LIRE_VERSION_FILE ... "
+  echo $VERSION > "$LIRE_LINK_DIR/$LIRE_VERSION_FILE"
+  [ $? -gt 0 ] && { echo "[FAILED]"; return 1; }
+  echo "[OK]"
+
+  return 0
+}
+
+# EXIT ON ERROR
+function GET_BINARY()
+{
+    echo ""
+
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    echo " Get binary package -> $1"
+
+    DOWNLOAD_BIN_FILE $1 "$1.tar.bz2"      "$LIRE_PACKDIR/$1"
+    [ $? -ne 0 ] && { return 1; }
+
+    DOWNLOAD_BIN_FILE $1 "version"         "$LIRE_PACKDIR/$1"
+    [ $? -ne 0 ] && { return 1; }
+
+    return 0
+}
+
+
+# Downloads a package, creates a link into the package source dir and move
+# this package from the get list into the got list.
+#
+#   $1 = package
+#
+# Needs: get-list, got-list
+#
+function GET_SOURCE_AND_UPDATE_LISTS()
+{
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    GET_SOURCE $1
+    echo "$1" >> $LIRE_SRC_GOT_LIST
+
+    DMY=""
+    IN_LIST=`cat $LIRE_SRC_GET_LIST | grep -c $1`
+    if [ $IN_LIST -ne 0 ]; then
+        echo " Removing package $1 from source get list"
+        DMY=$DMY"/^"$1"/D; "
+        CMD=`echo "sed -e '$DMY' $LIRE_SRC_GET_LIST"`
+        echo $CMD | bash > "$LIRE_SRC_GET_LIST.new"
+        mv "$LIRE_SRC_GET_LIST.new" "$LIRE_SRC_GET_LIST"
+    fi
+
+    UPDATE_SOURCE_GET_LIST $1
+    return 0
+}
+
+# Downloads a binary and move this package from the binary get list into the
+# binary got list.
+#
+#   $1 = package
+#
+# Needs: bin-get-list, bin-got-list
+#
+function GET_BINARY_AND_UPDATE_LISTS()
+{
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    GET_BINARY $1
+    echo "$1" >> $LIRE_BIN_GOT_LIST
+
+    DMY=""
+    IN_LIST=`cat $LIRE_BIN_GET_LIST | grep -c $1`
+    if [ $IN_LIST -ne 0 ]; then
+        echo " Removing package $1 from binary get list"
+        DMY=$DMY"/^"$1"/D; "
+        CMD=`echo "sed -e '$DMY' $LIRE_BIN_GET_LIST"`
+        echo $CMD | bash > "$LIRE_BIN_GET_LIST.new"
+        mv "$LIRE_BIN_GET_LIST.new" "$LIRE_BIN_GET_LIST"
+    fi
+
+    UPDATE_BINARY_GET_LIST $1
+    return 0
+}
+
+
+# This function gets the depend-file first and save it into the package script
+# directory. After downloading the sources, the depend-file will be moved into
+# the source directory of the (new installed) package.
+#
+#   $1 = package
+#
+function DOWNLOAD_SOURCE()
+{
+  GET_SOURCE_AND_UPDATE_LISTS $1
+  [ $? -ne 0 ] && { echo " Can't get source of package $1"; return 1; }
+
+  return 0
+}
+
+# This function gets the depend-file first and save it into the LIRE package
+# directory. After downloading the binary, the depend-file will be moved into
+# the package directory.
+#
+#   $1 = package
+#
+function DOWNLOAD_BINARY()
+{
+    GET_BINARY_AND_UPDATE_LISTS $1
+    [ $? -ne 0 ] && { echo " Can't get binary of package $1"; return 1; }
+
+    return 0
+}
+
+#
+#   $1 = LIRE package
+#
+function DOWNLOAD_LIRE_BINARY()
+{
+    GET_BINARY $1
+    [ $? -ne 0 ] && { echo " DOWNLOAD_LIRE_BINARY: Can't download LIRE package $1"; return 1; }
+    return 0
+}
+
+# Download of a complete source package. If the package sources exists,
+# you will be ask for updating the sources.
+#
+#   $1 = package
+#
+#
+function ASK_AND_DOWNLOAD_SOURCE()
+{
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    UPDATE=1
+    FILE=$LIRE_SRCDIR/$p/$p/$LIRE_VERSION_FILE
+    if [ ! -f $FILE ] ; then
+    
+	CREATE_VERSION_FILE $p ;
+	VERSION=`cat $FILE`
+	
+    else
+    
+	VERSION=`cat $FILE `
+    fi
+    echo " Current version: $VERSION"
+    echo -n " Check for new source version [N/y] ? : "
+    read key
+    if [ "$key" == "N" -o "$key" == "n" -o "$key" == "" ]; then
+        UPDATE=0
+    fi
+
+    if [ $UPDATE -gt 0 ]; then
+        DOWNLOAD_SOURCE $1
+        [ $? -ne 0 ] && { return 1; }
+    fi
+    
+    return 0
+}
+
+# Download of a binary package. If the package binary exists,
+# you will be ask for updating the binary
+#
+#   $1 = package
+#
+#
+function ASK_AND_DOWNLOAD_BINARY()
+{
+    LIRE_CHECK_ARG $1
+    [ $? -ne 0 ] && { echo " Invalid package $1 -> EXIT"; return 1; }
+
+    UPDATE=1
+    VERSION=`cat $LIRE_PACKDIR/$p/version`
+
+    echo " Current version: $VERSION"
+    echo -n " Check for new binary version [N/y] ? : "
+    read key
+    if [ "$key" == "N" -o "$key" == "n" -o "$key" == "" ]; then
+        UPDATE=0
+    fi
+
+    if [ $UPDATE -gt 0 ]; then
+        DOWNLOAD_BINARY $1
+        [ $? -ne 0 ] && { return 1; }
+    fi
+
+    return 0
+}
+
+# Checks the existing of a package source dirctory. If the source directory
+# doesn't exist, the sources will be downloaded.
+# Otherwise the function is searching for the depfile. If there is no file
+# (manually linked in dir), you can generate a self-made depfile or you can
+# update the sources.
+
+# Needs:   build list
+# Creates: src-get-list, src-got-list
+function CHECK_AND_DOWNLOAD_SRC()
+{
+    echo -n "" > $LIRE_SRC_GET_LIST
+    echo -n "" > $LIRE_SRC_GOT_LIST
+
+    for p in `cat "$LIRE_SRC_BUILD_LIST"`; do
+
+        echo ""
+        echo " ===---> Checking sources of package $p ..."
+        echo ""
+
+        # force download if no source directory is linked in
+        if [ ! -d $LIRE_SRCDIR/$p/$p ]; then
+            echo " Can't find source directory of package $p - FORCE DOWNLOAD"
+            echo $p >> $LIRE_SRC_GET_LIST
+        else
+            # check if no source depend file available
+            if [ ! -f $LIRE_SRCDIR/$p/$LIRE_PKG_DEPEND_FILE ]; then
+                echo " Sources of $p found but no depend file. "
+                echo " (Perhaps manually linked in source directory)"
+                echo ""
+                echo " Create own depend file or download source?"
+                echo " "
+                echo " [ENTER] Download source "
+                echo " [1]     Create own depend file "
+                echo ""
+                echo -n " : "
+                read key
+                if [ "$key" == "1" ]; then
+                    CREATE_OWN_DEPFILE $p
+                else
+                    echo $p >> $LIRE_SRC_GET_LIST
+                fi
+            else
+                # check if this package is in $LIRE_SRC_GET_LIST / $LIRE_SRC_GOT_LIST
+                IN_GET_LIST=`cat $LIRE_SRC_GET_LIST | grep -c $p`
+                IN_GOT_LIST=`cat $LIRE_SRC_GOT_LIST | grep -c $p`
+
+                if [ $IN_GET_LIST -eq 0 -o $IN_GET_LIST -eq 0 ]; then
+                    ASK_AND_DOWNLOAD_SOURCE $p
+                    [ $? -ne 0 ] && { echo " Error while downloading $p source"; return 1;}
+                fi
+            fi
+        fi
+
+        IN_GET_LIST=`cat $LIRE_SRC_GET_LIST | grep -c $p`
+        IN_GOT_LIST=`cat $LIRE_SRC_GOT_LIST | grep -c $p`
+
+        if [ $IN_GET_LIST -gt 0 ]; then
+            echo ""
+            echo " Put package $p into source get list"
+        elif [ $IN_GOT_LIST -gt 0 ]; then
+            echo ""
+            echo " Package $p has been downloaded"
+        fi
+
+    done
+
+    for p in `cat "$LIRE_SRC_GET_LIST"`; do
+        echo ""
+        echo " ==--> Force download $p source"
+        echo ""
+        DOWNLOAD_SOURCE $p
+        [ $? -ne 0 ] && { echo " Error while downloading $p source"; return 1;}
+    done
+
+    # secure checks
+    for p in `cat "$LIRE_SRC_BUILD_LIST"`; do
+
+        if [ ! -d "$LIRE_SRCDIR/$p/$p" ]; then
+            echo " Error while downloading $p sources -> EXIT"
+            return 1
+        fi
+
+        if [ ! -f "$LIRE_SRCDIR/$p/$LIRE_PKG_DEPEND_FILE" ]; then
+            echo " Error while downloading $p depend file -> EXIT"
+            return 1
+        fi
+
+    done
+
+    return 0
+}
+
+# Needs:   install list
+# Creates: bin-get-list, bin-got-list
+function CHECK_AND_DOWNLOAD_BIN()
+{
+    echo -n "" > "$LIRE_BIN_GET_LIST"
+    echo -n "" > "$LIRE_BIN_GOT_LIST"
+
+    for p in `cat "$LIRE_BIN_INST_LIST"`; do
+
+        echo ""
+        echo " ===---> Checking binary of package $p ..."
+        echo ""
+
+        DOWNLOAD=0
+        DOWNLOAD_ASK=0
+
+        if [ ! -f "$LIRE_PACKDIR/$p/$p.tar.bz2" ]; then # file doesn't exist
+
+            BUILD_ENABLED
+            if [ $? -eq 1 ]; then       # building enabled
+                IN_BUILD_LIST $p
+                if [ $? -eq 1 ]; then   # this package will be built
+                    DOWNLOAD=0
+                else                    # this package will NOT be built
+                    DOWNLOAD=1
+                fi
+            else                        # building disabled
+                DOWNLOAD=1
+            fi
+
+        else                            # file exists
+
+            # check if this package is in $LIRE_BIN_GET_LIST / $LIRE_BIN_GOT_LIST
+            IN_GET_LIST=`cat $LIRE_BIN_GET_LIST | grep -c $p`
+            IN_GOT_LIST=`cat $LIRE_BIN_GOT_LIST | grep -c $p`
+
+            BUILD_ENABLED
+            if [ $? -eq 1 ]; then       # building enabled
+                IN_BUILD_LIST $p
+                if [ $? -eq 1 ]; then   # this package will be built
+                    DOWNLOAD=0
+                else                    # this package will NOT be built
+                    if [ $IN_GET_LIST -eq 0 -a $IN_GET_LIST -eq 0 ]; then
+                        DOWNLOAD_ASK=1
+                    fi
+                fi
+            else                        # building disabled
+                DOWNLOAD_ASK=1
+            fi
+
+        fi
+
+        if [ $DOWNLOAD -eq 0 ]; then
+            if [ $DOWNLOAD_ASK -eq 0 ]; then
+                echo " Package is in build list -> SKIP DOWNLOAD"
+            else
+                ASK_AND_DOWNLOAD_BINARY $p
+                [ $? -ne 0 ] && { echo " Error while downloading $p binary"; return 1;}
+            fi
+        else
+            echo " Can't find binary of package $p - FORCE DOWNLOAD"
+            echo $p >> $LIRE_BIN_GET_LIST
+        fi
+
+        IN_GET_LIST=`cat "$LIRE_BIN_GET_LIST" | grep -c $p`
+        IN_GOT_LIST=`cat "$LIRE_BIN_GOT_LIST" | grep -c $p`
+
+        if [ $IN_GET_LIST -gt 0 ]; then
+            echo ""
+            echo " Put package $p into binary get list"
+        elif [ $IN_GOT_LIST -gt 0 ]; then
+            echo ""
+            echo " Package $p has been downloaded"
+        fi
+
+    done
+
+    GET_PACKS=`cat "$LIRE_BIN_GET_LIST"`
+    while ( [ "$GET_PACKS" != "" ] ); do
+        for p in `echo $GET_PACKS`; do
+            echo ""
+            echo " ==--> Force download $p binary"
+            echo ""
+            DOWNLOAD_BINARY $p
+            [ $? -ne 0 ] && { echo " Error while downloading $p binary"; return 1;}
+
+            # secure check
+            if [ ! -f "$LIRE_PACKDIR/$p/$p.tar.bz2" ]; then
+                echo " Error while downloading $p binary file -> EXIT"
+                return 1
+            fi
+        done
+        GET_PACKS=`cat "$LIRE_BIN_GET_LIST"`
+    done
+}
+

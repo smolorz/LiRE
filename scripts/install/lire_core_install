@@ -1,0 +1,364 @@
+#!/bin/bash
+
+# LiRE core install script
+# 2010-11-06 Sascha Kruse (knopwob@googlemail.com)
+
+# parameters:
+# $1 -> LIRE root-directory
+# $2 -> out-dir
+
+#The .install.conf contains the options for the install process
+#This file must be located in the LIRE root-directory
+
+#Variables MANDATORY in install.conf
+# LIRE_ISO_IMAGESIZE
+
+#Variables in install.conf
+#LIRE_NB_CREATE
+#LIRE_QE_CREATE
+#LIRE_ISO_CREATE
+#LIRE_ISO_BOOTOPTS
+#LIRE_ISO_ISOLINUX
+
+CHECK_ERROR() {
+    if [ $1 -gt 0 ]; then
+        echo "[ERROR] $2"
+        if [ "$LIRE_NB_CREATE" == "y" ]; then
+            NETBOOT_UMOUNT
+            NETBOOT_ERROR_CLEAN_UP
+        fi
+        if [ "$LIRE_QE_CREATE" == "y" ]; then
+            QEMU_UMOUNT
+            QEMU_ERROR_CLEAN_UP
+        fi
+        if [ "$LIRE_ISO_CREATE" == "y" ]; then
+            ISO_UMOUNT
+            ISO_ERROR_CLEAN_UP
+        fi
+        exit 1;
+    fi
+}
+
+ISO_UMOUNT() {
+    while mountpoint $ISO_MOUNT_DIR &> /dev/null ; do
+        echo "Trying to unmount $ISO_MOUNT_DIR"
+        umount $ISO_MOUNT_DIR
+    done
+}
+
+ISO_ERROR_CLEAN_UP() {
+    if [ -d $ISO_MOUNT_DIR ]; then
+        rm -rf $ISO_MOUNT_DIR
+    fi
+    if [ -e $LIRE_ISO_IMAGE ]; then
+        rm -f $ISO_IMAGE
+    fi
+    if [ -d $ISO_MASTER ]; then
+        rm -rf $ISO_MASTER
+    fi
+}
+
+ISO_CREATE() {
+    ISO_MOUNT_DIR=$(mktemp -d)
+    ISO_IMAGE=$(mktemp)
+    ISO_MASTER=$OUT_DIR/.isomaster
+    echo -n "Creating ISO mount directory..."
+    mkdir -p $ISO_MOUNT_DIR
+    CHECK_ERROR $? "Can't create temp directory for iso image"
+    echo "[OK]"
+
+    echo -n "Creating image... "
+    dd if=/dev/zero of="$ISO_IMAGE" count="$LIRE_ISO_IMAGESIZE" bs=1024 2>/dev/null
+    CHECK_ERROR $? "Unable to create image"
+    echo "[OK]"
+
+    echo -n "Creating image filesystem..."
+    mke2fs -q -F -b 1024 -m 0 "$ISO_IMAGE" 
+    CHECK_ERROR $? "Unable to create filesystem"
+    echo "[OK]"
+
+    echo -n "Mounting ISO image... "
+    mount -o loop "$ISO_IMAGE" "$ISO_MOUNT_DIR"
+    CHECK_ERROR $? "Unable to mount ISO image"
+    echo "[OK]"
+
+    echo -n "Copying filesystem to iso..."
+    cp -r --preserve $OUT_DIR/* "$ISO_MOUNT_DIR"
+    CHECK_ERROR $? "Unable to copy filesystem"
+    echo "[OK]"
+
+    echo -n "Preparing iso master .."
+    mkdir -p $ISO_MASTER/isolinux
+echo "
+TIMEOUT 300
+DEFAULT menu.c32
+PROMPT 0
+
+LABEL lire
+    MENU LABEL lire
+    KERNEL bzImage
+    APPEND ro initrd=initrd.gz ramdisk_size=$LIRE_ISO_IMAGESIZE $LIRE_ISO_BOOTOPTS
+
+LABEL lire_scnd
+    MENU LABEL lire-smp
+    KERNEL bzImage_scnd
+    APPEND ro initrd=initrd.gz ramdisk_size=$LIRE_ISO_IMAGESIZE $LIRE_ISO_BOOTOPTS" > $ISO_MASTER/isolinux/isolinux.cfg
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Copy ISOLINUX binary..."
+    cp "$LIRE_HOST_SYSLINUX_DIR/isolinux.bin" $ISO_MASTER/isolinux
+    CHECK_ERROR $? ""
+    echo "[OK]"
+    cp "$LIRE_HOST_SYSLINUX_DIR/menu.c32" "$ISO_MASTER/isolinux"
+    CHECK_ERROR $? "Can't find menu.c32"
+
+    echo -n "Copy bzImage..."
+    mv $ISO_MOUNT_DIR/boot/bzImage $ISO_MASTER/isolinux
+    CHECK_ERROR $? ""
+    if [ -e $ISO_MOUNT_DIR/boot/bzImage_scnd ]; then
+        mv $ISO_MOUNT_DIR/boot/bzImage_scnd $ISO_MASTER/isolinux
+    fi
+    echo "[OK]"
+
+    echo -n "Removing boot directory..."
+    rm -rf $ISO_MOUNT_DIR/boot
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Unmounting ISO image..."
+    umount $ISO_MOUNT_DIR
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Remove mount directory"
+    rmdir $ISO_MOUNT_DIR
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Compressing root filesystem image... "
+    gzip -c -9 $ISO_IMAGE > $ISO_MASTER/isolinux/initrd.gz
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Remove ISO image... "
+    rm $ISO_IMAGE
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Writing ISO image... "
+    mkisofs -pad -l -r -V "LiRE Live CD" -o $OUT_DIR/lire.iso -b isolinux/isolinux.bin \
+        -no-emul-boot -boot-load-size 4 -boot-info-table $ISO_MASTER
+    CHECK_ERROR $? ""
+    echo "[OK]"
+    echo "ISO image has been created"
+
+    rm -rf $ISO_MOUNT_DIR
+    rm -rf $ISO_MASTER
+    rm -rf $ISO_IMAGE
+}
+
+ECHO_EXTLINUX_CONF() {
+    root_device=$1
+echo "DEFAULT menu.c32
+PROMPT 0
+MENU TITLE Boot Menu
+TIMEOUT 50
+ONTIMEOUT lire_fb_1024x768
+
+LABEL lire_text
+    MENU LABEL lire TEXT
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro libata.dma=0
+
+LABEL lire_fb_640X480
+    MENU LABEL lire framebuffer 640x480
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro vga=786 libata.dma=0
+
+LABEL lire_fb_800x600
+    MENU LABEL lire framebuffer 800x600
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro vga=789 libata.dma=0
+
+LABEL lire_fb_1024x768
+    MENU LABEL lire framebuffer 1024x768
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro vga=773 libata.dma=0
+
+LABEL lire_fb_1024x768_vb
+    MENU LABEL lire framebuffer 1024x768 (Virtualbox)
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro vga=773
+
+LABEL lire_smp_fb_1024x768
+    MENU LABEL lire framebuffer 1024x768 -- CORE2-smp
+    KERNEL /boot/bzImage_scnd
+    APPEND root=$root_device ro vga=773
+
+LABEL lire_fb_1280x1024
+    MENU LABEL lire framebuffer 1280x1024
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro vga=775 libata.dma=0
+
+LABEL lire_rw
+    MENU LABEL lire text mount /dev/sda WRITEABLE
+    KERNEL /boot/bzImage
+    APPEND root=$root_device rw libata.dma=0
+
+LABEL lire_text_console
+    MENU LABEL lire text console COM 1 FP 640x480
+    KERNEL /boot/bzImage
+    APPEND root=$root_device ro console=ttyS0,115200PN console=tty0 vga=786 libata.dma=0
+
+LABEL netboot
+    MENU LABEL network boot
+    KERNEL /boot/eepro100.zlilo"
+}
+
+QEMU_CREATE() {
+    echo -n "Creating QEMU mount directory ..."
+    QEMU_MOUNT_DIR=$(mktemp -d)
+    QEMU_IMAGE="$(mktemp)"
+    echo "[OK]"
+
+    echo -n "Creating image ... "
+    dd if=/dev/zero of="$QEMU_IMAGE" count="$LIRE_QE_IMAGESIZE" bs=1024 
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Creating image filesystem ... "
+    mke2fs -q -F -b 1024 -m 0 "$QEMU_IMAGE" 2>/dev/null
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Mounting QEMU image ... "
+    mount -o loop "$QEMU_IMAGE" "$QEMU_MOUNT_DIR"
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Copying filesystem to image ..."
+    cp -r --preserve $OUT_DIR/* "$QEMU_MOUNT_DIR"
+    CHECK_ERROR $? "Unable to copy filesystem"
+    echo "[OK]"
+
+    #double check $QEMU_MOUNT_DIR
+    echo -n "Installing bootloader ..."
+    if [ -z "$QEMU_MOUNT_DIR" ]; then
+        CHECK_ERROR 1 "QEMU_MOUNT_DIR-variable is empty. Don't want to install extlinux on /boot."
+    else
+        mkdir -p "$QEMU_MOUNT_DIR/boot/extlinux"
+        cp "$LIRE_HOST_SYSLINUX_DIR/menu.c32" "$QEMU_MOUNT_DIR/boot/extlinux/"
+        CHECK_ERROR $? "Unable to install bootloader"
+        extlinux --install "$QEMU_MOUNT_DIR/boot/extlinux"
+        CHECK_ERROR $? "Unable to install bootloader"
+        ECHO_EXTLINUX_CONF "/dev/sda" > "$QEMU_MOUNT_DIR/boot/extlinux/extlinux.conf"
+        CHECK_ERROR $? "Unable to install bootloader"
+        echo "[OK]"
+    fi
+
+    echo -n "Unmounting QEMU image ... "
+    umount "$QEMU_MOUNT_DIR"
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo -n "Remove mount directory ... "
+    rmdir "$QEMU_MOUNT_DIR"
+    CHECK_ERROR $? ""
+    echo "[OK]"
+
+    echo "QEMU image has been created"
+rm -rf "$QEMU_MOUNT_DIR"
+    mv "$QEMU_IMAGE" "$OUT_DIR/lireQE.img"
+
+    echo "You can now run LiRE with QEMU e.g."
+    echo "qemu-system-i386 -hda lireQE.img  -redir tcp:5557::22"
+}
+
+QEMU_UMOUNT() {
+    while mountpoint $QEMU_MOUNT_DIR &> /dev/null ; do
+        echo "Trying to unmount $QEMU_MOUNT_DIR"
+        umount $QEMU_MOUNT_DIR
+    done
+}
+
+QEMU_ERROR_CLEAN_UP() {
+    if [ -d $QEMU_MOUNT_DIR ]; then
+        rm -rf $QEMU_MOUNT_DIR
+    fi
+}
+
+#Init some needed variables
+ROOT_DIR="$1"
+REAL_OUT_DIR="$2"
+OUT_DIR="$(mktemp -d)"
+
+. $ROOT_DIR/.install.conf
+CHECK_ERROR $? "Can't find install.conf"
+
+if [ -z "$LIRE_HOST_SYSLINUX_DIR" ]; then  
+    LIRE_HOST_SYSLINUX_DIR="/usr/lib/syslinux"
+fi
+
+#
+# extract LiRE_devices
+#
+echo ""
+echo "===---> extracting devices..."
+tar -xjf "$ROOT_DIR/.LiRE_devices.tar.bz2" -C "$OUT_DIR"
+CHECK_ERROR $? ""
+echo "[OK]"
+
+#
+# copy files to $OUT_DIR
+#
+cp -r $ROOT_DIR/* $OUT_DIR
+
+#
+# Create extlinux.conf
+#
+
+if [ "$LIRE_ISO_CREATE" != "y" -a "$LIRE_QEMU_CREATE" != "y" ]; then
+    mkdir -p "$OUT_DIR/boot/extlinux"
+    ECHO_EXTLINUX_CONF "/dev/sda1" > "$OUT_DIR/boot/extlinux/extlinux.conf"
+fi
+
+#
+# Set ownership and file permissions
+#
+
+echo ""
+echo " ==---> Set ownership and file permissions... "
+echo ""
+savesuid="$(find $OUT_DIR -perm +u+s)"
+chown root:root -Rhc "$OUT_DIR"
+CHECK_ERROR $? "Can't set file permissions"
+for f in $savesuid; do
+    chmod u+s $f
+    CHECK_ERROR $? "Can't set file permissions"
+done
+chmod 640 $OUT_DIR/etc/shadow*
+CHECK_ERROR $? "Can't set file permissions"
+echo "[FINISHED] Setting file permissions"
+
+if [ "$LIRE_ISO_CREATE" == "y" ]; then
+    ISO_CREATE
+    old_dir=$(pwd)
+    cd $OUT_DIR
+    tar -cjf lire.tar.bz2 lire.iso
+    cd $old_dir
+elif [ "$LIRE_QE_CREATE" == "y" ]; then
+    QEMU_CREATE
+    old_dir=$(pwd)
+    cd $OUT_DIR
+    tar -cjf lire.tar.bz2 lireQE.img 
+    cd $old_dir
+else
+    echo "Create cf-card.tar.bz2"
+    old_dir=$(pwd)
+    cd $OUT_DIR
+    tar -cjf $OUT_DIR/lire.tar.bz2 *
+    cd $old_dir
+fi
+mv "$OUT_DIR/lire.tar.bz2" "$REAL_OUT_DIR"
+rm -rf "$OUT_DIR"

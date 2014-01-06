@@ -1,0 +1,58 @@
+#! /bin/sh
+
+################################################################################
+#
+# Openvpn Package start script
+#
+# 2010-03-10 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+################################################################################
+. /etc/lire.conf
+
+if [ "$TARGET_OPENVPN_AUTOSTART" == "y" ]; then
+  echo "starting OpenVPN..."
+  echo " using $TARGET_OPENVPN_PROFILE profile"
+  echo " "
+  . /etc/openvpn/profiles/$TARGET_OPENVPN_PROFILE
+
+  sleep 1
+  modprobe tun
+  sleep 1
+
+  echo " bringing up interface $OPENVPN_PROFILE_NIC"
+
+  if [ "$OPENVPN_PROFILE_SSID" != "" ]; then
+    echo "  it seems you are using a wlan device"
+    echo "   setting SSID to $OPENVPN_PROFILE_SSID"
+    iwconfig $OPENVPN_PROFILE_NIC essid "$OPENVPN_PROFILE_SSID"
+    [ $? -ne 0 ] && { echo "   Could not set SSID $OPENVPN_PROFILE_SSID to $OPENVPN_PROFILE_NIC... exiting!"; exit 1; }
+    sleep 1
+    ifconfig $OPENVPN_PROFILE_NIC up
+    [ $? -ne 0 ] && { echo " $OPENVPN_PROFILE_NIC could not be initiated... exiting!"; exit 1; }
+    sleep 5
+
+    else
+      ifconfig $OPENVPN_PROFILE_NIC up
+      sleep 5 # this is needed for the AP (abstracted by PROFILE_NIC) to get configured
+      [ $? -ne 0 ] && { echo " $OPENVPN_PROFILE_NIC could not be initiated... exiting!"; exit 1; }
+  fi
+
+  if [ "$OPENVPN_PROFILE_IP" == "DHCP" ]; then
+    echo " Requesting local IP for device $OPENVPN_PROFILE_NIC"
+    dhcpcd $OPENVPN_PROFILE_NIC -t 5 -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME
+    [ $? -ne 0 ] && { echo " $OPENVPN_PROFILE_NIC could not be initiated... exiting!"; exit 1; }
+
+  else
+    echo " Setting local IP ($OPENVPN_PROFILE_IP) for device $OPENVPN_PROFILE_NIC"
+    ifconfig $OPENVPN_PROFILE_NIC $OPENVPN_PROFILE_IP
+    [ $? -ne 0 ] && { echo " $OPENVPN_PROFILE_NIC could not be initiated... exiting!"; exit 1; }
+  fi
+
+  sleep 1
+
+  # TODO!
+  route add -net xx.xx.xx.xx netmask 255.255.255.255 gw $OPENVPN_PROFILE_GW dev $OPENVPN_PROFILE_NIC
+  [ $? -ne 0 ] && { echo " route could not be added... exiting!"; exit 1; }
+
+  /sbin/openvpn --script-security 3 system --config $OPENVPN_PROFILE_CONF_PATH &
+fi

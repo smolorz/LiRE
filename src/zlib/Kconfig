@@ -1,0 +1,7 @@
+
+config LIRE_ZLIB_BUILD_SRC
+    bool "    Build new zlib"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_ZLIB_INST
+    help
+    ...

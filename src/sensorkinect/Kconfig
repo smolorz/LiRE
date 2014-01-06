@@ -1,0 +1,8 @@
+
+config LIRE_SENSORKINECT_BUILD_SRC
+    bool "    Build Kinect driver library (OpenNI based, by avin2)"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_SENSORKINECT_INST
+    select LIRE_OPENNI_BUILD_SRC
+    help
+    ...

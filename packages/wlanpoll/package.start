@@ -1,0 +1,17 @@
+#! /bin/sh
+
+################################################################################
+#
+# wlanpoll start script
+#
+# 2011-03-01 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+################################################################################
+. /etc/lire.conf
+
+
+if [ "$TARGET_INIT_WLANPOLL" == "y" ]; then
+    echo "Starting wlanpoll in background.."
+    echo " ..using following options: $TARGET_WLANPOLL_OPTS"
+    /sbin/wlanpoll "$TARGET_WLANPOLL_OPTS" &
+fi

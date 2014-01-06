@@ -1,0 +1,49 @@
+#! /bin/sh
+
+#
+# LiRE kernel modules load script
+#
+# 2010-02-11 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+#load the lire.conf
+. /etc/lire.conf
+
+#
+# Enabling USB support
+#
+if [ "$TARGET_USB_SUPPORT" == "y" ]; then
+    modprobe ehci_hcd
+    modprobe ohci_hcd
+    modprobe uhci_hcd
+    modprobe usb_storage
+    modprobe usbhid
+fi
+
+
+#
+# Loading ethernet drivers, if needed
+#
+if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
+    echo "LOADING               $TARGET_ETH_DRIVERS"
+    for mod in $TARGET_ETH_DRIVERS; do
+        modprobe $mod >/dev/null 2> /dev/null
+        if [ "$?" != "0" ]; then
+            echo "WARNING: Can't load network driver $mod"
+        fi
+    done
+fi
+
+
+#
+# Loading wlan drivers, if needed
+#
+if [ "$TARGET_INIT_WLAN" == "y" ]; then
+    echo "LOADING               $TARGET_WLAN_DRIVERS"
+    for mod in $TARGET_WLAN_DRIVERS; do
+        modprobe $mod >/dev/null 2> /dev/null
+        if [ "$?" != "0" ]; then
+            echo "WARNING: Can't load network driver $mod"
+        fi
+    done
+fi

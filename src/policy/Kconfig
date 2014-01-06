@@ -1,0 +1,12 @@
+
+config LIRE_POLICY_BUILD_SRC
+    bool "    Build new policy"
+    depends on LIRE_BUILD_SRC && LIRE_POLICY_INST
+    help
+    ...
+
+config LIRE_POLICY_BUILD_AUDIT
+    bool "    Enable full auditing"
+    depends on LIRE_POLICY_BUILD_SRC
+    help
+    ...

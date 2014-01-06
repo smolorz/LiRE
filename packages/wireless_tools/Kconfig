@@ -1,0 +1,6 @@
+
+config LIRE_WIRELESS_TOOLS_INST
+    bool "  Install Wireless Tools"
+    default y
+    help
+    Install wireless-tools (e.g. to get commands like 'iwconfig', 'iwlist')

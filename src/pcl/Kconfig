@@ -1,0 +1,12 @@
+
+config LIRE_PCL_BUILD_SRC
+    bool "    Build new pcl"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_PCL_INST
+    select LIRE_FLANN_BUILD_SRC
+    select LIRE_EIGEN_BUILD_SRC
+    select LIRE_BOOST_BUILD_SRC
+    help
+    ...
+
+source src/pcl/Kconfig.compile_options

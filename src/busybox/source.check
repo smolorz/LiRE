@@ -1,0 +1,83 @@
+#! /bin/bash 
+
+#
+# busybox check script
+# 2006-06-02 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2009-12-24 Sascha Kruse (knopwob@googlemail.com)
+
+# name of this package
+PACKAGE="busybox"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_CHECK_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_BUSYBOX_BUILDDIR/.config"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_CHECK
+
+#
+# - the package name is valid
+# - you are in the SRC/$PACKAGE directory now (source script directory )
+# - you can use this values now ($PACK = upcase name of this package)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you find an error in your init script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+#========== START YOUR CHECKS HERE =============================================
+
+#
+# set version
+#
+FILE="$LIRE_BUSYBOX_SRCDIR/$LIRE_VERSION_FILE"
+if [ -f $FILE ]; then
+    PACKAGE_VERSION=`cat $FILE`
+else
+    PACKAGE_VERSION=`cat "$LIRE_BUSYBOX_SRCDIR/Rules.mak" | \
+                     grep "VERSION   :=" | \
+                     gawk -F":= " '{print $2}'`
+fi
+
+#
+# init config
+#
+CONFIG_NAME="config"
+CONFIG_FILE="$LIRE_BUSYBOX_BUILDDIR/.$CONFIG_NAME"
+LIRE_SELECT_CONFIG_FILE
+#========== STOP YOUR CHECKS HERE ==============================================
+#
+# before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.
+# the build script can get this values by LIRE_$PACK$_$VALUE$ (e.g. LIRE_LINUX_VERSION)
+#
+# PACKAGE_SRCCONF must be a vild source config file
+# PACKAGE_VERSION
+#
+
+LIRE_EXIT_SOURCE_CHECK

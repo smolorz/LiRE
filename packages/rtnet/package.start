@@ -1,0 +1,54 @@
+#! /bin/sh
+
+################################################################################
+#
+# Package start script
+#
+################################################################################
+
+. /etc/rtnet.conf
+. /etc/lire.conf
+
+if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
+    echo "remove eth0"
+    ifconfig eth0 down
+    for mod in $TARGET_ETH_DRIVERS; do
+        rmmod $mod.ko
+    done
+fi
+
+echo "start rtnet"
+modprobe xeno_rtdm 2> /dev/null
+rtnet -cf /etc/rtnet.conf start
+sleep 2
+
+if [[ "$RTNET_NORMAL_NET" == "y" ]] ; then
+    echo "start normal network"
+    /etc/rc.d/lire_ethernet
+fi
+
+if [[ "$RTNET_ROUTING" == "y" ]] ; then
+
+    if [[ "$TDMA_MODE" == "master" ]] ; then
+    ###################master######################
+        echo "route del vnic0"
+        route del -net `route|grep vnic0|cut -c -15` netmask `route|grep vnic0|cut -c 33-47` dev vnic0
+        for client in $TDMA_SLAVES ; do
+            echo "add client route for $client"
+            route add $client dev vnic0
+            arp -Ds $client eth0 pub
+        done
+        echo enable ip forwarding
+        echo 1 >/proc/sys/net/ipv4/ip_forward
+    else
+    ####################client#####################
+        RTNET_ROUTING_GW_MAC=`cat /proc/rtnet/rtcfg/rteth0/state | grep "server address" | cut -f3`
+        RTNET_ROUTING_GW=`rtroute | grep $RTNET_ROUTING_GW_MAC | cut -f2`
+        echo "route del vnic0"
+        route del -net `route|grep vnic0|cut -c -15` netmask `route|grep vnic0|cut -c 33-47` dev vnic0
+        echo "route add $RTNET_ROUTING_GW"
+        route add $RTNET_ROUTING_GW dev vnic0
+        echo "route add default gw "
+        route add default gw $RTNET_ROUTING_GW
+    fi
+fi

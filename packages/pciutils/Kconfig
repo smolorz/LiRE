@@ -1,0 +1,6 @@
+
+config LIRE_PCIUTILS_INST
+    bool "  Install pciutils"
+    default y
+    help
+    Installs the famous pciutils for probing pci devices (lspci).

@@ -1,0 +1,7 @@
+
+config LIRE_RACK_RTS_INST
+    bool "  Install RACK-RTS (not public)"
+    default n
+    select LIRE_RACK_INST
+    help
+

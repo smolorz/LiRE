@@ -1,0 +1,7 @@
+
+config LIRE_RACK_SCND_INST
+    bool "  Install RACK kernel misc for second kernel"
+    default y
+    select LIRE_XENOMAI_SCND_INST
+    help
+    Installs RACK kernel modules for the second kernel.

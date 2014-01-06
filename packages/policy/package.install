@@ -1,0 +1,79 @@
+#! /bin/bash
+
+#
+# policy install script
+#
+# 2006-02-21 Jan Kiszka (jan.kiszka@web.de)
+#
+
+# don't touch this - start -
+[ ! -f scripts/install/LIRE_INSTALL_SCRIPTS ] && return 1;
+. scripts/install/LIRE_INSTALL_SCRIPTS
+# don't touch this - stop -
+
+#
+# INIT VALUES
+#
+
+# name of this package
+PACKAGE="policy"
+
+LIRE_INIT_INSTALL
+#
+# You can use this values now:
+#   INFO: all dirs and files were given in absolute path
+#
+#   all values in .lire_config
+#   all values in LIRE.config
+#
+# ATTENTION: If you have an error in your install script, you have to call
+#            LIRE_EXIT_INSTALL $errval
+#
+#========== START YOUR INSTALL HERE  ==========================================
+#
+# You are in the package directory LIRE_PACKDIR (.....LIRE/packages/$PACKAGE)
+#
+
+LIRE_EXTRACT_TAR_ARCHIVE
+
+# ugly hack: certain tools must have separate binaries for correct labelling,
+# duplicate busybox here as long as it doesn't support the split-up natively
+# (scheduled for 1.1.2 according to Rob Landley)
+
+cd $LIRE_OUTDIR
+
+SEPARATION_LIST="
+    /sbin/init
+    /sbin/getty
+    /sbin/ifconfig
+    /bin/mount
+    /bin/login
+    /sbin/modprobe
+    /bin/hostname
+    /bin/ash
+    "
+# security rules for re-mounting /dev over tmpfs are lacking
+#    /sbin/syslogd
+
+for FILE in $SEPARATION_LIST; do
+    rm ./$FILE
+    cp bin/busybox ./$FILE
+done
+
+LINK_LIST="
+    /bin/umount,/bin/mount
+    /sbin/insmod,/sbin/modprobe
+    /sbin/rmmod,/sbin/modprobe
+    /bin/sh,/bin/ash
+    "
+
+for LINK in $LINK_LIST; do
+    DST=`echo $LINK | sed 's/\([^,]*\),\([^$]*\)/\1/'`
+    SRC=`echo $LINK | sed 's/\([^,]*\),\([^$]*\)/\2/'`
+    rm ./$DST
+    ln -s $SRC ./$DST
+done
+
+#========== STOP YOUR ROOT INSTALL HERE  ======================================
+
+LIRE_EXIT_INSTALL 0

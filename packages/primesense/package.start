@@ -1,0 +1,35 @@
+#! /bin/sh
+
+################################################################################
+#
+# PrimeSense/Xtion package start script
+#
+################################################################################
+
+. /etc/lire.conf
+
+if [ "$TARGET_OPENNI_DEVICE" == "xtion" ]; then
+
+    echo "Registering OpenNi libraries for PrimeSense/Xtion."
+
+    niReg -v -u /usr/lib/libnimCodecs.so
+    niReg -v -r /usr/lib/libnimCodecs.so
+
+    niReg -v -u /usr/lib/libnimMockNodes.so
+    niReg -v -r /usr/lib/libnimMockNodes.so
+
+    niReg -v -u /usr/lib/libnimRecorder.so
+    niReg -v -r /usr/lib/libnimRecorder.so
+
+    niReg -v -u /usr/lib/libXnDeviceSensorV2KM.so
+    niReg -v -r /usr/lib/libXnDeviceSensorV2KM.so $TARGET_OPENNI_CONFIGDIR
+
+    niReg -v -u /usr/lib/libXnDeviceSensorV2.so
+    niReg -v -r /usr/lib/libXnDeviceSensorV2.so $TARGET_OPENNI_CONFIGDIR
+
+    niReg -v -u /usr/lib/libXnDeviceFile.so
+    niReg -v -r /usr/lib/libXnDeviceFile.so $TARGET_OPENNI_CONFIGDIR
+
+    /etc/rc.d/packages/primesense/xnsensorserver_loop &
+fi
+

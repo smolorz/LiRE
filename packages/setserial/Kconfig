@@ -1,0 +1,6 @@
+
+config LIRE_SETSERIAL_INST
+    bool "  Install setserial"
+    default y
+    help
+    ...text...

@@ -1,0 +1,6 @@
+
+config LIRE_HDPARM_INST
+    bool "  Install hdparm"
+    default y
+    help
+    Installs hdparm. E.g. it can change kernel opton DMA yes / no during runtime.

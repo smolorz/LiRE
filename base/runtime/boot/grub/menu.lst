@@ -1,0 +1,47 @@
+#
+# GRUB Menu for the LiRE
+#
+
+#def. is frame buffer 1024x768
+
+default 3
+
+timeout 5
+
+title 0 LiRE TEXT
+    kernel (hd0,0)/boot/bzImage root=/dev/sda1 ro libata.dma=0
+    
+title 1 LiRE framer buffer 640x480
+    kernel (hd0,0)/boot/bzImage root=/dev/sda1 ro vga=786 libata.dma=0
+    
+title 2 LiRE frame buffer 800x600
+    kernel (hd0,0)/boot/bzImage root=/dev/sda1 ro vga=789 libata.dma=0
+    
+title 3 LiRE frame buffer 1024x768
+    kernel (hd0,0)/boot/bzImage root=/dev/sda1 ro vga=773 libata.dma=0
+
+title 4 LiRE frame buffer 1024x768 -- MultiCore
+    kernel (hd0,0)/boot/bzImage_scnd root=/dev/sda1 ro vga=773
+
+title 5 LiRE frame buffer 1024x768 -- MultiCore DMA off
+    kernel (hd0,0)/boot/bzImage_scnd root=/dev/sda1 ro vga=773 libata.dma=0
+
+title 6 LiRE frame buffer 1280x1024
+    kernel (hd0,0)/boot/bzImage root=/dev/sda1 ro vga=775 libata.dma=0
+
+#title 6 LiRE FALL BACK KERNEL
+#    kernel (hd0,0)/boot/bzImage.fallback root=/dev/sda1 ro vga=789 libata.dma=0
+    
+title 7 LiRE TEXT mount /dev/hda1 WRITABLE
+    kernel (hd0,0)/boot/bzImage root=/dev/sda1 rw libata.dma=0
+    
+title 8 LiRE TEXT CONSOLE COM 1 FP 640x480
+        kernel (hd0,0)/boot/bzImage 	\
+        root=/dev/sda1 ro 		\
+        console=ttyS0,115200PN 		\
+        console=tty0		\
+        vga=786 libata.dma=0
+
+title 9 Network Boot
+        kernel (hd0,0)/boot/eepro100.zlilo
+

@@ -1,0 +1,7 @@
+
+config LIRE_DHCPCD_BUILD_SRC
+    bool "    Build new dhcpcd"
+    default y
+    depends on LIRE_DHCPCD_INST && LIRE_BUILD_SRC
+    help
+    dhcpcd

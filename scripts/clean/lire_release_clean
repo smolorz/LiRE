@@ -1,0 +1,77 @@
+#! /bin/bash
+
+#
+# LIRE release clean script
+# 2006-06-30 Christoph Mueller (christoph@mueller-varas.de)
+#
+
+echo "============================================"
+echo " LIRE release clean"
+echo "============================================"
+echo ""
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+. .lire_config
+
+[ ! -f "${LiRE_DIR}/configs/LIRE.config" ] && { echo " Can't find LIRE.config -> EXIT"; exit 1;}
+. "${LiRE_DIR}/configs/LIRE.config"
+
+#
+# copy to tmp dir and remove .svn dirs
+#
+
+version=`grep "LIRE version" .lire_config | cut -d" " -f4`
+tmpdir=/tmp/LiRE-release/LiRE_V$version
+tar=LiRE_V$version.tar.bz2
+
+echo " LiRE version: $version"
+echo ""
+echo -n " Removing .svn dirs ... "
+
+FILES=`find . -name '*' | \
+       grep -v ".svn"`
+	      
+for f in $FILES; do
+  FILEDIR=`dirname $f`
+  DESTDIR="$tmpdir/$FILEDIR"
+	  
+  if [ -d $f ]; then
+    mkdir -p $tmpdir/$f
+    [ $? -ne 0 ] && { echo "Can't create $tmpdir/$f"; exit; }
+  fi
+		  
+  if [ -f $f ]; then
+    cp -f $f $DESTDIR
+    [ $? -ne 0 ] && { echo "Can't copy $f"; exit; }
+  fi
+  
+done
+
+echo "[OK]"
+
+#
+# Creating tar
+#
+
+echo -n " Creating $tar ... "
+olddir=`pwd`
+
+cd $tmpdir
+
+#
+# removing internal stuff(todo)
+#
+
+rm TODO
+
+cd ..
+tar cjf $tar LiRE_V$version
+[ $? -ne 0 ] && { echo "Can't create $tar"; exit; }
+
+mv $tar $olddir
+rm -rf $tmpdir
+
+echo "[OK]"
+
+echo " LIRE release created !"
+echo ""

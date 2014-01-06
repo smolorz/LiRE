@@ -1,0 +1,17 @@
+#! /bin/bash
+
+#
+# LIRE build reset script
+# 2005-11-03 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+if [ -f .lire_config ]; then
+    echo "Move .lire_config to .lire_config.bak"
+    mv .lire_config .lire_config.bak
+
+    echo "Unset CONFIG_LIRE_BUILD_SRC"
+    cat .lire_config.bak | \
+    sed -e ' s/^CONFIG_LIRE_BUILD_SRC=y/# CONFIG_LIRE_BUILD_SRC is not set/g' \
+    > .lire_config
+
+fi

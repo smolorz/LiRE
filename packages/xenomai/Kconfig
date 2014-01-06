@@ -1,0 +1,6 @@
+
+config LIRE_XENOMAI_INST
+    bool "  Install Xenomai Real-Time Extension"
+    default y
+    help
+    ...text...

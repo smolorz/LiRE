@@ -1,0 +1,8 @@
+
+config LIRE_XENOMAI_SCND_BUILD_SRC
+    bool "    Build new _SECOND_ xenomai"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_XENOMAI_SCND_INST
+    select LIRE_LINUX_SCND_BUILD_SRC
+    help
+    This is the package that provides a xenomai patch for a *SECOND* linux kernel.

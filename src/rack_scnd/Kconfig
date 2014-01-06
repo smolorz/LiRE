@@ -1,0 +1,8 @@
+
+config LIRE_RACK_SCND_BUILD_SRC
+    bool "    Build Rack kernel misc for scnd kernel"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_RACK_SCND_INST
+    select LIRE_XENOMAI_SCND_BUILD_SRC
+    help
+    ...T_T...

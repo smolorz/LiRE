@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#
+# OpenVPN profile stop script
+#
+# 2010-05-06 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+ifconfig $dev down

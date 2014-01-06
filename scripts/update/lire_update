@@ -1,0 +1,70 @@
+#! /bin/bash
+
+#
+# LIRE update script
+# 2006-02-07 Christoph Mueller (christoph@mueller-varas.de)
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+if [ ! -f .lire_config ]; then
+    echo " ERROR: starting in invalid path or make [m|x|old]config first"
+    exit 1
+else
+    . .lire_config
+fi
+
+# first of all -> create LIRE.config
+. ${LiRE_DIR}/scripts/common/LIRE_CONFIG_FUNCTIONS
+
+CREATE_LIRE_INSTALL_CONFIG
+[ $? -gt 0 ] && { exit 1; }
+
+# load LIRE.config
+. "${LiRE_DIR}/configs/LIRE.config"
+
+. $LIRE_CSCRDIR/LIRE_UPDATE_FUNCTIONS
+. $LIRE_CSCRDIR/LIRE_CHECK_FUNCTIONS
+. $LIRE_CSCRDIR/LIRE_LIST_FUNCTIONS
+
+#ask for username for $LIRE_SCP_UPDATE_SERVER
+#so this is only asked at the beginning of make update.
+#this will make it faster, it the user uses ssh_keys instead of 
+#a password
+CHECK_USERNAME
+
+BUILD_ENABLED
+if [ $? -eq 1 ]; then
+#
+    # create build list
+    # -> dependencies have to be resolved by the Kconfig system
+    # -> creates list of all packages if it doesn't exist
+    #
+    CREATE_BUILD_LIST
+    [ $? -ne 0 ] && { exit 1; }
+
+    #
+    # check/download sources
+    #
+    CHECK_AND_DOWNLOAD_SRC
+    [ $? -ne 0 ] && { exit 1; }
+
+fi
+
+#
+# create install list
+# -> dependencies have to be resolved by the Kconfig system
+# -> creates list of all packages if it doesn't exist
+#
+CREATE_INSTALL_LIST
+[ $? -ne 0 ] && { exit 1; }
+
+#
+# update binary archives
+#
+CHECK_AND_DOWNLOAD_BIN
+[ $? -ne 0 ] && { exit 1; }
+
+echo "Exit LIRE update"
+echo ""
+
+exit 0

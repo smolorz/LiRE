@@ -1,0 +1,8 @@
+
+config LIRE_XENOMAI_SCND_INST
+    bool "  Install Xenomai for a _SECOND_ kernel"
+    default y
+    select LIRE_LINUX_SCND_INST
+    help
+    Installs the xenomai patch for a *SECOND* kernel. Unselect if you do *NOT* need a second one.
+    Unselect also, if you do *NOT* want to have the second one xenomai patched.

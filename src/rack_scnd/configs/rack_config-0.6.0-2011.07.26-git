@@ -1,0 +1,158 @@
+#
+# Automatically generated make config: don't edit
+# RACK version: 0.6.0
+# Mon May  7 17:05:35 2012
+#
+CONFIG_RACK_VERSION="0.6.0"
+
+#
+# Build options
+#
+CONFIG_RACK_OS_XENOMAI=y
+# CONFIG_RACK_OS_LINUX is not set
+CONFIG_RACK_XENOMAIDIR=""
+CONFIG_RACK_BUILD_KMOD=y
+CONFIG_RACK_LINUXDIR=""
+CONFIG_RACK_INSTALLDIR=""
+# CONFIG_RACK_JAVA is not set
+# CONFIG_RACK_DOC_DOX is not set
+
+#
+# External Dependencies
+#
+CONFIG_RACK_RTNET_SUPPORT=y
+CONFIG_RACK_RTNETDIR=""
+# CONFIG_RACK_LIBRAW1394_SUPPORT is not set
+# CONFIG_RACK_LIBDC1394_SUPPORT is not set
+# CONFIG_RACK_LIBJPEG_SUPPORT is not set
+# CONFIG_RACK_LIBPNG_SUPPORT is not set
+# CONFIG_RACK_OPENCV_SUPPORT is not set
+# CONFIG_RACK_GSL_SUPPORT is not set
+# CONFIG_RACK_ZLIB_SUPPORT is not set
+# CONFIG_RACK_LIBUSB_SUPPORT is not set
+CONFIG_RACK_CROSS_COMPILE=y
+CONFIG_RACK_TARGET_TUPLE="i586-nptl-linux-gnu"
+CONFIG_RACK_TOOLCHAIN_PARENT_DIR="/opt"
+
+#
+# Control
+#
+
+#
+# Drivers
+#
+
+#
+# Camera
+#
+# CONFIG_RACK_CAMERA_DCAM is not set
+# CONFIG_RACK_CAMERA_JPEG is not set
+# CONFIG_RACK_CAMERA_V4L is not set
+
+#
+# Chassis
+#
+# CONFIG_RACK_CHASSIS_SIM is not set
+# CONFIG_RACK_CHASSIS_USARSIM is not set
+# CONFIG_RACK_CHASSIS_PIONEER is not set
+# CONFIG_RACK_CHASSIS_ER1 is not set
+# CONFIG_RACK_CHASSIS_ROOMBA is not set
+
+#
+# Clock
+#
+# CONFIG_RACK_CLOCK_DCF77_EMC_PRO is not set
+# CONFIG_RACK_CLOCK_DCF77_MBG_C51 is not set
+# CONFIG_RACK_CLOCK_SYSTEM is not set
+
+#
+# Compass
+#
+# CONFIG_RACK_COMPASS_CMPS03 is not set
+
+#
+# Gps
+#
+# CONFIG_RACK_GPS_NMEA is not set
+
+#
+# Gyro
+#
+# CONFIG_RACK_GYRO_XSENS is not set
+
+#
+# Ladar
+#
+# CONFIG_RACK_LADAR_HOKUYO_URG is not set
+# CONFIG_RACK_LADAR_HOKUYO_URG_USB is not set
+# CONFIG_RACK_LADAR_IBEO is not set
+# CONFIG_RACK_LADAR_IBEO_LUX is not set
+# CONFIG_RACK_LADAR_SICK_LMS200 is not set
+# CONFIG_RACK_LADAR_SICK_S is not set
+# CONFIG_RACK_LADAR_SICK_LMS100 is not set
+# CONFIG_RACK_LADAR_SIM is not set
+
+#
+# Navigation
+#
+
+#
+# Odometry
+#
+# CONFIG_RACK_ODOMETRY_CHASSIS is not set
+
+#
+# Pilot
+#
+# CONFIG_RACK_PILOT_JOYSTICK is not set
+# CONFIG_RACK_PILOT_WALL_FOLLOWING is not set
+# CONFIG_RACK_PILOT_LAB is not set
+
+#
+# Position
+#
+# CONFIG_RACK_POSITION is not set
+
+#
+# Perception
+#
+
+#
+# Scan2d
+#
+# CONFIG_RACK_SCAN2D is not set
+# CONFIG_RACK_SCAN2D_DYN_OBJ_RECOG is not set
+# CONFIG_RACK_SCAN2D_MERGE is not set
+# CONFIG_RACK_SCAN2D_SIM is not set
+# CONFIG_RACK_SCAN2D_LAB is not set
+
+#
+# ObjRecog
+#
+# CONFIG_RACK_OBJ_RECOG_IBEO_LUX is not set
+# CONFIG_RACK_OBJ_RECOG_RELAY_LADAR is not set
+
+#
+# Skel
+#
+
+#
+# Dummy
+#
+# CONFIG_RACK_DUMMY_ABC is not set
+
+#
+# Tools
+#
+
+#
+# Datalog
+#
+# CONFIG_DATALOG_REC is not set
+
+#
+# Advanced settings
+#
+CONFIG_RACK_PROXIES_MSG_SIZE_SCANDRIVE=y
+# CONFIG_RACK_PROXIES_MSG_SIZE_VELODYNE is not set
+# CONFIG_RACK_PROXIES_MSG_SIZE_KINECT is not set

@@ -1,0 +1,8 @@
+
+config LIRE_NANO_BUILD_SRC
+    bool "    Build Nano(pico) Editor"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_NANO_INST
+    select LIRE_NCURSES_BUILD_SRC
+    help
+    ...

@@ -1,0 +1,7 @@
+
+config LIRE_E2FSPROGS_BUILD_SRC
+    bool "    Build e2fsprogs"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_E2FSPROGS_INST
+    help
+    Build the e2fsprogs package.

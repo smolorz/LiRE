@@ -1,0 +1,7 @@
+
+config LIRE_EXPAT_BUILD_SRC
+    bool "    Build Expat XML Parser"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_EXPAT_INST
+    help
+    ...

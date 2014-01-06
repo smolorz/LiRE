@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# 19-04-2011 Sascha Kruse (knopwob@googlemail.com)
+
+function usage() {
+    echo "USAGE:"
+    echo "$0 [options] cf-root"
+    echo "options:"
+    echo "  -m /path/to/menu.c32"
+    echo "      Define an alternative location for the menu.c32 file"
+    echo "  -f"
+    echo "      Install bootloader even if cf-root is not a mountpoint"
+}
+
+if [ $(whoami) != 'root' ]; then
+    echo "You must be root"
+    exit 1
+fi
+
+while getopts "m:f" flag; do
+    case "$flag" in
+        m)  MENUC32="$OPTARG";;
+        f)  FORCE="y";;
+        ?) usage; exit 1 ;;
+    esac
+done
+shift $(($OPTIND-1))
+
+if [ -z "$1" ]; then
+    echo "ERROR: invalid arguments"
+    usage
+    exit 1
+fi
+
+cf_root="$1"
+
+if [ ! -d "$cf_root" ]; then
+    echo "ERROR: can't find directory: $cf_root"
+fi
+
+#locate the menu.c32
+if [ ! -z "$MENUC32" ]; then
+    if [ ! -f "$MENUC32" ]; then
+        echo "can't find $MENUC32"
+        exit 1
+    fi
+else
+    if [ -f "/usr/lib/syslinux/menu.c32" ]; then
+        MENUC32="/usr/lib/syslinux/menu.c32"
+    elif [ -f "/usr/share/syslinux/menu.c32" ]; then
+        MENUC32="/usr/share/syslinux/menu.c32"
+    else
+        echo "Error, can't find menu.c32. 
+              Please give the location of the menu.c32 file via
+              $0 -m /path/to/menu.c32 cf-root"
+        exit 1
+    fi
+fi
+
+if [ "$FORCE" != "y" ]; then
+    if ! mountpoint -q "$cf_root"; then
+        echo "Warming: $cf_root is not a mountpoint. Running this script on
+        a directory on your local harddrive may override your bootloader.
+        If you know what you're doing, use the -f option."
+        exit 1
+    fi
+fi
+
+if [ ! -d "$cf_root/boot/extlinux" ]; then
+    echo "ERROR: can't find $cf_root/boot/extlinux"
+fi
+
+extlinux --install "$cf_root/boot/extlinux"
+cp "$MENUC32" -t "$cf_root/boot/extlinux/"
+chattr +i "$cf_root/boot/extlinux/menu.c32"
+
+

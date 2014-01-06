@@ -1,0 +1,179 @@
+
+menu "Target configuration"
+
+config LIRE_TARGET_HOSTNAME
+    string "Target Host name"
+    default "SPB_GENERIC"
+    help
+    ...text...
+
+config LIRE_TARGET_INIT_ETHERNET
+    bool "Init Ethernet network"
+    default y
+    help
+    ...text...
+
+config LIRE_TARGET_ETHERNET_NIC
+    string "Ethernet NIC used in boot scripts"
+    default "eth0"
+    help
+    The ethernet NIC (network interface connector) device (e.g. eth0) which shall be used in the scripts during boot to initialize the ethernet network.
+
+config LIRE_TARGET_MAIN_IP
+    string "IP address for the SPB"
+    default "DHCP"
+    depends on LIRE_TARGET_INIT_ETHERNET || LIRE_TARGET_INIT_WLAN
+    help
+    Use 'DHCP' or a valid IP address
+
+config LIRE_TARGET_ETH_DRIVERS
+    string "List of Ethernet drivers to load" if !LIRE_QEMU
+    default "e100 8139too 3c59x r8169 e1000 via-rhine pcnet32 e1000e igb tg3" if !LIRE_QEMU
+    default "ne2k-pci" if LIRE_QEMU
+    depends on LIRE_TARGET_INIT_ETHERNET
+    help
+    The following modules are supported by the default kernel:
+    3c501, 3c503, 3c505, 3c507, 3c509, 3c59x, 8139cp, 8139too, 8390, e100,
+    eepro, eepro100, eexpress, hp100, ne, ne2k-pci, pcnet32, smc-ultra,
+    smc9194, tg3, via-rhine, wd.
+    NOTE: These modules will only be loaded if TARGET_INIT_ETHERNET is set!
+
+config LIRE_TARGET_INIT_WLAN
+    bool "Init WLAN network"
+    help
+    Choose y here, if you want to use "native" wlan (e.g. wlan usb stick) on your SPB
+
+config LIRE_TARGET_WLAN_NIC
+    string "WLAN NIC used in boot scripts"
+    default "wlan0"
+    help
+    The WLAN NIC (network interface connector) device (e.g. wlan0) which shall be used in the scripts during boot to initialize the wlan network.
+
+config LIRE_TARGET_WLAN_IP
+    string "wlan IP adress for the SPB"
+    default "DHCP"
+    help
+    Use 'DHCP' or a valid IP adress
+
+config LIRE_TARGET_WLAN_SSID
+    string "WLAN SSID"
+    default ""
+    help
+    Specifies the WLAN SSID which shall be used by TARGET_WLAN_NIC if TARGET_INIT_WLAN is set.
+
+config LIRE_TARGET_INIT_WPA_SUPPLICANT
+    bool "Start wpa_supplicant on boot"
+    default n
+    help
+    This starts the wpa_supplicant on boot using the /etc/wpa_supplicant.conf configuration file on the target (e.g. you have to modify this file according to your needs). Wpa_supplicant will use the interface specified by LIRE_TARGET_WLAN_NIC.
+
+config LIRE_TARGET_INIT_WLANPOLL
+    bool "Start wlanpolling on boot"
+    help
+    wlanpoll realizes roaming between wireless access points with all have one ESSID. If the link quality of the current access point falls below a threshold value all APs with the same ESSID are scanned. The AP with the best link quality is then chosen as the new one.
+
+config LIRE_TARGET_WLANPOLL_OPTS
+    string "wlanpoll options"
+    default ""
+    help
+    wlanpoll supports the following options. The values in ( ) are the defaults.
+    -i wireless network interface that should be polled ("wlan0")
+    -p polling period in seconds (5)
+    -t link quality threshold in percent (50)
+    -w threshold width, value is driver dependent (1)
+    -e ESSID of the APs
+    -v 1: verbose output (0)
+
+config LIRE_TARGET_WLAN_DRIVERS
+    string "List of WLAN drivers to load" if !LIRE_QEMU
+    default "at76c50x-usb rtl8187 iwl3945 rt2800usb" if !LIRE_QEMU
+    default "" if LIRE_QEMU
+    help
+    The following modules are supported by the default kernel:
+    from staging (our default): at76_usb (for the atmel wlan usb stick)
+    from in-kernel (broken at the moment): at76c50x-usb (for the atmel wlan usb stick)
+    NOTE: These modules will only be loaded if TARGET_INIT_WLAN is set!
+
+config LIRE_TARGET_OPENVPN_AUTOSTART
+    bool "Openvpn Autostart"
+    help
+    Choose y here, if you want openvpn to start on boot.
+
+config LIRE_TARGET_OPENVPN_PROFILE
+    string "Openvpn profile"
+    default "default"
+    help
+    The Openvpn profile to use for all options needed to be known to Openvpn to make it work correctly. Available profiles are located under '/etc/openvpn/profiles/'. You can easily create your own profile, or modify available ones. Just have a look into a profile. If you do not need Openvpn or want to see (or even adjust) an example profile to make it work for your needs, leave it 'default'.
+
+config LIRE_TARGET_KEYMAP
+    string "Keymap"
+    default "DE"
+    help
+    ...text...
+
+config LIRE_TARGET_RUN_spb_pack_manager
+    bool "Run package boot manager"
+    default y
+
+config LIRE_TARGET_LAUNCH_HTTPD
+    bool "Run HTTP server"
+    default y
+
+config LIRE_TARGET_LAUNCH_SYSLOGD
+    bool "Run system log daemon"
+    default y
+    select LIRE_TARGET_DEV_ON_TMPFS
+
+config LIRE_TARGET_SYSLOGCONSOLE
+    int "Console for dumping kernel messages"
+    default 10
+
+config LIRE_SETPASSWD
+    bool "Set target root password"
+    default n
+    help
+    If this option is not set the target root password will be empty.
+
+config LIRE_PASSWD
+    string "Password"
+    default ""
+    depends on LIRE_SETPASSWD
+    help
+    Set the root password of the image to this password. If this string 
+    is empty, you will be queried for the password during installation.
+    
+config LIRE_TARGET_TMPFS_SUPPORT
+    bool "Support for tmpfs"
+    default y
+
+config LIRE_TARGET_TMPFS_DIRS
+    string "TMPFS dirs"
+    default "/var/log;/var/lock;/var/run;/var/db;/var/lib/ni;/tmp"
+
+config LIRE_TARGET_REMOUNT_ROOT_RW
+    bool "Mount root directory read/write"
+
+config LIRE_TARGET_NR_READY_BEEPS
+    int "No of beeps if ready"
+    default 1
+
+config LIRE_TARGET_NR_HALT_BEEPS
+    int "No of beeps if halt"
+    default 2
+
+config LIRE_TARGET_DEV_ON_TMPFS
+    bool
+
+config LIRE_TARGET_USB_SUPPORT
+    bool "USB support"
+    default y
+
+config LIRE_TARGET_OPENNI_DEVICE
+    string "OpenNI camera device (xtion, kinect or none)"
+    default "none"
+
+config LIRE_TARGET_OPENNI_CONFIGDIR
+    string "OpenNI directory for config files"
+    default "/tmp"
+
+endmenu

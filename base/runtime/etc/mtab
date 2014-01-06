@@ -1,0 +1,3 @@
+rootfs / rootfs rw 1 1
+proc /proc proc rw 0 0
+devpts /dev/pts devpts rw 0 0

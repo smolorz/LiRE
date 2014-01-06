@@ -1,0 +1,184 @@
+#! /bin/bash
+
+#
+# RTnet build script
+# 2005-12-19 Christoph Mueller (christoph@mueller-varas.de)
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# name of this package
+PACKAGE="rtnet_scnd"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+if [ -e "$LIRE_RTNET_SCND_SRCDIR/.rtnet_config" ]; then
+    PACKAGE_SRCCONF="$LIRE_RTNET_SCND_SRCDIR/.rtnet_config"
+else
+    PACKAGE_SRCCONF="$LIRE_RTNET_SCND_SRCDIR/configure"
+fi
+	
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+
+    #
+    # setting corrects pathnames in .rtnet_config
+    #
+    
+    if [ -e "$LIRE_RTNET_SCND_BUILDDIR/.rtnet_config" ]; then
+
+   sed -e "/CONFIG_RTNET_INSTALLDIR=/cCONFIG_RTNET_INSTALLDIR=\"$LIRE_RTNET_SCND_INSTDIR\"" \
+       -e "/CONFIG_RTNET_RTEXT_CONFIG_PATH=/cCONFIG_RTNET_RTEXT_CONFIG_PATH=\"$LIRE_XENOMAI_INSTDIR\/usr\/bin\/xeno-config\"" \
+       -e "/CONFIG_RTNET_LINUX_DIR=/cCONFIG_RTNET_LINUX_DIR=\"$LIRE_LINUX_SCND_SRCDIR\"" .rtnet_config > .rtnet_config.new
+
+	rm .rtnet_config
+	mv .rtnet_config.new .rtnet_config  
+	[ $? -gt 0 ] && { echo "edit .rtnet_config [FAILED]"; LIRE_EXIT_ERROR 1; }
+	echo "edit .rtnet_config [OK]"
+     
+       
+	make -f $LIRE_RTNET_SCND_SRCDIR/makefile oldconfig host_alias=${host_alias} CC=gcc LD=ld CXX=g++ AR=ar
+	[ $? -gt 0 ] && { echo "make oldconfig [FAILED]"; LIRE_EXIT_ERROR 1; }
+	echo "make oldconfig [OK]"
+    
+    fi
+        
+    #
+    # build RTnet 
+    #
+    echo " Building RTnet... "
+
+    make -j$CONFIG_LIRE_BUILD_JOBS
+
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    echo " make install"
+    make install
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf tar
+
+    # make dir
+    mkdir -p tar/lib/modules/$LIRE_LINUX_SCND_VERSION/rtnet
+
+    # copy modules
+    echo -n " Copy Modules ... "
+    cp -rf modules/*  tar/lib/modules/$LIRE_LINUX_SCND_VERSION/rtnet/
+
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    
+    #
+    # create tar.bz2
+    #
+    TAR="$PACKAGE.tar.bz2"
+    DEST="$LIRE_RTNET_SCND_PACKDIR/"
+
+    cd tar
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+
+    #
+    # remove tar directory
+    #
+    rm -rf tar
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

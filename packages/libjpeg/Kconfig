@@ -1,0 +1,6 @@
+
+config LIRE_LIBJPEG_INST
+    bool "  Install libjpeg"
+    default n
+    help
+    ...text...

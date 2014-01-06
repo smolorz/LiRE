@@ -1,0 +1,6 @@
+
+config LIRE_NCURSES_INST
+    bool "  Install ncurses Library"
+    default y 
+    help
+    ...text...

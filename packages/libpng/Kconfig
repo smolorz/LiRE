@@ -1,0 +1,7 @@
+
+config LIRE_LIBPNG_INST
+    bool "  Install libpng"
+    select LIRE_ZLIB_INST
+    default n
+    help
+    ...text...

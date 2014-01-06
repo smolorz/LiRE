@@ -1,0 +1,8 @@
+
+config LIRE_LIBSELINUX_INST
+    bool "  Install libselinux"
+    depends on LIRE_SELINUX_ENABLE
+    default y
+    select LIRE_LIBSEPOL_INST
+    help
+    ...text...

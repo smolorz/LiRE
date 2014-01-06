@@ -1,0 +1,8 @@
+
+config LIRE_WPA_SUPPLICANT_BUILD_SRC
+    bool "    Build wpa_supplicant"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_WPA_SUPPLICANT_INST
+    select LIRE_OPENSSL_BUILD_SRC
+    help
+    Builds wpa_supplicant

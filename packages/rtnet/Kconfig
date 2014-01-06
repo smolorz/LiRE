@@ -1,0 +1,57 @@
+
+config LIRE_RTNET_INST
+    bool "  Install RTnet"
+    default y
+    select LIRE_XENOMAI_INST
+    help
+    ...text...
+
+
+menu "  RTnet Configuration"
+
+depends on LIRE_RTNET_INST
+
+config LIRE_RTNET_TARGET_AUTOSTART
+    bool "Run on start-up"
+    help
+    ...text...
+
+comment "RTnet parameters"
+
+config LIRE_RTNET_TARGET_DRIVER
+    string "RTnet network driver"
+    default "rt_eepro100"
+    help
+    ...text...
+
+config LIRE_RTNET_TARGET_IP
+    string "RTnet IP"
+    default "10.0.0.1"
+    help
+    ...text...
+
+choice
+    prompt "RTnet TDMA Mode"
+
+    config LIRE_RTNET_TARGET_TDMA_MODE_MASTER
+    bool "master"
+
+    config LIRE_RTNET_TARGET_TDMA_MODE_SLAVE
+    bool "slave"
+endchoice
+
+config LIRE_RTNET_TARGET_SLAVES
+    string "RTnet Slaves"
+    default "10.0.0.2 10.0.0.3"
+
+comment "Linux networking"
+
+config LIRE_RTNET_TARGET_NORMAL_NET
+    bool "Start 2nd NIC under Linux"
+    default y
+
+config LIRE_RTNET_TARGET_ROUTING
+    bool "Use master as transparent router"
+    default y
+
+endmenu

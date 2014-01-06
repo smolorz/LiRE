@@ -1,0 +1,237 @@
+#! /bin/bash
+
+#
+# LIRE user install script
+# 2005-12-01 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2010-11-06 Sascha kruse (knopwob@gmail.com)
+#
+
+CHECK_ERROR() {
+    if [ $1 -gt 0 ]; then
+        echo "[FAILED] $2"
+        exit 1
+    fi
+}
+
+echo "============================================"
+echo " LIRE install"
+echo "============================================"
+echo ""
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+. .lire_config
+
+. scripts/common/LIRE_CONFIG_FUNCTIONS
+
+#
+# create lire install config
+# -> user
+CREATE_LIRE_INSTALL_CONFIG
+CHECK_ERROR $? "Crating install config"
+
+. "${LiRE_DIR}/configs/LIRE.config"
+
+. $LIRE_CSCRDIR/LIRE_CONFIG_FUNCTIONS
+. $LIRE_CSCRDIR/LIRE_LIST_FUNCTIONS
+. $LIRE_CSCRDIR/LIRE_CHECK_FUNCTIONS
+. $LIRE_CSCRDIR/LIRE_INSTALL_FUNCTIONS
+
+#
+# create install list
+# -> dependencies have to be resolved by the Kconfig system
+#
+CREATE_INSTALL_LIST
+CHECK_ERROR $? "Creating install list"
+
+#
+# check package binaries
+#
+CHECK_BIN
+CHECK_ERROR $? "Checking package binaries"
+
+#
+# check all scripts needed for installing
+#
+CHECK_NEEDED_INSTALL_FILES
+CHECK_ERROR $? "Checking scripts for installing"
+#
+# create dependency list
+#
+CREATE_BIN_DEPEND_LIST
+CHECK_ERROR $? "Creating dependency list"
+
+#
+# Install runtime and libraries
+#
+echo ""
+echo " ===---> installing LIRE runtime..."
+echo ""
+. $LIRE_ISCRDIR/lire_install_runtime
+echo "[OK]"
+
+echo ""
+echo " ===---> Installing LIRE libraries..."
+echo ""
+. $LIRE_ISCRDIR/lire_install_libs
+echo "[OK]"
+
+echo ""
+echo " ===---> Installing LIRE debug tools... "
+echo ""
+. $LIRE_ISCRDIR/lire_install_debug
+
+#
+# Set root password
+#
+if [ "$CONFIG_LIRE_SETPASSWD" == "y" ]; then
+    echo""
+    echo " ===---> Setting LIRE root password..."
+    echo""
+    #if $CONFIG_LIRE_PASSWD is empty, opennsl will ask for a password
+    passwd_hash=$(openssl passwd $CONFIG_LIRE_PASSWD)
+    sed -i "s|root:[^:]*|root:$passwd_hash|" "$LIRE_OUTDIR/etc/shadow"
+fi
+
+#
+# package install
+#
+for p in $(cat "$LIRE_BIN_DEP_LIST"); do
+    INSTALL_SCRIPT="$LIRE_PACKDIR/$p/$LIRE_PACK_INST_SKRIPT"
+    TAR="$LIRE_PACKDIR/$p/$p.tar.bz2"
+    [ ! -f "$TAR" ] && { echo "[ERROR] Can't find $TAR"; exit 1; }
+    [ ! -f "$INSTALL_SCRIPT" ] && { echo "[ERROR] Can't find $INSTALL_SCRIPT"; exit 1; }
+
+    bash $INSTALL_SCRIPT
+    CHECK_ERROR $? "Problem in $INSTALL_SCRIPT";
+done
+
+#
+# check System.map
+#
+
+SYSMAP="$LIRE_OUTDIR/lib/System.map"
+echo -n "Searching for $SYSMAP..."
+[ -f "$SYSMAP" ]
+CHECK_ERROR $? "$SYSMAP not found"
+echo "[OK]"
+if [ "$CONFIG_LIRE_LINUX_SCND_INST" == "y" ]; then
+    SYSMAP_SCND="$LIRE_OUTDIR/lib/System.map_scnd"
+    echo -n "Searching for $SYSMAP_SCND..."
+    [ -f "$SYSMAP_SCND" ]
+    CHECK_ERROR $? "$SYSMAP_SCND not found"
+    echo "[OK]"
+fi
+
+#
+# Check Linux version
+#
+echo -n "Searching for Linux Version..."
+[ -f "packages/linux/version" ]
+CHECK_ERROR $? "Linux version not found"
+LINUX_VERSION=$(cat "packages/linux/version")
+echo "[$LINUX_VERSION]"
+if [ "$CONFIG_LIRE_LINUX_SCND_INST" == "y" ]; then
+    echo -n "Searching for Linux_scnd Version..."
+    [  -f "packages/linux_scnd/version" ]
+    CHECK_ERROR $? "Linux_scnd version not found"
+    LINUX_SCND_VERSION=$(cat "packages/linux_scnd/version")
+    echo "[$LINUX_SCND_VERSION]"
+fi
+
+#
+# Create target lire.conf
+#
+CREATE_TARGET_LIRE_CONF
+CHECK_ERROR $? "Creating target lire.conf"
+
+#
+# Create target lire.info
+#
+CREATE_TARGET_LIRE_INFO
+CHECK_ERROR $? "Creating target lire.info"
+
+#
+# Copy lire init and start files
+#
+COPY_LIRE_INITSTART_SCRIPTS
+CHECK_ERROR $? "Copying init and start scripts"
+
+#
+# copy custom dir
+#
+COPY_CUSTOM_DIR
+CHECK_ERROR $? "Copying custom directory"
+
+#
+# make depmod
+# 
+echo ""
+echo " ===--- Executing depmod "
+echo ""
+/sbin/depmod -ae -F $SYSMAP -b $LIRE_OUTDIR -r $LINUX_VERSION
+CHECK_ERROR $? "depmod"
+echo "[OK]"
+if [ "$CONFIG_LIRE_LINUX_SCND_INST" == "y" ]; then
+    /sbin/depmod -ae -F $SYSMAP_SCND -b $LIRE_OUTDIR -r $LINUX_SCND_VERSION
+    CHECK_ERROR $? "depmod (Second Kernel)"
+fi
+#TODO depmod -r seems to be deprecated
+
+#
+# remove System.map
+#
+rm -f $SYSMAP
+[ "$CONFIG_LIRE_LINUX_SCND_INST" == "y" ] && { rm -f $SYSMAP_SCND; }
+
+echo "Creating .install.conf"
+cp "configs/LIRE.config" "$LIRE_OUTDIR/.install.conf"
+CHECK_ERROR $? "Creating .install.conf"
+
+#We need lire_core_install to build the qemu image in order to 
+#create a virtualbox image
+if [ "$CONFIG_LIRE_VIRTUALBOX" == "y" ]; then
+    echo 'LIRE_QE_CREATE="y"' >> "$LIRE_OUTDIR/.install.conf"
+    echo "LIRE_QE_IMAGESIZE=$CONFIG_LIRE_IMGSIZE" >> "$LIRE_OUTDIR/.install.conf"
+fi
+
+
+mkdir -p $LIRE_REAL_OUTDIR
+if [ "$LIRE_BUILD_REMOTELY" == "y" ]; then
+    old_dir=$(pwd)
+    cd $LIRE_OUTDIR
+    echo -n "taring the lire root dir in order to send it to the server..."
+    tar -cjf lire_tmp.tar.bz2 * .install.conf .LiRE_devices.tar.bz2
+    echo "[DONE]"
+
+    cd $old_dir
+    $LIRE_ISCRDIR/client.py "$CONFIG_LIRE_INSTALL_HOST" "$CONFIG_LIRE_INSTALL_PORT" "$LIRE_OUTDIR/lire_tmp.tar.bz2" "$LIRE_REAL_OUTDIR"
+    CHECK_ERROR $? ""
+else
+    echo "-------------------------------"
+    echo " Installing LIRE root part ... "
+    echo "-------------------------------"
+    echo "  -> switch to user root"
+    echo ""
+    sudo $LIRE_ISCRDIR/lire_core_install $LIRE_OUTDIR $LIRE_REAL_OUTDIR
+    CHECK_ERROR $? "Error in lire_core_install"
+fi
+rm -rf $LIRE_OUTDIR
+CHECK_ERROR $? "Unable to delete $LIRE_OUTDIR"
+
+if [ "$CONFIG_LIRE_VIRTUALBOX" == "y" ]; then
+    echo "Creating Virtualbox Image..."
+    tmp_dir=$(mktemp -d)
+    cd $tmp_dir 
+    tar -xf $LIRE_REAL_OUTDIR/lire.tar.bz2
+    mkdir lire_vbox
+    "$LIRE_ISCRDIR/create_vbox_image" lireQE.img lire_vbox
+    rm lire_vbox/LiRE.mf
+    tar -cvjf lire.tar.bz2 lire_vbox lireQE.img
+    mv lire.tar.bz2 $LIRE_REAL_OUTDIR
+    rm -rf $tmp_dir
+fi
+
+echo "Exit LIRE install"
+echo ""
+
+exit 0

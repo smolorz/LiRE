@@ -1,0 +1,6 @@
+
+config LIRE_DHCPCD_INST
+    bool "  Install dhcpcd"
+    default y
+    help
+    ...text...

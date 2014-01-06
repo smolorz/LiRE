@@ -1,0 +1,261 @@
+#! /bin/bash
+
+#
+# LIRE_INSTALL_FUNCTIONS
+# 2006-06-02 Joerg Langenberg (joerg.langenberg@gmx.net)
+# 2009-11-14 Sascha Kruse (knopwob@googlemail.com)
+# !!! WARNING - .lire_config have to be loaded first !!!
+#
+
+function CHECK_BIN()
+{
+    echo ""
+    echo " ===---> Checking package binaries ..."
+    echo ""
+
+    for p in `cat "$LIRE_BIN_INST_LIST"`; do
+
+        FILE="$LIRE_PACKDIR/$p/$p.tar.bz2"
+        echo -n "Checking $FILE ... "
+        [ ! -f  $FILE ] && { echo "[NOT FOUND], do 'make build/update' first"; return 1; }
+        echo "[OK]"
+
+        FILE="$LIRE_SRCDIR/$p/$LIRE_PKG_DEPEND_FILE"
+        echo -n "Checking $FILE ... "
+        [ ! -f  $FILE ] && { echo "[NOT FOUND]"; return 1; }
+        echo "[OK]"
+        echo ""
+    done
+    return 0
+}
+
+function CHECK_NEEDED_INSTALL_FILES()
+{
+    echo ""
+    echo " ===---> Checking needed install files ..."
+    echo ""
+
+    for p in `cat "$LIRE_BIN_INST_LIST"`; do
+
+        NEEDED_FILES="$LIRE_PACKDIR/$p/$LIRE_PACK_INST_SKRIPT"
+        for f in $NEEDED_FILES; do
+            echo -n "Checking $f ... "
+            [ ! -f  $f ] && { echo "[NOT FOUND]"; return 1; }
+            echo "[OK]"
+        done
+        echo ""
+    done
+
+    return 0
+}
+
+function COPY_LIRE_INITSTART_SCRIPTS()
+{
+    echo ""
+    echo " ===---> Copy package init and start scripts ..."
+    echo ""
+
+    DEPFILE="$LIRE_OUTDIR/etc/package_dep.conf"
+    echo "PACKAGES_DEP_LIST=\" \\" > $DEPFILE
+
+    for p in `cat "$LIRE_BIN_DEP_LIST"`; do
+
+        FILES=" $LIRE_PACKDIR/$p/$LIRE_PACK_INIT_SKRIPT
+                $LIRE_PACKDIR/$p/$LIRE_PACK_START_SKRIPT
+              "
+        DIR="$LIRE_OUTDIR/etc/rc.d/packages/$p"
+
+        HAS_SCRIPTS=0
+        for f in $FILES; do
+            if [ -f $f ]; then
+
+                if [ ! -d $DIR ]; then
+                    mkdir -p $DIR
+                    [ $? -ne 0 ] && { echo "Can't create $DIR"; return 1; }
+                fi
+
+                echo -n "Copy $f ... "
+                cp $f $DIR
+                [ ! -f  $f ] && { echo "[ERROR]"; return 1; }
+                echo "[OK]"
+                HAS_SCRIPTS=1
+            fi
+        done
+
+        if [ $HAS_SCRIPTS -eq 1 ]; then
+            #check for dependencies on boot time.
+            #dependencies are stored in /src/PACKAGE/starts_after
+            #rework this, to resolve dependencies in programms, that added as dependency
+            BOOT_DEP="$LIRE_SRCDIR/$p/starts_after"
+            echo "$BOOT_DEP"
+            if [ -s "$BOOT_DEP" ]; then
+                for dep in  `cat "$BOOT_DEP"`; do
+                    if [ `grep -c "$dep" "$DEPFILE"` -eq 0 ]; then
+                       echo "$dep \\" >> $DEPFILE
+                    fi
+                done
+            fi
+            #prevent to be echoed, if it's allready as a dependency in the file
+            if [ `grep -c "$p" "$DEPFILE" ` -eq 0 ]; then 
+                echo "$p \\" >> $DEPFILE
+            fi
+        fi
+    done
+    echo "\"" >> $DEPFILE
+    return 0 
+}
+
+
+function COPY_CUSTOM_DIR()
+{
+    if [ "$CONFIG_LIRE_CUSTOMDIR_ENABLE" != "y" ]; then
+        return 0
+    fi
+
+    echo ""
+    echo " ===---> Copy custom directory ..."
+    echo ""
+
+    d="$CONFIG_LIRE_CUSTOMDIR"
+    echo -n "Checking $d ... "
+    [ ! -d  $d ] && { echo "[NOT FOUND], Skip copy."; return 1; }
+    echo "[OK]"
+
+    FILES=`find $d/ -name "*" | \
+        grep -v .svn | \
+        grep -v CVS | \
+        grep -v "~"`
+
+    for f in $FILES; do
+        if [ -d $f ]; then
+            SRCDIR="$f"
+            DESTDIR=$LIRE_OUTDIR`echo $SRCDIR | sed -e 's#^'$d'##g;'`
+            echo "Create directory: $DESTDIR"
+            mkdir -p $DESTDIR
+            [ $? -ne 0 ] && { echo "Can't create $DESTDIR"; return 1; }
+        fi
+
+        if [ -f $f ]; then
+            SRCDIR=`dirname $f`
+            DESTDIR=$LIRE_OUTDIR`echo $SRCDIR | sed -e 's#^'$d'##g;'`
+            echo "Copy $f to $DESTDIR"
+            cp -f $f $DESTDIR
+            [ $? -ne 0 ] && { echo "Can't copy $f"; return 1; }
+        fi
+    done
+    return 0
+}
+
+
+function SELINUX_LABEL_FILES()
+{
+    if [ "$LIRE_LABEL_FILES" != "y" ]; then
+        return 0;
+    fi
+
+    echo ""
+    echo " ===---> Labelling target filesystem ..."
+    echo ""
+
+    setfiles -r $LIRE_OUTDIR -d $LIRE_OUTDIR/etc/selinux/refpolicy/contexts/files/file_contexts \
+        $LIRE_OUTDIR > setfiles.log
+    [ $? -ne 0 ] && { echo "Can't label target filesystem"; return 1; }
+
+    return 0
+}
+
+function CREATE_TARGET_LIRE_CONF()
+{
+    CONFIG="$LIRE_OUTDIR/etc/lire.conf"
+    DATE=`date`
+    echo -n " Creating $CONFIG ... "
+
+    echo "#! /bin/bash"                         >  $CONFIG
+    echo "#"                                    >> $CONFIG
+    echo "# LiRE config file"                   >> $CONFIG
+    echo "#"                                    >> $CONFIG
+    echo "# created: $DATE"                     >> $CONFIG
+    echo "#"                                    >> $CONFIG
+    echo ""                                     >> $CONFIG
+    echo "#"                                    >> $CONFIG
+    echo "# common configuration"               >> $CONFIG
+    echo "#"                                    >> $CONFIG
+
+    cat $LIRE_CONFIG_FILE | \
+    grep "CONFIG_LIRE_TARGET" | \
+    grep -v "TARGET_ARCH" | \
+    grep -v "TARGET_TUPLE" | \
+    sed -e 's/CONFIG_LIRE_//g'                  >> $CONFIG
+
+    for p in `cat "$LIRE_BIN_DEP_LIST" | sort `; do
+
+        PARAMS=`cat  "$LIRE_CONFIG_FILE" | \
+                grep -i "LIRE_${p}_TARGET"`
+
+        if [ "$PARAMS" != "" ]; then
+            echo ""                             >> $CONFIG
+            echo ""                             >> $CONFIG
+            echo "#"                            >> $CONFIG
+            echo "# $p target configuration"    >> $CONFIG
+            echo "#"                            >> $CONFIG
+
+            cat "$LIRE_CONFIG_FILE" | \
+            grep -i "LIRE_${p}_TARGET" | \
+            sed -e 's/CONFIG_LIRE_\([^_]*\)_TARGET/\1/g' >> $CONFIG
+        fi
+    done
+    echo ""                                     >> $CONFIG
+    echo ""                                     >> $CONFIG
+    echo "#"                                    >> $CONFIG
+    echo "# installed packages"                 >> $CONFIG
+    echo "#"                                    >> $CONFIG
+
+    cat $LIRE_CONFIG_FILE | \
+    grep "_INST=y" | \
+    sed -e ' s/CONFIG_LIRE_//g;
+            /_BUILD_SRC/D;'                     >> $CONFIG
+
+    echo ""                                     >> $CONFIG
+    echo "[OK]"
+
+    return 0
+}
+
+function CREATE_TARGET_LIRE_INFO()
+{
+    INFO="$LIRE_OUTDIR/etc/lire.info"
+    echo -n " Creating $INFO ... "
+
+    echo ""                         >  $INFO
+    echo " === LiRE info file ==="  >> $INFO
+    echo ""                         >> $INFO
+    echo "  created: $DATE"         >> $INFO
+    echo " "                        >> $INFO
+    echo " "                        >> $INFO
+    echo "Installed packages:"      >> $INFO
+    echo " "                        >> $INFO
+
+    for p in `cat "$LIRE_BIN_DEP_LIST" | sort`; do
+
+        if [ -f "$LIRE_PACKDIR/$p/version" ]; then
+            VERSION=`cat  "$LIRE_PACKDIR/$p/version"`
+        else
+            VERSION="unknown"
+        fi
+
+        INIT=0
+        [ -f "$LIRE_OUTDIR/etc/rc.d/packages/$p/package.init" ] && { INIT=1; }
+
+        START=0
+        [ -f "$LIRE_OUTDIR/etc/rc.d/packages/$p/package.start" ] && { START=1; }
+
+        echo " $p"                                      >> $INFO
+        echo "   version: $VERSION"                     >> $INFO
+        [ $INIT -ne 0 ]  && echo "   init script: yes"  >> $INFO
+        [ $START -ne 0 ] && echo "   start script: yes" >> $INFO
+        echo ""                                         >> $INFO
+    done
+    echo "[OK]"
+
+    return 0
+}

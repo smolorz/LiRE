@@ -1,0 +1,7 @@
+
+config LIRE_WIRELESS_TOOLS_BUILD_SRC
+    bool "    Build Wireless Tools"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_WIRELESS_TOOLS_INST
+    help
+    Build wireless-tools.

@@ -1,0 +1,27 @@
+#! /bin/bash
+
+#
+# LIRE debug tools install script
+# 2011-01-21 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
+#
+
+if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+    DEBUG_ROOT="$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR/$CONFIG_LIRE_TARGET_TUPLE/$CONFIG_LIRE_TARGET_TUPLE/debug-root"
+
+    if [ "$CONFIG_LIRE_GDB_INST" == "y" ]; then
+        cp -fv ${DEBUG_ROOT}/usr/bin/gdbserver ${LIRE_OUTDIR}/usr/bin
+        [ $? -gt 0 ] && { echo " [ERROR]"; exit 1; }
+        if [ "$CONFIG_LIRE_GDB_SERVER_ONLY" != "y" ]; then
+            cp -fv ${DEBUG_ROOT}/usr/bin/gdb ${LIRE_OUTDIR}/usr/bin
+            [ $? -gt 0 ] && { echo " [ERROR]"; exit 1; }
+        fi
+    fi
+
+    if [ "$CONFIG_LIRE_STRACE_INST" == "y" ]; then
+        cp -fv ${DEBUG_ROOT}/usr/bin/strace ${LIRE_OUTDIR}/usr/bin
+        [ $? -gt 0 ] && { echo " [ERROR]"; exit 1; }
+    fi
+
+    echo " [OK]"
+fi
+

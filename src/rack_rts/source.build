@@ -1,0 +1,198 @@
+#! /bin/bash
+
+#
+# Rack-RTS build script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# name of this package
+PACKAGE="rack_rts"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_RACK_RTS_BUILDDIR/.rack_rts_config"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # remove all files in builddir before copy config file
+    #
+    rm -rf *
+    
+    #
+    #
+    # check and modify the Linux source- and the xenomai destination path
+    #
+    cp -f .rack_rts_config .rack_rts_config_LIRE_bak
+    echo "CONFIG_RACK_INSTALLDIR=\"$LIRE_RACK_RTS_INSTDIR\" "  >  .rack_rts_config_LIRE_new
+    echo "CONFIG_RACK_PARENTDIR=\"$LIRE_RACK_INSTDIR\" "       >> .rack_rts_config_LIRE_new
+    sed '/^CONFIG_RACK_INSTALLDIR/D;
+         /^CONFIG_RACK_PARENTDIR/D '      .rack_rts_config     >> .rack_rts_config_LIRE_new
+    mv .rack_rts_config_LIRE_new .rack_rts_config
+    rm -f .rack_rts_config_LIRE_bak
+    make -f $LIRE_RACK_RTS_SRCDIR/makefile oldconfig
+    [ $? -gt 0 ] && { echo "make oldconfig [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make oldconfig [OK]"
+
+    #
+    # copy link rack source dir into $LIRE_RACK_RTS_SCRDIR (java building)
+    #
+    ln -fs $LIRE_RACK_SRCDIR $LIRE_RACK_RTS_SCRDIR
+
+    #
+    # build Rack
+    #
+    echo " build Rack (RTS intern)"
+    make -j$CONFIG_LIRE_BUILD_JOBS
+    [ $? -gt 0 ] && {
+      echo "make [FAILED]";
+      rm -f $LIRE_RACK_RTS_SCRDIR/rack;
+      LIRE_EXIT_ERROR 1;
+    }
+    echo "make [OK]"
+
+    #
+    # remove rack source dir link
+    #
+    rm -f $LIRE_RACK_RTS_SCRDIR/rack
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # check needed rack_rts_config.h
+    #
+    [ ! -f "$LIRE_RACK_RTS_SRCDIR/rack_rts_config.h" ] && {
+      cp "rack_rts_config.h" "$LIRE_RACK_RTS_SRCDIR/"
+    }
+
+    #
+    # make install
+    #
+    echo " make install"
+    make install-strip
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+    #
+    # remove rack_rts_config.h
+    #
+    [ -f "$LIRE_RACK_RTS_SRCDIR/rack_rts_config.h" ] && {
+      rm -f "$LIRE_RACK_RTS_SRCDIR/rack_rts_config.h"
+    }
+
+    # remove .la files
+    rm ${LIRE_RACK_RTS_INSTDIR}/lib/*.la
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf ".tar"
+    mkdir -p ".tar/usr/lib"
+
+    echo " copy files ... "
+    cp -rf bin .tar/usr
+    rm .tar/usr/bin/rack-rts-config
+    cp -rf lib/rack_rts lib/*.so.* .tar/usr/lib
+
+    #
+    # create tar.bz2
+    #
+    DEST="$LIRE_RACK_RTS_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"
+
+    cd .tar
+
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    cd ..
+
+    echo " remove tar tree ... "
+    rm -rf ".tar"
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

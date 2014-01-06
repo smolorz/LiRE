@@ -1,0 +1,7 @@
+
+config LIRE_RTNET_SCND_INST
+    bool "  Install rtnet for a _SECOND_ kernel"
+    default y
+    select LIRE_XENOMAI_SCND_INST
+    help
+    Installs rtnet kernel modules for a second kernel.

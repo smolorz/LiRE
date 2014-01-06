@@ -1,0 +1,7 @@
+
+config LIRE_BZIP2_BUILD_SRC
+    bool "    Build bzip2"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_BZIP2_INST
+    help
+    ...

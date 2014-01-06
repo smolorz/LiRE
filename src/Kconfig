@@ -1,0 +1,183 @@
+menu "Build"
+
+config LIRE_BUILD_SRC
+    bool "  Build sources"
+    default y
+    help
+    Build LIRE sources.
+
+    depends on LIRE_BUILD_SRC
+
+config LIRE_BUILD_ALL
+    bool "    Build all packages"
+    default n
+    depends on LIRE_BUILD_SRC
+
+    select LIRE_LINUX_BUILD_SRC
+    select LIRE_BUSYBOX_BUILD_SRC
+    select LIRE_XENOMAI_BUILD_SRC 		if LIRE_XENOMAI_INST
+    select LIRE_NANO_BUILD_SRC			if LIRE_NANO_INST
+    select LIRE_WIRELESS_TOOLS_BUILD_SRC	if LIRE_WIRELESS_TOOLS_INST
+    select LIRE_OPENSSH_BUILD_SRC		if LIRE_OPENSSH_INST
+    select LIRE_RACK_BUILD_SRC			if LIRE_RACK_INST
+    select LIRE_RACK_RTS_BUILD_SRC		if LIRE_RACK_RTS_INST
+    select LIRE_RTNET_BUILD_SRC			if LIRE_RTNET_INST
+    select LIRE_OPENCV_BUILD_SRC		if LIRE_OPENCV_INST
+    select LIRE_LIBDC1394_BUILD_SRC		if LIRE_LIBDC1394_INST
+    select LIRE_LIBRAW1394_BUILD_SRC		if LIRE_LIBRAW1394_INST
+    select LIRE_LIBJPEG_BUILD_SRC		if LIRE_LIBJPEG_INST
+    select LIRE_LIBPNG_BUILD_SRC		if LIRE_LIBPNG_INST
+    select LIRE_OPENVPN_BUILD_SRC		if LIRE_OPENVPN_INST
+    select LIRE_PCIUTILS_BUILD_SRC		if LIRE_PCIUTILS_INST
+    select LIRE_HDPARM_BUILD_SRC		if LIRE_HDPARM_INST
+    select LIRE_LINUX_SCND_BUILD_SRC		if LIRE_LINUX_SCND_INST
+    select LIRE_XENOMAI_SCND_BUILD_SRC		if LIRE_XENOMAI_SCND_INST
+    select LIRE_RTNET_SCND_BUILD_SRC		if LIRE_RTNET_SCND_INST
+    select LIRE_RACK_SCND_BUILD_SRC		if LIRE_RACK_SCND_INST
+    select LIRE_GSL_BUILD_SRC           	if LIRE_GSL_INST
+    select LIRE_E2FSPROGS_BUILD_SRC		if LIRE_E2FSPROGS_INST
+    select LIRE_WLANPOLL_BUILD_SRC      	if LIRE_WLANPOLL_INST
+    select LIRE_LIBUSB_BUILD_SRC        	if LIRE_LIBUSB_INST
+    select LIRE_SETSERIAL_BUILD_SRC     	if LIRE_SETSERIAL_INST
+    select LIRE_DHCPCD_BUILD_SRC        	if LIRE_DHCPCD_INST
+    select LIRE_WPA_SUPPLICANT_BUILD_SRC    	if LIRE_WPA_SUPPLICANT_INST
+    select LIRE_EXPAT_BUILD_SRC         	if LIRE_EXPAT_INST
+    select LIRE_BOOST_BUILD_SRC         	if LIRE_BOOST_INST
+    select LIRE_BZIP2_BUILD_SRC         	if LIRE_BZIP2_INST
+    select LIRE_FLANN_BUILD_SRC         	if LIRE_FLANN_INST
+    select LIRE_PCL_BUILD_SRC           	if LIRE_PCL_INST
+    select LIRE_OPENNI_BUILD_SRC        	if LIRE_OPENNI_INST
+    select LIRE_PRIMESENSE_BUILD_SRC		if LIRE_PRIMESENSE_INST
+    select LIRE_SENSORKINECT_BUILD_SRC		if LIRE_SENSORKINECT_INST
+
+
+source "src/linux/Kconfig"    
+source "src/xenomai/Kconfig"
+source "src/busybox/Kconfig"
+
+comment "*SECOND* Kernel Build Options"
+source "src/linux_scnd/Kconfig"
+source "src/xenomai_scnd/Kconfig"
+source "src/rtnet_scnd/Kconfig"
+source "src/rack_scnd/Kconfig"
+
+comment "  Applications"
+    depends on LIRE_BUILD_SRC
+source "src/opencv/Kconfig"
+source "src/openvpn/Kconfig"
+source "src/openssl/Kconfig"
+source "src/openssh/Kconfig"
+source "src/nano/Kconfig"
+source "src/pciutils/Kconfig"
+source "src/hdparm/Kconfig"
+source "src/e2fsprogs/Kconfig"
+source "src/setserial/Kconfig"
+source "src/dhcpcd/Kconfig"
+
+comment "  WLAN"
+    depends on LIRE_BUILD_SRC
+source "src/wireless_tools/Kconfig"
+source "src/wlanpoll/Kconfig"
+source "src/wpa_supplicant/Kconfig"
+
+comment "  Drivers"
+    depends on LIRE_BUILD_SRC
+source "src/rtnet/Kconfig"
+
+comment "  RACK"
+    depends on LIRE_BUILD_SRC
+source "src/rack/Kconfig"
+source "src/rack_rts/Kconfig"
+
+comment "  Libraries"
+    depends on LIRE_BUILD_SRC
+source "src/libraw1394/Kconfig"
+source "src/libdc1394/Kconfig"
+source "src/libpng/Kconfig"
+source "src/libjpeg/Kconfig"
+source "src/libsepol/Kconfig"
+source "src/libselinux/Kconfig"
+source "src/ncurses/Kconfig"
+source "src/zlib/Kconfig"
+source "src/gsl/Kconfig"
+source "src/libusb/Kconfig"
+source "src/expat/Kconfig"
+source "src/boost/Kconfig"
+source "src/bzip2/Kconfig"
+source "src/eigen/Kconfig"
+source "src/flann/Kconfig"
+source "src/pcl/Kconfig"
+source "src/openni/Kconfig"
+source "src/primesense/Kconfig"
+source "src/sensorkinect/Kconfig"
+
+#comment "  Special Packages"
+#    depends on LIRE_BUILD_SRC
+
+
+comment "Configuration"
+
+config LIRE_BUILD_SRC_DOWNLOAD_DIR
+    string "Source download directory"
+    default "/YOUR/PATH/LiRE-0.9-betaX/sources"
+    help
+    ...
+
+config LIRE_BUILDDIR
+    string "LIRE build directory"
+    default "/YOUR/PATH/LiRE-0.9-betaX/builddir"
+    help
+    Relative or absolute name of the build directory,
+    e.g. /tmp/builddir (absolute) or builddir (relative).
+    WARNING !! Do not use relative paths into parent directories (../../XYZ)
+
+config LIRE_INSTDIR
+    string "LIRE install directory"
+    default "/YOUR/PATH/LiRE-0.9-betaX/installdir"
+    help
+    Relative or absolute name of the install directory,
+    e.g. /tmp/instdir (absolute) or instdir (relative).
+    WARNING !! Do not use relative paths into parent directories (../../XYZ)
+
+config LIRE_CROSS_COMPILE
+    bool "Use own toolchain"
+    default y
+
+config LIRE_TARGET_ARCH
+    string "main ARCH string of the target"
+    default x86
+    depends on LIRE_CROSS_COMPILE
+
+config LIRE_TARGET_TUPLE
+    string "target tuple or alias"
+    default i586-nptl-linux-gnu
+    depends on LIRE_CROSS_COMPILE
+
+config LIRE_TOOLCHAIN_PARENT_DIR
+    string "Parent directory of the toolchain"
+    default /opt
+    depends on LIRE_CROSS_COMPILE
+
+config LIRE_BUILD_JOBS
+    int "Number of jobs to build the sources"
+    default 8
+    help
+    If you use distcc or icecream, you can specify the number of compile-jobs.
+
+config LIRE_BUILD_BLEEDING_EDGE
+    bool "Build bleeding edge (experimental)"
+    default n
+    help
+    make update automatically chooses the unstable package and make build automatically 
+    chooses the latest config file, if activated
+    EXPERIMENTAL, USE WITH CAUTION. MAY BREAK THE BUILD PROCESS
+
+config LIRE_BUILD_CONFIGS_LOG
+    string "logfile of selected configs"
+    default ""
+    help
+    In this logfile will be stored, which configfile has been selected 
+    during the build process. 
+    If this value is empty, no log file will be created.
+
+endmenu

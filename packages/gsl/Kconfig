@@ -1,0 +1,6 @@
+
+config LIRE_GSL_INST
+    bool "  GNU Scientific Library"
+    default y 
+    help
+    ...text...

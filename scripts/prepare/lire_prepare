@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#
+# 2009-11-27 Oliver Weidner (Oliver.Weidner@gmail.com)
+#
+
+
+# =============DON'T TOUCH THIS============ #
+# ==================START================== #
+
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+. .lire_config
+
+
+# =============DON'T TOUCH THIS============ #
+# ===================STOP================== #
+
+
+echo ""
+echo "************************************"
+echo "*                                  *"
+echo "*  Execute LiRE prepare scripts... *"
+echo "*                                  *"
+echo "************************************"
+echo ""
+
+#
+# =============START YOUR 'prepare' SCRIPTS HERE============= #
+# NOTE: You can use all values in .lire_config
+#
+
+. ${LiRE_DIR}/scripts/prepare/rtnet_depends_on
+[ $? -gt 0 ] && { echo " ERROR occured in a lire_prepare script. Exiting... "; exit 1; }
+
+
+#
+# =============STOP YOUR 'prepare' SCRIPTS HERE============= #
+#
+

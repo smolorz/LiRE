@@ -1,0 +1,4 @@
+# LiRE stores the packages' configs in this directory at run-time.
+# They are named ${PACKACKE_NAME}.config. This is an empty directory
+# in the repository.
+*.config

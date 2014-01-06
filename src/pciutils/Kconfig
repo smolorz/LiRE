@@ -1,0 +1,7 @@
+
+config LIRE_PCIUTILS_BUILD_SRC
+    bool "    Build pciutils"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_PCIUTILS_INST
+    help
+    Builds the pciutils, beeing able to use lspci and so on.

@@ -1,0 +1,7 @@
+
+config LIRE_WPA_SUPPLICANT_INST
+    bool "  Install wpa_supplicant"
+    default y
+    select LIRE_OPENSSL_INST
+    help
+    This program is needed to be able to connect LiRE to WPA encrypted wireless network.

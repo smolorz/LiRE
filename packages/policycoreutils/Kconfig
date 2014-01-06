@@ -1,0 +1,8 @@
+
+config LIRE_POLICYCOREUTILS_INST
+    bool "  Install PolicyCoreUtils"
+    depends on LIRE_SELINUX_ENABLE
+    default y
+    select LIRE_LIBSELINUX_INST
+    help
+    ...text...

@@ -1,0 +1,183 @@
+#! /bin/bash
+
+#
+# busybox build script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# name of this package
+PACKAGE="busybox"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_BUSYBOX_BUILDDIR/.config"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+if [ "$CONFIG_LIRE_BUSYBOX_SELINUX_BUILD" = "y" ]; then
+    LIRE_LIBSEPOL_INSTDIR="$LIRE_INSTDIR/libsepol"
+    LIRE_LIBSELINUX_INSTDIR="$LIRE_INSTDIR/libselinux"
+
+    SELINUX_PATHS="CROSS_CFLAGS=-I$LIRE_LIBSELINUX_INSTDIR/usr/include \
+        LDFLAGS=-L$LIRE_LIBSELINUX_INSTDIR/usr/lib"
+
+    export LIBRARY_PATH="$LIRE_LIBSEPOL_INSTDIR/usr/lib"
+fi
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your init script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+    if [ "$CONFIG_LIRE_BUSYBOX_SELINUX_BUILD" = "y" ]; then
+        if grep -q "# CONFIG_SELINUX is not set" .config; then
+            mv .config .config_
+            cat .config_ | sed 's/# CONFIG_SELINUX is not set/CONFIG_SELINUX=y/' > .config
+            rm .config_
+        fi
+
+    elif grep -q "CONFIG_SELINUX=y" .config; then
+
+        mv .config .config_
+        cat .config_ | sed 's/CONFIG_SELINUX=y/# CONFIG_SELINUX is not set/' > .config
+        rm .config_
+
+    fi
+
+    cd $LIRE_BUSYBOX_SRCDIR
+
+    #
+    # configure
+    #
+    echo " make oldconfig $PACKAGE"
+    make O="$LIRE_BUSYBOX_BUILDDIR" oldconfig
+
+    [ $? -gt 0 ] && { echo "make oldconfig [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make oldconfig [OK]"
+
+    #
+    # make
+    #
+    cd $LIRE_BUSYBOX_BUILDDIR
+    echo " build $PACKAGE"
+    echo "eval $SELINUX_PATHS make -j$CONFIG_LIRE_BUILD_JOBS"
+    eval $SELINUX_PATHS make -j$CONFIG_LIRE_BUILD_JOBS
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+#    cd $LIRE_BUSYBOX_SRCDIR
+
+    #
+    # make install busybox
+    #
+    cd $LIRE_BUSYBOX_BUILDDIR
+    echo " make install $PACKAGE"
+    eval $SELINUX_PATHS make CONFIG_PREFIX=$LIRE_BUSYBOX_INSTDIR install
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+
+    # fix wrong target lib-dir
+    if [ -d $LIRE_BUSYBOX_INSTDIR/lib64 ]; then
+        mv $LIRE_BUSYBOX_INSTDIR/lib64 $LIRE_BUSYBOX_INSTDIR/lib
+    fi
+
+    echo "make install [OK]"
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    DEST="$LIRE_BUSYBOX_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"
+
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    if [ "$CONFIG_LIRE_BUSYBOX_SELINUX_BUILD" = "y" ]; then
+        echo "Refreshing $LIRE_PKG_DEPEND_FILE ... "
+        echo "libsepol"   >  "$LIRE_BUSYBOX_PACKDIR/$LIRE_PKG_DEPEND_FILE"
+        echo "libselinux" >> "$LIRE_BUSYBOX_PACKDIR/$LIRE_PKG_DEPEND_FILE"
+    else
+        echo "Refreshing $LIRE_PKG_DEPEND_FILE ... "
+        echo ""  >  "$LIRE_BUSYBOX_PACKDIR/$LIRE_PKG_DEPEND_FILE"
+    fi
+
+    # don't overwrite depend file
+
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

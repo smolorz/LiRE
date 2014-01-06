@@ -1,0 +1,7 @@
+
+config LIRE_LIBDC1394_INST
+    bool "  Install libdc1394"
+    default n
+    select LIRE_LIBRAW1394_INST
+    help
+    ...text...

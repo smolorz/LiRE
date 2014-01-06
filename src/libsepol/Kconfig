@@ -1,0 +1,7 @@
+
+config LIRE_LIBSEPOL_BUILD_SRC
+    bool "    Build new libsepol"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_LIBSEPOL_INST
+    help
+    ...

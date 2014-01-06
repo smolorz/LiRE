@@ -1,0 +1,9 @@
+
+config LIRE_XENOMAI_BUILD_SRC
+    bool "    Build new xenomai"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_XENOMAI_INST
+    select LIRE_LINUX_BUILD_SRC
+    help
+    If the package is too old, you can build a new package from the LIRE-source.
+    The LIRE-source have to be linked in the LIRE-SRC directory.

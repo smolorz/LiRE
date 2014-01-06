@@ -1,0 +1,8 @@
+
+config LIRE_OPENSSH_INST
+    bool "  Install OpenSSH"
+    select LIRE_ZLIB_INST
+    select LIRE_OPENSSL_INST
+    default y
+    help
+    ...text...

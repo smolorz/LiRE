@@ -1,0 +1,35 @@
+#! /bin/sh
+
+################################################################################
+#
+# Rack tims router loop
+#
+################################################################################
+
+. /etc/lire.conf
+
+PROG="tims_router_tcp"
+
+[ ! -x `which $PROG` ] && { exit 1; }
+
+OPT=""
+if [ "$RACK_TIMS_ROUTER_IP" != "" ]; then
+    OPT=$OPT" -i $RACK_TIMS_ROUTER_IP"
+fi
+if [ "$RACK_TIMS_ROUTER_PORT" != "" ]; then
+    OPT=$OPT" -p $RACK_TIMS_ROUTER_PORT"
+fi
+if [ "$RACK_TIMS_MSG_SIZE" != "" ]; then
+    OPT=$OPT" -m $RACK_TIMS_MSG_SIZE"
+fi
+if [ "$RACK_TIMS_ROUTER_LOG_LEVEL" != "" ]; then
+    OPT=$OPT" -l $RACK_TIMS_ROUTER_LOG_LEVEL"
+fi
+
+while(true); do
+    echo "Starting TiMS Router (TCP)... "
+    echo "Options : $OPT"
+    $PROG $OPT
+
+    sleep 3
+done

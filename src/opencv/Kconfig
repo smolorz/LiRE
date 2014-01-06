@@ -1,0 +1,12 @@
+
+config LIRE_OPENCV_BUILD_SRC
+    bool "    Build new OpenCV"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_OPENCV_INST
+    select LIRE_LIBDC1394_BUILD_SRC 
+    select LIRE_LIBPNG_BUILD_SRC 
+    select LIRE_LIBJPEG_BUILD_SRC
+    select LIRE_ZLIB_BUILD_SRC
+    help
+    If the package is too old, you can build a new package from the LIRE-source.
+    The LIRE-source have to be linked in the LIRE-SRC directory.

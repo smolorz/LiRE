@@ -1,0 +1,148 @@
+			    LiRE Version 0.11-alpha3
+			    ========================
+
+
+What are the requirements?
+--------------------------
+
+ Runtime environment:
+ x86 platform  (Pentium I or better) 
+
+ Development:
+ linux system with GCC 3.2 (or better)
+
+
+How to install it?
+------------------
+
+ 1. cd to a preferred directory (e.g. /usr/src)
+ 2. tar xvjf <PATH-TO-LiRE-ARCHIVE>/LiRE-X.X.tar.bz2
+ 3. cd LiRE
+ 4. make menuconfig
+ 5. make build
+ 6. make install
+    This will create the directory <LiRE-OUTPUT_DIR> with a bootable LiRE-Distribution,
+    containing all selected packages or if selected a netboot image.
+
+
+What are all these directories for?
+-----------------------------------
+ <LiRE_DIR>/
+              base       -> Contains all LiRE specific files and devices e.g. /etc,/dev,...
+              configs    -> LiRE creates for each package a configuration file which is located 
+here
+	      kconfig    -> kconfig files
+	      libs       -> Contains all non-package specific libraries e.g. libc
+              packages   -> All packages as binaries.
+              scripts    -> LiRE scripts for configuration compilation and installation
+              src        -> Build configuration,depend file and scripts for each package
+
+How to build packages?
+----------------------
+
+ For each LiRE-package exists a directory in <LiRE-DIR>/src (e.g. <LiRE-DIR>/src/linux/).
+ If you want to build your own kernel for example, you have to download the kernel sources 
+ and link them to <LiRE-DIR>/src/linux/~linux. If you have an own configfile for the kernel You
+ can copy it to <LiRE-DIR>/src/linux/configs. 
+ Now you can start "make menuconfig" and select the kernel to be build. 
+ You have to enter make build to start the build process.
+ It's the same procedure for the other packages.
+ 
+ If you select a package for build and don't have linked the sources it will try to get the sources
+ from the "LiRE update directory" (menu->packages). You can force this running "make update".
+ Using this feature you have to provide a directory/ftp-tree with the following structure.
+
+ directory structure:
+ --------------------
+
+ <UPDATE-DIR>
+  /binaries
+    /<PACKAGENAME>
+      ./<PACKAGENAME>.tar.bz2
+      ./version
+  /sources
+    /<PACKAGENAME>
+      ./<PACKAGENAME>_stable.tar.bz2
+      ./<PACKAGENAME>_unstable.tar.bz2
+      ./version_stable
+      ./version_unstable
+ 
+ e.g.
+
+ /srv/ftp
+  /binaries
+    /xenomai
+      ./xenomai.tar.bz2
+      ./version
+  /sources
+    /xenomai
+      ./xenomai_stable.tar.bz2
+      ./xenomai_unstable.tar.bz2
+      ./version_stable
+      ./version_unstable
+
+ In the "binaries" directory you can copy prebuilt tars, like the ones coming with LiRE.
+ The "sources" directory should be provided with vanilla-source of the packages.
+ The "version*" files only contain the version number. There is an exception for the linux sources, the "sources"
+ directory of this package has to look like the binary one, to say without any _stable or _unstable tag.
+ We are using this system to provide up to date packages for our users.
+ A more in-depth documentation of this feature has to follow.
+
+
+Where can I get the sources?
+----------------------------
+
+ Kernel:     http://www.kernel.org(patched)*
+ BusyBox:    http://www.busybox.net
+ Xenomai:    http://www.xenomai.org(patched)
+ RTnet:      http://www.rtnet.org/
+ OpenCV:     http://sourceforge.net/projects/opencvlibrary/(patched)*
+ OpenVPN:    http://www.openvpn.net
+ OpenSSL:    http://www.openssl.org
+ OpenSSH:    http://www.openssh.org
+ Nano:       http://www.nano-editor.org/
+ RACK:       http://developer.berlios.de/projects/rack
+ USB4RT:     http://developer.berlios.de/projects/usb4rt
+ libdc1394:  http://sourceforge.net/projects/libdc1394/
+ libjpeg:    http://www.ijg.org/
+ libpng:     http://www.libpng.org
+ libraw1394: http://sourceforge.net/projects/libraw1394/
+ zlib:       http://www.zlib.net/
+ ATMEL:      http://at76c503a.berlios.de/(patched)*
+ GSL:        http://www.gnu.org/software/gsl/
+ pciutils:   http://mj.ucw.cz/pciutils.html
+ hdparm      http://sourceforge.net/projects/hdparm/
+ e2fsprogs   http://e2fsprogs.sourceforge.net/
+ wireless-tools: http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html
+ dhcpcd:     http://roy.marples.name
+ libusb:     http://libusb.org
+ ncurses:    http://www.gnu.org/software/ncurses
+ setserial:  http://setserial.sourceforge.net
+ wpa_supplicant: http://hostap.epitest.fi/wpa_supplicant
+ expat:       http://expat.sourceforge.net
+ bzip2:       http://www.bzip.org
+ boost:       http://www.boost.org
+ eigen:       http://eigen.tuxfamily.org
+ flann:       http://www.cs.ubc.ca/~mariusm/index.php/FLANN/FLANN
+ pcl:         http://pointclouds.org
+
+* These sources had to be patched to work properly with LiRE.
+
+Contact
+-------
+
+ Sebastian Smolorz
+ 
+ Leibniz Universität Hannover
+ Institute for Systems Engineering (ISE)
+ Real-Time Systems Group (RTS)
+ Appelstr. 9a (12th floor)
+ 30167 Hannover - Germany
+ 
+ E-Mail: smolorz@rts.uni-hannover.de
+ Web: http://www.rts.uni-hannover.de
+
+License
+-------
+Released under the terms of the GNU GPL v2.0.
+

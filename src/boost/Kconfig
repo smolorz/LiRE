@@ -1,0 +1,9 @@
+
+config LIRE_BOOST_BUILD_SRC
+    bool "    Build Boost libraries"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_BOOST_INST
+    select LIRE_EXPAT_BUILD_SRC
+    select LIRE_BZIP2_BUILD_SRC
+    help
+    ...

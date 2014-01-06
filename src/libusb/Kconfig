@@ -1,0 +1,7 @@
+
+config LIRE_LIBUSB_BUILD_SRC
+    bool "    Build libusb"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_LIBUSB_INST
+    help
+    build libusb

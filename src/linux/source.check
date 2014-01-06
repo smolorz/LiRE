@@ -1,0 +1,104 @@
+#! /bin/bash
+
+#
+# Linux check script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+# name of this package
+PACKAGE="linux"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_CHECK_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_LINUX_SRCDIR/.config"
+
+#
+# before calling LIRE_INIT_SOURCE_CHECK you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF_FILE
+#
+LIRE_INIT_SOURCE_CHECK
+
+#
+# - the package name is valid
+# - you are in the SRC/$PACKAGE directory now (source script directory )
+# - you can use this values now ($PACK = upcase name of this package)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you find an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+#========== START YOUR CHECKS HERE =============================================
+#
+# You are in $LIRE_"$PACKAGE"_SCRDIR (package script directory)
+#
+
+function GRAB_VERSION_FROM_MAKEFILE()
+{
+    echo " Try to generate kernel version from Makefile ..."
+    FILE="$LIRE_LINUX_SRCDIR/Makefile"
+    echo -n " Searching for $FILE ... "
+    [ ! -f $FILE ] && { echo "[FAILED], not found"; LIRE_EXIT_ERROR 1; }
+    [ -z $FILE ]   && { echo "[FAILED], size is zero"; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    VERSION=`cat $FILE | sed -n '1,1p' | gawk -F" = " '{print $2}'`
+    PATCHLEVEL=`cat $FILE | sed -n '2,1p' | gawk -F" = " '{print $2}'`
+    SUBLEVEL=`cat $FILE | sed -n '3,1p' | gawk -F" = " '{print $2}'`
+    EXTRAVERSION=`cat $FILE | sed -n '4,1p' | gawk -F" = " '{print $2}'`
+
+    LINUX_VERSION_PRE="$VERSION.$PATCHLEVEL"
+    PACKAGE_VERSION="$LINUX_VERSION_PRE.$SUBLEVEL$EXTRAVERSION"
+
+    echo ""
+    echo " Found Linux version $LINUX_VERSION"
+    echo ""
+}
+
+FILE="$LIRE_LINUX_SRCDIR/$LIRE_VERSION_FILE"
+if [ -f $FILE ]; then
+    PACKAGE_VERSION="$(cat $FILE)"
+else
+    GRAB_VERSION_FROM_MAKEFILE
+fi
+
+CONFIG_NAME="config"
+CONFIG_FILE="$LIRE_LINUX_SRCDIR/.$CONFIG_NAME"
+
+LIRE_SELECT_CONFIG_FILE
+
+
+
+
+#========== STOP YOUR CHECKS HERE ==============================================
+#
+# before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.
+# the build script can get this values by LIRE_$PACK$_$VALUE$ (e.g. LIRE_LINUX_VERSION)
+#
+# PACKAGE_SRCCONF must be a vild source config file
+# PACKAGE_VERSION
+#
+LIRE_EXIT_SOURCE_CHECK

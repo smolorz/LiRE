@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export PATH=/usr/bin:/bin:/sbin:/usr/sbin
+if [[ "`whoami`" == "root" ]]
+then 
+	export PS1="\\u@\\h :\\W# "
+else
+	export PS1="\\u@\\h :\\W> "
+fi
+
+alias la='ls -lah'
+alias ll="ls -lh"
+alias dir="ls -l"
+alias l="ls -alF"
+alias md="mkdir -p"
+alias ..="cd .."
+alias o="less"

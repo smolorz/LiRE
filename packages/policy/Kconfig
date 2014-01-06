@@ -1,0 +1,7 @@
+
+config LIRE_POLICY_INST
+    bool "  Install Policy"
+    depends on LIRE_SELINUX_ENABLE
+    default y
+    help
+    ...text...

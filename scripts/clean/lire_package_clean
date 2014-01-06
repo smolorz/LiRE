@@ -1,0 +1,56 @@
+#! /bin/bash
+
+#
+# LIRE package clean script
+# 2006-02-22 Joerg Langenberg (joerg.langenberg@gmx.net)
+#
+
+echo "============================================"
+echo " LIRE package clean"
+echo "============================================"
+echo ""
+
+[ ! -f .lire_config ] && { echo " ERROR: starting in invalid path "; exit 1; }
+. .lire_config
+
+[ ! -f "${LiRE_DIR}/configs/LIRE.config" ] && { echo " Can't find LIRE.config -> EXIT"; exit 1;}
+. "${LiRE_DIR}/configs/LIRE.config"
+
+#
+# remove version files
+#
+echo " Deleting package versions:"
+FILES=`find packages -name version`
+for f in $FILES; do
+    echo -n "  Deleting $f ... "
+    rm $f
+    [ $? -gt 0 ] && echo "[FAILED]"
+    echo "[OK]"
+done
+
+#
+# remove MD5 checksums
+#
+echo " Deleting MD5 checksums:"
+FILES=`find packages -name ".*$LIRE_CHECKSUM_EXT"`
+for f in $FILES; do
+    echo -n "  Deleting $f ... "
+    rm $f
+    [ $? -gt 0 ] && echo "[FAILED]"
+    echo "[OK]"
+done
+
+#
+# remove archives
+#
+echo " Deleting tar.bz2 archives:"
+FILES=`find packages -name *.tar.bz2`
+for f in $FILES; do
+    echo -n "  Deleting $f ... "
+    rm $f
+    [ $? -gt 0 ] && echo "[FAILED]"
+    echo "[OK]"
+done
+
+
+echo "LIRE package clean completed ..."

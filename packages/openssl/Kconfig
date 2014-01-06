@@ -1,0 +1,6 @@
+
+config LIRE_OPENSSL_INST
+    bool "  Install OpenSSL"
+    default y
+    help
+    ...text...

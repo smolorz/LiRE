@@ -1,0 +1,89 @@
+
+menu "Packages"
+
+source  "packages/xenomai/Kconfig"
+
+comment "*SECOND* Kernel Options"
+source  "packages/linux_scnd/Kconfig"
+source  "packages/xenomai_scnd/Kconfig"
+source  "packages/rtnet_scnd/Kconfig"
+source  "packages/rack_scnd/Kconfig"
+
+comment "Applications"
+source      "packages/opencv/Kconfig"
+source      "packages/openvpn/Kconfig"
+source 	    "packages/openssl/Kconfig"
+source 	    "packages/openssh/Kconfig"
+source      "packages/nano/Kconfig"
+source      "packages/pciutils/Kconfig"
+source      "packages/hdparm/Kconfig"
+source      "packages/e2fsprogs/Kconfig"
+source      "packages/setserial/Kconfig"
+source      "packages/dhcpcd/Kconfig"
+
+comment "WLAN"
+source      "packages/wireless_tools/Kconfig"
+source      "packages/wlanpoll/Kconfig"
+source      "packages/wpa_supplicant/Kconfig"
+
+comment "Real-Time Drivers"
+source      "packages/rtnet/Kconfig"
+
+comment "Misc Drivers"
+
+comment "RACK"
+source      "packages/rack/Kconfig"
+source      "packages/rack_rts/Kconfig"
+
+comment ""
+menu "Libraries"
+comment "Libraries"
+source      "packages/libdc1394/Kconfig"
+source      "packages/libjpeg/Kconfig"
+source      "packages/libpng/Kconfig"
+source      "packages/libraw1394/Kconfig"
+source      "packages/ncurses/Kconfig"
+source      "packages/zlib/Kconfig"
+source      "packages/gsl/Kconfig"
+source      "packages/libusb/Kconfig"
+source      "packages/expat/Kconfig"
+source      "packages/boost/Kconfig"
+source      "packages/bzip2/Kconfig"
+source      "packages/eigen/Kconfig"
+source      "packages/flann/Kconfig"
+source      "packages/pcl/Kconfig"
+source      "packages/openni/Kconfig"
+source      "packages/primesense/Kconfig"
+source      "packages/sensorkinect/Kconfig"
+
+endmenu
+
+comment ""
+
+config LIRE_UPDATE_DIR
+    string "LIRE update directory"
+    default ""
+    help
+    Absolute url/path to a directory/ftp with the LiRE-update (binary and  source) 
+    directory structure
+
+config LIRE_SCP_UPDATE_SERVER
+    string "LiRE scp update server"
+    default ""
+    help
+    Scp server for non-public packages.
+
+config LIRE_CUSTOMDIR_ENABLE
+    bool "Enable copy of a custom directory"
+
+config LIRE_CUSTOMDIR
+    string "LIRE custom directory"
+    default "/home/`whoami`/LIRE-custom"
+    depends on LIRE_CUSTOMDIR_ENABLE
+    help
+    Absolute path to a directory with all custom install scripts and
+    config files (e.g. /home/`whoami`/LIRE-custom).
+    The script lire_custom_start have to be in the directory and will be
+    started by lire autostart.
+
+endmenu

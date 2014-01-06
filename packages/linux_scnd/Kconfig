@@ -1,0 +1,6 @@
+
+config LIRE_LINUX_SCND_INST
+    bool "  Installs a _SECOND_ kernel"
+    default y
+    help
+    Installs a *SECOND* kernel. Unselect if you do *NOT* need a second one.

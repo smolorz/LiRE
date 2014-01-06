@@ -1,0 +1,7 @@
+
+config LIRE_LIBSEPOL_INST
+    bool "  Install libsepol"
+    depends on LIRE_SELINUX_ENABLE
+    default y
+    help
+    ...text...

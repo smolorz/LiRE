@@ -1,0 +1,44 @@
+#! /bin/bash
+
+#
+# SensorKinect install script
+#
+# 2011-08-29 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
+#
+
+# don't touch this - start -
+[ ! -f scripts/install/LIRE_INSTALL_SCRIPTS ] && return 1;
+. scripts/install/LIRE_INSTALL_SCRIPTS
+# don't touch this - stop -
+
+#
+# INIT VALUES
+#
+
+# name of this package
+PACKAGE="sensorkinect"
+
+LIRE_INIT_INSTALL
+#
+# You can use this values now:
+#   INFO: all dirs and files were given in absolute path
+#
+#   all values in .lire_config
+#   all values in LIRE.config
+#
+# ATTENTION: If you have an error in your install script, you have to call
+#            LIRE_EXIT_INSTALL $errval
+#
+#========== START YOUR INSTALL HERE  ==========================================
+#
+# You are in the package directory LIRE_PACKDIR (.....LIRE/packages/$PACKAGE)
+#
+
+LIRE_EXTRACT_TAR_ARCHIVE
+
+install -d $LIRE_OUTDIR/etc/rc.d/packages/sensorkinect
+install -m 775 $LIRE_PACKDIR/sensorkinect/xnsensorserver_loop $LIRE_OUTDIR/etc/rc.d/packages/sensorkinect
+
+#========== STOP YOUR ROOT INSTALL HERE  ======================================
+
+LIRE_EXIT_INSTALL 0

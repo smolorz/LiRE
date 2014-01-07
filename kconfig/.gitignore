@@ -7,4 +7,3 @@ lex.*.c
 *.tab.c
 conf
 mconf
-lxdialog

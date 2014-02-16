@@ -268,11 +268,35 @@ QEMU_CREATE() {
     echo "[OK]"
 
     echo "QEMU image has been created"
-rm -rf "$QEMU_MOUNT_DIR"
+    rm -rf "$QEMU_MOUNT_DIR"
     mv "$QEMU_IMAGE" "$OUT_DIR/lireQE.img"
 
+    if [ "$LIRE_QE_DATA_IMAGESIZE" -gt 0 ]; then
+        echo -n "Creating QEMU data-partition mount directory ..."
+        QEMU_DATA_IMAGE="$(mktemp)"
+        echo "[OK]"
+
+        echo -n "Creating data-image ... "
+        dd if=/dev/zero of="$QEMU_DATA_IMAGE" count="$LIRE_QE_DATA_IMAGESIZE" bs=1024
+        CHECK_ERROR $? ""
+        echo "[OK]"
+
+        echo -n "Creating data-image filesystem ... "
+        mke2fs -q -F -b 1024 -m 0 "$QEMU_DATA_IMAGE" 2>/dev/null
+        CHECK_ERROR $? ""
+        echo "[OK]"
+
+        echo "QEMU data-image has been created"
+        mv "$QEMU_DATA_IMAGE" "$OUT_DIR/lireQE_data.img"
+    fi
+
     echo "You can now run LiRE with QEMU e.g."
-    echo "qemu-system-i386 -hda lireQE.img  -redir tcp:5557::22"
+
+    if [ "$LIRE_QE_DATA_IMAGESIZE" -gt 0 ]; then
+        echo "qemu-system-i386 -hda lireQE.img -hdb lireQE_data.img -redir tcp:5557::22"
+    else
+        echo "qemu-system-i386 -hda lireQE.img  -redir tcp:5557::22"
+    fi
 }
 
 QEMU_UMOUNT() {
@@ -351,7 +375,11 @@ elif [ "$LIRE_QE_CREATE" == "y" ]; then
     QEMU_CREATE
     old_dir=$(pwd)
     cd $OUT_DIR
-    tar -cjf lire.tar.bz2 lireQE.img 
+    if [ -f "lireQE_data.img" ]; then
+        tar -cjf lire.tar.bz2 lireQE.img lireQE_data.img
+    else
+        tar -cjf lire.tar.bz2 lireQE.img
+    fi
     cd $old_dir
 else
     echo "Create cf-card.tar.bz2"

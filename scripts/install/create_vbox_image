@@ -1,26 +1,56 @@
 #!/bin/bash
 
 USAGE() {
-    echo "$0 qemu_image target_dir"
+    echo "$0 qemu_image [qemu_data_image] target_dir"
     exit 1
 }
 
-qemu_image=$1
-target_dir=$2
-machine_name="LiRE-$RANDOM"
+if [ $# == 2 ]; then
+    qemu_image=$1
+    qemu_data_image=
+    target_dir=$2
 
-if [ -z "$qemu_image" -o -z "$target_dir" ]; then
+    if [ ! -f "$qemu_image" -o ! -d "$target_dir" ]; then
+        USAGE
+    fi
+elif [ $# == 3 ]; then
+    qemu_image=$1
+    qemu_data_image=$2
+    target_dir=$3
+
+    if [ ! -f "$qemu_image" -o ! -f "$qemu_data_image" -o ! -d "$target_dir" ]; then
+        USAGE
+    fi
+else
     USAGE
 fi
+machine_name="LiRE-$RANDOM"
+
 
 temp_dir=$(mktemp -d)
 vmdk_image="$temp_dir/LiRE.vmdk"
+vmdk_data_image="$temp_dir/LiRE_data.vmdk"
 VBoxManage convertfromraw $qemu_image $vmdk_image
+
+if [ -n "$qemu_data_image" ]; then
+    VBoxManage convertfromraw $qemu_data_image $vmdk_data_image
+fi
+
 VBoxManage createvm --name $machine_name --ostype "Linux" --register 
-VBoxManage storagectl $machine_name --name "SATA Controller" --add sata
-VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium $vmdk_image
+VBoxManage storagectl $machine_name --name "SATA Controller" --add sata --portcount 2
+VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $vmdk_image
+
+if [ -n "$qemu_data_image" ]; then
+    VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium $vmdk_data_image
+fi
+
 VBoxManage export $machine_name --output "$target_dir/LiRE.ovf"
-VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium none
+VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium none
+
+if [ -n "$qemu_data_image" ]; then
+    VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium none
+fi
+
 VBoxManage unregistervm $machine_name --delete
 
 

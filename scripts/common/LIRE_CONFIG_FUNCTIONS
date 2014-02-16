@@ -204,6 +204,9 @@ function INIT_ALL_LIRE_VALUES()
     # LIRE QEMU image size
     LIRE_QE_IMAGESIZE="$CONFIG_LIRE_IMGSIZE"
 
+    # LIRE QEMU data image size
+    LIRE_QE_DATA_IMAGESIZE="$CONFIG_LIRE_DATA_IMGSIZE"
+
   fi
 
   # if you want to use ISO

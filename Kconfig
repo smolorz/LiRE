@@ -80,6 +80,12 @@ config LIRE_IMGSIZE
     depends on LIRE_NETBOOT || LIRE_QEMU || LIRE_ISO || LIRE_VIRTUALBOX
     help
 
+config LIRE_DATA_IMGSIZE
+    int "Image size data partition [0: disable]"
+    default 0
+    depends on LIRE_QEMU || LIRE_VIRTUALBOX
+    help
+
 config LIRE_BOOTOPTIONS
     string "Boot parameters"
     default "vga=773"

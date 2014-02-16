@@ -192,6 +192,7 @@ CHECK_ERROR $? "Creating .install.conf"
 if [ "$CONFIG_LIRE_VIRTUALBOX" == "y" ]; then
     echo 'LIRE_QE_CREATE="y"' >> "$LIRE_OUTDIR/.install.conf"
     echo "LIRE_QE_IMAGESIZE=$CONFIG_LIRE_IMGSIZE" >> "$LIRE_OUTDIR/.install.conf"
+    echo "LIRE_QE_DATA_IMAGESIZE=$CONFIG_LIRE_DATA_IMGSIZE" >> "$LIRE_OUTDIR/.install.conf"
 fi
 
 
@@ -224,9 +225,13 @@ if [ "$CONFIG_LIRE_VIRTUALBOX" == "y" ]; then
     cd $tmp_dir 
     tar -xf $LIRE_REAL_OUTDIR/lire.tar.bz2
     mkdir lire_vbox
-    "$LIRE_ISCRDIR/create_vbox_image" lireQE.img lire_vbox
-    rm lire_vbox/LiRE.mf
-    tar -cvjf lire.tar.bz2 lire_vbox lireQE.img
+    if [ -f "lireQE_data.img" ]; then
+        "$LIRE_ISCRDIR/create_vbox_image" lireQE.img lireQE_data.img lire_vbox
+        tar -cvjf lire.tar.bz2 lire_vbox lireQE.img lireQE_data.img
+    else
+        "$LIRE_ISCRDIR/create_vbox_image" lireQE.img lire_vbox
+        tar -cvjf lire.tar.bz2 lire_vbox lireQE.img
+    fi
     mv lire.tar.bz2 $LIRE_REAL_OUTDIR
     rm -rf $tmp_dir
 fi

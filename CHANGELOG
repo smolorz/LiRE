@@ -1,5 +1,23 @@
 ############################################################################
 # LiRE - LInux Realtime Environment ##
+Version: 0.11
+Date: 23.06.2014
+
+#ChangeLog
+
+LiRE-0.11:
+
+° RACK       0.6.0-git-2014_01_10
+° RACK_RTS   0.3.0-git-2013_05_17
+° pcl        1.6.0
+
+* Added openni (1.5.4.0)
+* Added primesense (5.1.2.1)
+* Added sensorkinect (5.1.2.1)
+* Added pcl (1.5.1)
+
+############################################################################
+# LiRE - LInux Realtime Environment ##
 Version: 0.11-alpha3
 Date: 02.07.2012
 

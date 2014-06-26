@@ -62,6 +62,20 @@ if [ $BUILD -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
+    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+        UNSET_CC_VARS
+        cd ..
+        mkdir hostpython
+        cd hostpython
+        $LIRE_PYTHON_SRCDIR/configure --prefix=${LIRE_INSTDIR}/hostpython
+        make -j$CONFIG_LIRE_BUILD_JOBS
+        make install
+        export PATH=$PATH:${LIRE_INSTDIR}/hostpython/bin
+        cd $LIRE_PYTHON_BUILDDIR
+        SET_CC_VARS
+    fi
+
+
     #
     # configure python
     #

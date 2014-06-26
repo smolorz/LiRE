@@ -5,6 +5,7 @@
 # 2005-12-05 Joerg Langenberg (joerg.langenberg@gmx.net)
 # 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
 # 2009-12-24 Sascha Kruse (knopwob@googlemail.com)
+# 2014 Sebastian Smolorz (sesmo@gmx.net)
 
 ################################################################################
 # COMMON PART
@@ -71,6 +72,71 @@ function LIRE_INIT_PACKAGE_VALUES()
     PACK_MD5FILE_B="$PACK_BUILDDIR/$PACK_MD5FILE"
     PACK_MD5FILE_I="$PACK_INSTDIR/$PACK_MD5FILE"
     PACK_MD5FILE_P="$PACK_PACKDIR/$PACK_MD5FILE"
+}
+
+function BACKUP_CC_VARS()
+{
+  export LIRE_BACKUP_ARCH=$ARCH
+  export LIRE_BACKUP_HOST_ALIAS=$host_alias
+  export LIRE_BACKUP_CROSS_COMPILE=$CROSS_COMPILE
+  export LIRE_BACKUP_AS=$AS
+  export LIRE_BACKUP_AR=$AR
+  export LIRE_BACKUP_CC=$CC
+  export LIRE_BACKUP_CPP=$CPP
+  export LIRE_BACKUP_LD=$LD
+  export LIRE_BACKUP_CXX=$CXX
+  export LIRE_BACKUP_NM=$NM
+  export LIRE_BACKUP_OBJCOPY=$OBJCOPY
+  export LIRE_BACKUP_OBJDUMP=$OBJDUMP
+  export LIRE_BACKUP_RANLIB=$RANLIB
+  export LIRE_BACKUP_READELF=$READELF
+  export LIRE_BACKUP_SIZE=$SIZE
+  export LIRE_BACKUP_STRINGS=$STRINGS
+  export LIRE_BACKUP_STRIP=$STRIP
+}
+
+function UNSET_CC_VARS()
+{
+  BACKUP_CC_VARS
+
+  unset ARCH
+  unset host_alias
+  unset CROSS_COMPILE
+  unset AS
+  unset AR
+  unset CC
+  unset CPP
+  unset LD
+  unset CXX
+  unset NM
+  unset OBJCOPY
+  unset OBJDUMP
+  unset RANLIB
+  unset READELF
+  unset SIZE
+  unset STRINGS
+  unset STRIP
+}
+
+function SET_CC_VARS()
+{
+  export ARCH=$LIRE_BACKUP_ARCH
+  export host_alias=$LIRE_BACKUP_HOST_ALIAS
+  export CROSS_COMPILE=$LIRE_BACKUP_CROSS_COMPILE
+  export AS=$LIRE_BACKUP_AS
+  export AR=$LIRE_BACKUP_AR
+  export CC=$LIRE_BACKUP_CC
+  export CPP=$LIRE_BACKUP_CPP
+  export LD=$LIRE_BACKUP_LD
+  export CXX=$LIRE_BACKUP_CXX
+  export NM=$LIRE_BACKUP_NM
+  export OBJCOPY=$LIRE_BACKUP_OBJCOPY
+  export OBJDUMP=$LIRE_BACKUP_OBJDUMP
+  export RANLIB=$LIRE_BACKUP_RANLIB
+  export READELF=$LIRE_BACKUP_READELF
+  export SIZE=$LIRE_BACKUP_SIZE
+  export STRINGS=$LIRE_BACKUP_STRINGS
+  export STRIP=$LIRE_BACKUP_STRIP
 }
 
 ################################################################################

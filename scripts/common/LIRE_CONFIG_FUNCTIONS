@@ -4,6 +4,7 @@
 # LIRE_CONFIG_FUNCTIONS
 # 2005-12-05 Joerg Langenberg (joerg.langenberg@gmx.net)
 # 2006-06-16 Christoph Mueller (christoph@mueller-varas.de)
+# 2010-2014 Sebastian Smolorz (sesmo@gmx.net)
 #
 
 function REMOVE_ALL_CONFIGS()

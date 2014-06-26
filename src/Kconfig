@@ -73,6 +73,7 @@ source "src/hdparm/Kconfig"
 source "src/e2fsprogs/Kconfig"
 source "src/setserial/Kconfig"
 source "src/dhcpcd/Kconfig"
+source "src/python/Kconfig"
 
 comment "  WLAN"
     depends on LIRE_BUILD_SRC

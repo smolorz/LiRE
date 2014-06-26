@@ -1,0 +1,6 @@
+
+config LIRE_PYTHON_INST
+    bool "  Install python"
+    default n 
+    help
+    ...text...

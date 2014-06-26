@@ -1,0 +1,8 @@
+
+config LIRE_PYTHON_BUILD_SRC
+    bool "    Build new python"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_PYTHON_INST
+    help
+    ...
+

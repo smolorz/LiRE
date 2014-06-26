@@ -20,6 +20,7 @@ source      "packages/hdparm/Kconfig"
 source      "packages/e2fsprogs/Kconfig"
 source      "packages/setserial/Kconfig"
 source      "packages/dhcpcd/Kconfig"
+source      "packages/python/Kconfig"
 
 comment "WLAN"
 source      "packages/wireless_tools/Kconfig"

@@ -2,5 +2,6 @@
 config LIRE_PYTHON_INST
     bool "  Install python"
     default n 
+    select LIRE_NCURSES_INST
     help
     ...text...

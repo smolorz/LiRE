@@ -65,12 +65,13 @@ if [ $BUILD -eq 1 ]; then
     if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
         UNSET_CC_VARS
         cd ..
-        mkdir hostpython
+        mkdir -p hostpython
         cd hostpython
-        $LIRE_PYTHON_SRCDIR/configure --prefix=${LIRE_INSTDIR}/hostpython
+        $LIRE_PYTHON_SRCDIR/configure --prefix=${LIRE_HOSTDIR}
         make -j$CONFIG_LIRE_BUILD_JOBS
         make install
-        export PATH=$PATH:${LIRE_INSTDIR}/hostpython/bin
+        cd ${LIRE_HOSTDIR}/bin
+	ln -s python3 python
         cd $LIRE_PYTHON_BUILDDIR
         SET_CC_VARS
     fi

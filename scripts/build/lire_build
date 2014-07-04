@@ -83,13 +83,21 @@ mkdir -p "$LIRE_INSTDIR"
 echo "[OK]"
 
 #
-# copy $LIRE_INSTDIR/sys-root from toolchain
+# copy $LIRE_INSTDIR/sys-root from toolchain, create LIRE_HOSTDIR and set PYTHONPATH
 #
 if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
     echo -n " Copy toolchain's sys-root ... "
     cp -a "$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR/$CONFIG_LIRE_TARGET_TUPLE/$CONFIG_LIRE_TARGET_TUPLE/sys-root" "$LIRE_INSTDIR"
     [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
     echo "[OK]"
+
+    echo -n " Creating LIRE hostdir ... "
+    mkdir -p "$LIRE_HOSTDIR"
+    [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+    echo "[OK]"
+
+    export PATH=${LIRE_HOSTDIR}/bin:$PATH
+    export PYTHONPATH=${LIRE_HOSTDIR}/lib
 fi
 
 #

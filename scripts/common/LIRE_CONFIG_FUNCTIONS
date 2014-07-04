@@ -117,6 +117,14 @@ function INIT_ALL_LIRE_VALUES()
         LIRE_INSTDIR=$LIRE_DIR/"$CONFIG_LIRE_INSTDIR"
     fi
 
+    # LIRE host files directory (make absolute path)
+    if [ `echo "$CONFIG_LIRE_HOSTDIR" | cut -c 1` == '/' ]; then 	# absolute path
+        LIRE_HOSTDIR="$CONFIG_LIRE_HOSTDIR"
+    else								# relative path
+        LIRE_HOSTDIR=$LIRE_DIR/"$CONFIG_LIRE_HOSTDIR"
+    fi
+
+
     # LIRE source check script
     LIRE_SRC_CHECK_SKRIPT="source.check"
 
@@ -280,6 +288,7 @@ function CREATE_LIRE_INSTALL_CONFIG()
     echo "LIRE_BUILD_SRC=\"$LIRE_BUILD_SRC\""         >> $FILE
     echo "LIRE_BUILDDIR=\"$LIRE_BUILDDIR\""           >> $FILE
     echo "LIRE_INSTDIR=\"$LIRE_INSTDIR\""             >> $FILE
+    echo "LIRE_HOSTDIR=\"$LIRE_HOSTDIR\""             >> $FILE
     echo "LIRE_SRC_CHECK_SKRIPT=\"$LIRE_SRC_CHECK_SKRIPT\"" >> $FILE
     echo "LIRE_SRC_BUILD_SKRIPT=\"$LIRE_SRC_BUILD_SKRIPT\"" >> $FILE
     echo "LIRE_SRC_BUILD_LIST=\"$LIRE_SRC_BUILD_LIST\""     >> $FILE

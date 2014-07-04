@@ -94,6 +94,10 @@ comment "  RACK"
 source "src/rack/Kconfig"
 source "src/rack_rts/Kconfig"
 
+comment "  ROS"
+    depends on LIRE_BUILD_SRC
+source "src/catkin_pkg/Kconfig"
+
 comment "  Libraries"
     depends on LIRE_BUILD_SRC
 source "src/libraw1394/Kconfig"

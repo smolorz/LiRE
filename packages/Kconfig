@@ -39,6 +39,9 @@ comment "RACK"
 source      "packages/rack/Kconfig"
 source      "packages/rack_rts/Kconfig"
 
+comment "ROS"
+source      "packages/catkin_pkg/Kconfig"
+
 comment ""
 menu "Libraries"
 comment "Libraries"

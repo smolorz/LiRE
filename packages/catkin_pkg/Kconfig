@@ -1,0 +1,7 @@
+
+config LIRE_CATKIN_PGK_INST
+    bool "  Install standalone Python scripts for Catkin"
+    default n 
+    depends on LIRE_PYTHON_INST
+    help
+    ...text...

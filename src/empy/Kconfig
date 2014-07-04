@@ -1,0 +1,8 @@
+
+config LIRE_EMPY_BUILD_SRC
+    bool "    Include EmPy in HostPython"
+    default n
+    depends on LIRE_PYTHON_BUILD_SRC
+    help
+    ...
+

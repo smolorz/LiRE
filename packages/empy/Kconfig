@@ -1,0 +1,7 @@
+
+config LIRE_EMPY_INST
+    bool "  Install EmPy"
+    default n 
+    depends on LIRE_PYTHON_INST
+    help
+    ...text...

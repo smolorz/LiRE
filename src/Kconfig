@@ -73,7 +73,11 @@ source "src/hdparm/Kconfig"
 source "src/e2fsprogs/Kconfig"
 source "src/setserial/Kconfig"
 source "src/dhcpcd/Kconfig"
+
+comment "  Python"
+    depends on LIRE_BUILD_SRC
 source "src/python/Kconfig"
+source "src/empy/Kconfig"
 
 comment "  WLAN"
     depends on LIRE_BUILD_SRC
@@ -137,6 +141,14 @@ config LIRE_INSTDIR
     default "/YOUR/PATH/LiRE-0.9-betaX/installdir"
     help
     Relative or absolute name of the install directory,
+    e.g. /tmp/instdir (absolute) or instdir (relative).
+    WARNING !! Do not use relative paths into parent directories (../../XYZ)
+
+config LIRE_HOSTDIR
+    string "LIRE host files directory"
+    default "/YOUR/PATH/LiRE-0.9-betaX/hostdir"
+    help
+    Relative or absolute name of the host files directory,
     e.g. /tmp/instdir (absolute) or instdir (relative).
     WARNING !! Do not use relative paths into parent directories (../../XYZ)
 

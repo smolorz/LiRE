@@ -1,0 +1,9 @@
+
+config LIRE_CATKIN_INST
+    bool "  Install Catkin"
+    default n 
+    select LIRE_PYTHON_INST
+    select LIRE_EMPY_INST
+    select LIRE_CATKIN_PKG_INST
+    help
+    ...text...

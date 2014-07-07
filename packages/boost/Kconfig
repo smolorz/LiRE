@@ -4,5 +4,6 @@ config LIRE_BOOST_INST
     default y
     select LIRE_EXPAT_INST
     select LIRE_BZIP2_INST
+    select LIRE_ZLIB_INST
     help
     ...text...

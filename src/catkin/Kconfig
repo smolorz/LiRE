@@ -1,6 +1,6 @@
 
 config LIRE_CATKIN_BUILD_SRC
-    bool "    Include catkin in host based Python."
+    bool "    Include catkin in host based Python"
     default n
     depends on LIRE_BUILD_SRC && LIRE_CATKIN_INST
     select LIRE_CATKIN_PKG_BUILD_SRC

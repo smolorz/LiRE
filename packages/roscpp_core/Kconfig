@@ -1,0 +1,8 @@
+
+config LIRE_ROSCPP_CORE_INST
+    bool "  Install roscpp_core"
+    default n 
+    select LIRE_BOOST_INST
+    select LIRE_CATKIN_INST
+    help
+    ...text...

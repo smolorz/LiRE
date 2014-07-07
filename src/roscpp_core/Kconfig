@@ -1,0 +1,10 @@
+
+config LIRE_ROSCPP_CORE_BUILD_SRC
+    bool "    Build roscpp_core"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_ROSCPP_CORE_INST
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_BOOST_BUILD_SRC
+    help
+    ...
+

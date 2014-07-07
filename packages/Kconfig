@@ -42,6 +42,7 @@ source      "packages/rack_rts/Kconfig"
 comment "ROS"
 source      "packages/catkin_pkg/Kconfig"
 source      "packages/catkin/Kconfig"
+source	    "packages/roscpp_core/Kconfig"
 
 comment ""
 menu "Libraries"

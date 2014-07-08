@@ -1,0 +1,7 @@
+
+config LIRE_CONSOLE_BRIDGE_INST
+    bool "  Install console-bridge"
+    default n 
+    select LIRE_BOOST_INST
+    help
+    ...text...

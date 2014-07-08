@@ -1,0 +1,9 @@
+
+config LIRE_CONSOLE_BRIDGE_BUILD_SRC
+    bool "    Build console-bridge"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_CONSOLE_BRIDGE_INST
+    select LIRE_BOOST_BUILD_SRC
+    help
+    ...
+

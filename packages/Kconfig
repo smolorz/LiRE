@@ -39,10 +39,13 @@ comment "RACK"
 source      "packages/rack/Kconfig"
 source      "packages/rack_rts/Kconfig"
 
+comment ""
+menu "ROS"
 comment "ROS"
 source      "packages/catkin_pkg/Kconfig"
 source      "packages/catkin/Kconfig"
 source	    "packages/roscpp_core/Kconfig"
+endmenu
 
 comment ""
 menu "Libraries"

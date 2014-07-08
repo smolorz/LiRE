@@ -45,6 +45,7 @@ comment "ROS"
 source      "packages/catkin_pkg/Kconfig"
 source      "packages/catkin/Kconfig"
 source	    "packages/roscpp_core/Kconfig"
+source      "packages/ros_comm/Kconfig"
 endmenu
 
 comment ""

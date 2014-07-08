@@ -1,0 +1,7 @@
+
+config LIRE_ROS_COMM_INST
+    bool "  Install ros_comm"
+    default n 
+    select LIRE_ROSCPP_CORE_INST
+    help
+    ...text...

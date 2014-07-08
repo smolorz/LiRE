@@ -99,6 +99,7 @@ comment "  ROS"
 source "src/catkin_pkg/Kconfig"
 source "src/catkin/Kconfig"
 source "src/roscpp_core/Kconfig"
+source "src/ros_comm/Kconfig"
 
 comment "  Libraries"
     depends on LIRE_BUILD_SRC

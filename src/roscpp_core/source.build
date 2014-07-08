@@ -63,6 +63,7 @@ if [ $BUILD -eq 1 ]; then
 #
 
     source ${LIRE_HOSTDIR}/setup.bash
+    export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_CONSOLE_BRIDGE_INSTDIR
 
     catkin_make --source ${LIRE_ROSCPP_CORE_SRCDIR} \
 	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release \
@@ -78,18 +79,22 @@ fi
 
 LIRE_STOP_BUILD_START_INSTALL
 
-#if [ $INSTALL -eq 1 ]; then
+if [ $INSTALL -eq 1 ]; then
 
 #========== START YOUR INSTALL HERE  ===========================================
 #
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
-		  
+
+    catkin_make install/strip --source ${LIRE_ROSCPP_CORE_SRCDIR} \
+         -DCMAKE_INSTALL_PREFIX=$LIRE_ROSCPP_CORE_INSTDIR
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
 
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
-#fi
+fi
 
 LIRE_STOP_INSTALL_START_MAKE_PACKAGE
 
@@ -104,10 +109,10 @@ if [ $MAKEPACK -eq 1 ]; then
    # create tar.bz2
    #
    TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_CATKIN_PKG_PACKDIR/"
+   DEST="$LIRE_ROSCPP_CORE_PACKDIR/"
 
-   mkdir usr
-   tar -cjf "$TAR" usr
+   echo -n " Creating $TAR ... "
+   tar -cjf "$TAR" lib/lib*.so
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 

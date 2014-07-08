@@ -4,5 +4,6 @@ config LIRE_ROSCPP_CORE_INST
     default n 
     select LIRE_BOOST_INST
     select LIRE_CATKIN_INST
+    select LIRE_CONSOLE_BRIDGE_INST
     help
     ...text...

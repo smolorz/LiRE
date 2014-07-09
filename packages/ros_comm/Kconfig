@@ -4,5 +4,6 @@ config LIRE_ROS_COMM_INST
     default n 
     select LIRE_ROSCPP_CORE_INST
     select LIRE_LZ4_INST
+    select LIRE_BOOST_INST
     help
     ...text...

@@ -66,8 +66,8 @@ if [ $BUILD -eq 1 ]; then
     export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_LZ4_INSTDIR
 
     catkin_make --source ${LIRE_ROS_COMM_SRCDIR} \
-	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release
-#        -DBOOST_ROOT=$LIRE_BOOST_INSTDIR
+	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release \
+        -DCATKIN_ENABLE_TESTING=0 -DBOOST_ROOT=$LIRE_BOOST_INSTDIR
 
     [ $? -gt 0 ] && { echo "catkin_make [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " catkin_make [OK]"

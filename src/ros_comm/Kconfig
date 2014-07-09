@@ -5,6 +5,6 @@ config LIRE_ROS_COMM_BUILD_SRC
     depends on LIRE_BUILD_SRC && LIRE_ROS_COMM_INST
     select LIRE_ROSCPP_CORE_BUILD_SRC
     select LIRE_LZ4_BUILD_SRC
+    select LIRE_BOOST_BUILD_SRC
     help
-    ...
-
+	...

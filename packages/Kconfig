@@ -69,6 +69,7 @@ source      "packages/openni/Kconfig"
 source      "packages/primesense/Kconfig"
 source      "packages/sensorkinect/Kconfig"
 source      "packages/console_bridge/Kconfig"
+source      "packages/lz4/Kconfig"
 
 endmenu
 

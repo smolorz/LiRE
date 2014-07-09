@@ -1,0 +1,7 @@
+
+config LIRE_LZ4_BUILD_SRC
+    bool "    Build lz4"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_LZ4_INST
+    help
+    ...

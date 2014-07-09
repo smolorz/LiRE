@@ -1,0 +1,6 @@
+
+config LIRE_LZ4_INST
+    bool "  Install lz4"
+    default n
+    help
+    ...text...

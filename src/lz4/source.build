@@ -1,0 +1,143 @@
+#! /bin/bash
+
+#
+# lz4 build script
+# 2014-07-08 Sebastian Smolorz <sesmo@gmx.net>
+#
+
+# name of this package
+PACKAGE="lz4"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_LZ4_SRCDIR/Makefile"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # build lz4
+    #
+    echo " Building lz4 ... "
+    cd $LIRE_LZ4_SRCDIR
+    make
+    
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }	
+    echo "make [OK]"
+
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    echo " make install"
+    cd $LIRE_LZ4_SRCDIR
+
+    make install PREFIX=$LIRE_LZ4_INSTDIR
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+    # make install doesn't copy the *.so.* to installdir/lib, neither does
+    # make -f Makefile-libbz2_so, so we copy it.
+    #cp --no-dereference *.so.* "$LIRE_BZIP2_INSTDIR/lib"
+
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    
+    DEST="$LIRE_LZ4_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"	
+    
+    #
+    # create tar.bz2
+    #
+    	    
+    echo -n " Creating $TAR ... "
+    ${STRIP:-strip} -s lib/*.so.* bin/*
+    tar -cjf "$TAR" lib/*.so.* bin
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"					
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+							    
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

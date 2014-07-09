@@ -123,6 +123,7 @@ source "src/openni/Kconfig"
 source "src/primesense/Kconfig"
 source "src/sensorkinect/Kconfig"
 source "src/console_bridge/Kconfig"
+source "src/lz4/Kconfig"
 
 #comment "  Special Packages"
 #    depends on LIRE_BUILD_SRC

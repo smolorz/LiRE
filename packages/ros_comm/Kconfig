@@ -3,5 +3,6 @@ config LIRE_ROS_COMM_INST
     bool "  Install ros_comm"
     default n 
     select LIRE_ROSCPP_CORE_INST
+    select LIRE_LZ4_INST
     help
     ...text...

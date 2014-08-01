@@ -62,7 +62,7 @@ if [ $BUILD -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-    source ${LIRE_ROSPACK_SRCDIR}/setup.bash
+    source ${LIRE_HOSTDIR}/setup.bash
     export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_ROSPACK_INSTDIR
 
     catkin_make --source ${LIRE_ROS_CORE_SRCDIR} \

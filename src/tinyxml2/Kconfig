@@ -1,0 +1,7 @@
+
+config LIRE_TINYXML2_BUILD_SRC
+    bool "    Build TinyXML-2"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_TINYXML2_INST
+    help
+    ...

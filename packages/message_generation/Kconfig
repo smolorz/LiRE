@@ -1,0 +1,11 @@
+
+config LIRE_MESSAGE_GENERATION_INST
+    bool "  Install message_generation"
+    default n 
+    select LIRE_CATKIN_INST
+    select LIRE_GENMSG_INST
+    select LIRE_GENCPP_INST
+    select LIRE_GENPY_INST
+    select LIRE_GENLISP_INST
+    help
+    ...text...

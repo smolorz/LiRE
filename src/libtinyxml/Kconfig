@@ -1,0 +1,7 @@
+
+config LIRE_LIBTINYXML_BUILD_SRC
+    bool "    Build TinyXML-1 as library"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_LIBTINYXML_INST
+    help
+    ...

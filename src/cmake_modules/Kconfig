@@ -1,0 +1,9 @@
+
+config LIRE_CMAKE_MODULES_BUILD_SRC
+    bool "    Build cmake_modules"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_CMAKE_MODULES_INST
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_LIBTINYXML_BUILD_SRC
+    help
+	...

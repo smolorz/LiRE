@@ -1,0 +1,12 @@
+
+config LIRE_ROSPACK_BUILD_SRC
+    bool "    Build rospack"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_ROSPACK_INST
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_BOOST_BUILD_SRC
+    select LIRE_CMAKE_MODULES_BUILD_SRC
+    select LIRE_LIBTINYXML_BUILD_SRC
+    select LIRE_PYTHON_BUILD_SRC
+    help
+	...

@@ -61,6 +61,12 @@ LIRE_INIT_SOURCE_CHECK
     #
     PACKAGE_VERSION=`cat $LIRE_CATKIN_SRCDIR/$LIRE_VERSION_FILE`
 
+    #
+    # Patch rt.cmake to make it work with cmake 2.8.13
+    #
+    cd $LIRE_CATKIN_SRCDIR
+    patch --forward -p0 <  $LIRE_CATKIN_SCRDIR/rt.cmake.patch
+    cd $LIRE_CATKIN_SCRDIR
 
 #========== STOP YOUR CHECKS HERE ==============================================
 #

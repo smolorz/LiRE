@@ -1,0 +1,6 @@
+
+config LIRE_LIBTINYXML_INST
+    bool "  Install TinyXML-1 as library"
+    default n
+    help
+    ...text...

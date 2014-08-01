@@ -1,0 +1,7 @@
+
+config LIRE_GENMSG_INST
+    bool "  Install genmsg"
+    default n 
+    select LIRE_CATKIN_INST
+    help
+    ...text...

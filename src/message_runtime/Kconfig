@@ -1,0 +1,10 @@
+
+config LIRE_MESSAGE_RUNTIME_BUILD_SRC
+    bool "    Build message_runtime"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_MESSAGE_RUNTIME_INST
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_ROSCPP_CORE_BUILD_SRC
+    select LIRE_GENPY_BUILD_SRC
+    help
+	...

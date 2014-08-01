@@ -1,0 +1,11 @@
+--- cmake/tools/rt.cmake.orig	2014-07-24 13:49:23.752968900 +0200
++++ cmake/tools/rt.cmake	2014-07-24 13:49:37.728968649 +0200
+@@ -32,7 +32,7 @@
+ # message("CMAKE_VERSION=${CMAKE_VERSION}")
+ 
+ if(NOT (APPLE OR WIN32 OR MINGW OR ANDROID))
+-  if (${CMAKE_VERSION} VERSION_LESS 2.8.4)
++  if (${CMAKE_VERSION} VERSION_LESS 2.8.13)
+     # cmake later than 2.8.0 appears to have a better find_library
+     # that knows about the ABI of the compiler.  For lucid we just
+     # depend on the linker to find it for us.

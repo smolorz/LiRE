@@ -1,0 +1,11 @@
+
+config LIRE_ROSPACK_INST
+    bool "  Install rospack"
+    default n 
+    select LIRE_CATKIN_INST
+    select LIRE_BOOST_INST
+    select LIRE_CMAKE_MODULES_INST
+    select LIRE_LIBTINYXML_INST
+    select LIRE_PYTHON_INST
+    help
+    ...text...

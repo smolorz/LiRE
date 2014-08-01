@@ -128,7 +128,7 @@ if [ $MAKEPACK -eq 1 ]; then
 
     # copy files
     echo -n " Copy libraries ... "
-    cp -fd lib/lib*.so.*  "tar/lib/"
+    cp -fd lib/lib*.so  "tar/lib/"
     
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"

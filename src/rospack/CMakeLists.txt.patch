@@ -1,0 +1,11 @@
+--- CMakeLists.txt.orig	2014-07-24 14:16:23.020939902 +0200
++++ CMakeLists.txt	2014-07-24 14:16:43.252939539 +0200
+@@ -29,7 +29,7 @@ add_library(rospack
+   src/rospack_cmdline.cpp
+   src/utils.cpp
+ )
+-target_link_libraries(rospack ${TinyXML_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
++target_link_libraries(rospack ${TinyXML_LIBRARIES} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${CMAKE_DL_LIBS} util)
+ 
+ add_executable(rospackexe src/rospack_main.cpp)
+ # Set the name, and make it a "global" executable

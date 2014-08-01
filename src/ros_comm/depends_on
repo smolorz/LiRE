@@ -1,3 +1,16 @@
+ros_core
 roscpp_core
 lz4
 boost
+console_bridge
+bzip2
+std_msgs
+message_runtime
+message_generation
+gencpp
+genpy
+genmsg
+genlisp
+ros_comm_msgs
+python
+

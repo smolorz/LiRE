@@ -1,0 +1,8 @@
+
+config LIRE_GENPY_INST
+    bool "  Install genpy"
+    default n 
+    select LIRE_CATKIN_INST
+    select LIRE_GENMSG_INST
+    help
+    ...text...

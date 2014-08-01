@@ -1,0 +1,10 @@
+
+config LIRE_ROS_COMM_MSGS_INST
+    bool "  Install ros_comm_msgs"
+    default n 
+    select LIRE_STD_MSGS_INST
+    select LIRE_MESSAGE_RUNTIME_INST
+    select LIRE_MESSAGE_GENERATION_INST
+    select LIRE_ROSCPP_CORE_INST
+    help
+    ...text...

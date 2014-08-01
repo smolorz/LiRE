@@ -61,6 +61,12 @@ LIRE_INIT_SOURCE_CHECK
     #
     PACKAGE_VERSION=`cat $LIRE_ROS_COMM_SRCDIR/$LIRE_VERSION_FILE`
 
+    #
+    # Patch CMakeLists.txt of tools/rosbag, it didn't find headers of bzip2
+    #
+    cd $LIRE_ROS_COMM_SRCDIR
+    patch --forward -p0 <  $LIRE_ROS_COMM_SCRDIR/CMakeLists.txt.patch
+    cd $LIRE_ROS_COMM_SCRDIR
 
 #========== STOP YOUR CHECKS HERE ==============================================
 #

@@ -1,0 +1,6 @@
+
+config LIRE_TINYXML2_INST
+    bool "  Install TinyXML-2"
+    default n
+    help
+    ...text...

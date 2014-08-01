@@ -1,0 +1,9 @@
+
+config LIRE_GENCPP_BUILD_SRC
+    bool "    Build gencpp"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_GENCPP_INST
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_GENMSG_BUILD_SRC
+    help
+	...

@@ -1,0 +1,5 @@
+boost
+catkin
+cmake_modules
+libtinyxml
+python

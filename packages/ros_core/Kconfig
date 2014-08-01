@@ -1,0 +1,9 @@
+
+config LIRE_ROS_CORE_INST
+    bool "  Install ROS core packages"
+    default n 
+    select LIRE_CATKIN_INST
+    select LIRE_ROSPACK_INST
+    select LIRE_BOOST_INST
+    help
+    ...text...

@@ -1,0 +1,12 @@
+
+config LIRE_MESSAGE_GENERATION_BUILD_SRC
+    bool "    Build message_generation"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_MESSAGE_GENERATION_INST
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_GENMSG_BUILD_SRC
+    select LIRE_GENCPP_BUILD_SRC
+    select LIRE_GENLISP_BUILD_SRC
+    select LIRE_GENPY_BUILD_SRC
+    help
+	...

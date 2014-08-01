@@ -107,7 +107,7 @@ if [ $MAKEPACK -eq 1 ]; then
    # create tar.bz2
    #
    TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_CATKIN_PKG_PACKDIR/"
+   DEST="$LIRE_CATKIN_PACKDIR/"
 
    mkdir usr
    tar -cjf "$TAR" usr

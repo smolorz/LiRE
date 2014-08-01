@@ -62,15 +62,18 @@ if [ $BUILD -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-  UNSET_CC_VARS
+    UNSET_CC_VARS
 
-  ${LIRE_CATKIN_SRCDIR}/bin/catkin_make_isolated --install \
+    ${LIRE_CATKIN_SRCDIR}/bin/catkin_make_isolated --install \
 	--install-space $LIRE_HOSTDIR --source ${LIRE_CATKIN_SRCDIR} \
 	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release
 
-  if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
-    SET_CC_VARS
-  fi
+    [ $? -gt 0 ] && { echo "catkin_make_isolated [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " catkin_make_isolated [OK]"
+
+    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+      SET_CC_VARS
+    fi
 
 #========== STOP YOUR BUILD HERE  ==============================================
 

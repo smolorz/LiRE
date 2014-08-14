@@ -65,17 +65,19 @@ if [ $BUILD -eq 1 ]; then
     #
     # build bzip2
     #
-    echo " Building bzip2... "
+    echo " Building bzip2 ... "
     cd "$LIRE_BZIP2_SRCDIR"
     
     # we can't just run `make all' because that includes `make test' which fails on
-    # a 64-bit machine
-    make libbz2.a bzip2 bzip2recover CC="$CC"  \
+    # the host machine when compiling for another ARCH
+    make libbz2.a bzip2 bzip2recover CC="$CC" \
         LD="$LD" LDFLAGS="$LDFLAGS" RANLIB="$RANLIB" AR="$AR"
     [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+
+    echo " Building libbz2.so ... "
     make -f Makefile-libbz2_so CC="$CC" \
         LD="$LD" LDFLAGS="$LDFLAGS" RANLIB="$RANLIB" AR="$AR"
-    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    [ $? -gt 0 ] && { echo "make libbz2.so [FAILED]"; LIRE_EXIT_ERROR 1; }
 	
     echo "make [OK]"
 

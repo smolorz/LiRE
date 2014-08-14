@@ -1,0 +1,11 @@
+--- Makefile.orig	2014-08-14 15:12:28.376180360 +0200
++++ Makefile	2014-08-14 15:13:00.103943194 +0200
+@@ -21,7 +21,7 @@ RANLIB=ranlib
+ LDFLAGS=
+ 
+ BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-Wall -Winline -O2 -g $(BIGFILES)
++CFLAGS=-Wall -Winline -O2 -g -fPIC $(BIGFILES)
+ 
+ # Where you want it installed when you do 'make install'
+ PREFIX=/usr/local

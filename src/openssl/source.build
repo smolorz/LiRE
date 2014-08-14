@@ -71,7 +71,11 @@ if [ $BUILD -eq 1 ]; then
     echo " configure OpenSSL"
 
     # note: force noexecstack for security reasons - should work (famous last words)
-    CROSS_COMPILE="" ./Configure linux-generic32 --prefix="$LIRE_OPENSSL_INSTDIR" shared -Wa,--noexecstack
+    if [ "$ARCH" == "x86_64" ]; then
+        CROSS_COMPILE="" ./Configure linux-x86_64 --prefix="$LIRE_OPENSSL_INSTDIR" shared -Wa,--noexecstack
+    else
+        CROSS_COMPILE="" ./Configure linux-generic32 --prefix="$LIRE_OPENSSL_INSTDIR" shared -Wa,--noexecstack
+    fi
 
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "configure [OK]"

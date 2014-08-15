@@ -84,7 +84,8 @@ if [ $BUILD -eq 1 ]; then
     export CONFIG_SITE="$LIRE_PYTHON_SCRDIR/config.site"
     $LIRE_PYTHON_SRCDIR/configure --prefix=$LIRE_PYTHON_INSTDIR --disable-ipv6 \
         --with-ensurepip=no LDFLAGS="-L$LIRE_NCURSES_INSTDIR/lib" \
-        CPPFLAGS="-I$LIRE_NCURSES_INSTDIR/include -I$LIRE_NCURSES_INSTDIR/include/ncurses"
+        CPPFLAGS="-I$LIRE_NCURSES_INSTDIR/include -I$LIRE_NCURSES_INSTDIR/include/ncurses" \
+        CFLAGS="-fPIC"
     
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"
@@ -93,7 +94,6 @@ if [ $BUILD -eq 1 ]; then
     # build python
     #
     echo " Building python... "
-    
     make -j$CONFIG_LIRE_BUILD_JOBS
 	
     [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }

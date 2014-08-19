@@ -127,6 +127,9 @@ if [ $MAKEPACK -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
 
+   # Replace shebang line inside python scripts in bin
+   for file in $(ls bin); do sed -i 's/#!.*python/#!python3/g' bin/$file ;done
+
    #
    # create tar.bz2
    #

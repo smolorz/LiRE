@@ -112,8 +112,7 @@ if [ $MAKEPACK -eq 1 ]; then
    TAR="$PACKAGE.tar.bz2"
    DEST="$LIRE_STD_MSGS_PACKDIR/"
 
-   mkdir usr
-   tar -cjf "$TAR" usr
+   tar -cjf "$TAR" lib/python*
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 

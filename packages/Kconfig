@@ -41,8 +41,15 @@ source      "packages/rack/Kconfig"
 source      "packages/rack_rts/Kconfig"
 
 comment ""
-menu "ROS"
-comment "ROS"
+menuconfig ROS
+	bool "ROS"
+	default n
+	---help---
+	  Say Y here to see options for installing the Robot Operating
+	  System.
+
+if ROS
+
 source      "packages/catkin_pkg/Kconfig"
 source      "packages/catkin/Kconfig"
 source      "packages/cmake_modules/Kconfig"
@@ -58,7 +65,8 @@ source      "packages/message_runtime/Kconfig"
 source      "packages/std_msgs/Kconfig"
 source      "packages/ros_comm_msgs/Kconfig"
 source      "packages/ros_comm/Kconfig"
-endmenu
+
+endif
 
 comment ""
 menu "Libraries"

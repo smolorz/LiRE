@@ -15,3 +15,6 @@ alias l="ls -alF"
 alias md="mkdir -p"
 alias ..="cd .."
 alias o="less"
+
+export PYTHONHOME=/
+export ROS_HOME=/tmp

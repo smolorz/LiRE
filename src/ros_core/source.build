@@ -112,7 +112,7 @@ if [ $MAKEPACK -eq 1 ]; then
    DEST="$LIRE_ROS_CORE_PACKDIR/"
 
    echo -n " Creating $TAR ... "
-   tar -cjf "$TAR" bin lib/lib*.so
+   tar -cjf "$TAR" bin lib/lib*.so lib/python*
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 

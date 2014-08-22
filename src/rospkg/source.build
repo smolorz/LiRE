@@ -76,10 +76,12 @@ if [ $INSTALL -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-  mkdir -p $LIRE_ROSPKG_INSTDIR/lib/python3.4/site-packages
-  export PYTHONPATH=PYTHONPATH:$LIRE_ROSPKG_INSTDIR/lib/python3.4/site-packages:$LIRE_PYYAML_INSTDIR/lib/python3.4/site-packages 
-  cd $LIRE_ROSPKG_SRCDIR
-  python setup.py install --prefix=$LIRE_ROSPKG_INSTDIR
+  cd $LIRE_ROSPKG_INSTDIR
+  mkdir -p bin
+  mkdir -p lib/python3.4/site-packages
+  cp -a $LIRE_ROSPKG_SRCDIR/src/rospkg lib/python3.4/site-packages
+  cp $LIRE_ROSPKG_SRCDIR/scripts/rosversion bin
+  sed -i 's/#!.*python/#!\/bin\/python3/g' bin/rosversion
   cd $LIRE_ROSPKG_BUILDDIR
 
 

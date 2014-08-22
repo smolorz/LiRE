@@ -25,6 +25,7 @@ source      "packages/tinyxml2/Kconfig"
 comment "Python"
 source      "packages/python/Kconfig"
 source      "packages/empy/Kconfig"
+source      "packages/setuptools/Kconfig"
 source      "packages/pyyaml/Kconfig"
 
 comment "WLAN"
@@ -53,6 +54,7 @@ if ROS
 
 source      "packages/catkin_pkg/Kconfig"
 source      "packages/catkin/Kconfig"
+source      "packages/rospkg/Kconfig"
 source      "packages/cmake_modules/Kconfig"
 source      "packages/rospack/Kconfig"
 source	    "packages/roscpp_core/Kconfig"

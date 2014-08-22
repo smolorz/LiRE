@@ -71,6 +71,8 @@ config LIRE_BUILD_ALL
     select LIRE_ROSPACK_BUILD_SRC 		if LIRE_ROSPACK_INST
     select LIRE_STD_MSGS_BUILD_SRC 		if LIRE_STD_MSGS_INST
     select LIRE_TINYXML2_BUILD_SRC 		if LIRE_TINYXML2_INST
+    select LIRE_ROSPKG_BUILD_SRC 		if LIRE_ROSPKG_INST
+    select LIRE_SETUPTOOLS_BUILD_SRC 		if LIRE_SETUPTOOLS_INST
 
 
 source "src/linux/Kconfig"    
@@ -101,6 +103,7 @@ comment "  Python"
     depends on LIRE_BUILD_SRC
 source "src/python/Kconfig"
 source "src/empy/Kconfig"
+source "src/setuptools/Kconfig"
 source "src/pyyaml/Kconfig"
 
 comment "  WLAN"
@@ -122,6 +125,7 @@ comment "  ROS"
     depends on LIRE_BUILD_SRC
 source "src/catkin_pkg/Kconfig"
 source "src/catkin/Kconfig"
+source "src/rospkg/Kconfig"
 source "src/cmake_modules/Kconfig"
 source "src/rospack/Kconfig"
 source "src/roscpp_core/Kconfig"

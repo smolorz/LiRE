@@ -1,0 +1,11 @@
+
+config LIRE_ROSPKG_BUILD_SRC
+    bool "    Build rospkg for target"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_ROSPKG_INST
+    select LIRE_PYTHON_BUILD_SRC
+    select LIRE_SETUPTOOLS_BUILD_SRC
+    select LIRE_PYYAML_BUILD_SRC
+    help
+    ...
+

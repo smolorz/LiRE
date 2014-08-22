@@ -25,6 +25,7 @@ source      "packages/tinyxml2/Kconfig"
 comment "Python"
 source      "packages/python/Kconfig"
 source      "packages/empy/Kconfig"
+source      "packages/pyyaml/Kconfig"
 
 comment "WLAN"
 source      "packages/wireless_tools/Kconfig"

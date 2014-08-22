@@ -1,0 +1,7 @@
+
+config LIRE_PYYAML_INST
+    bool "  Install PyYAML on target"
+    default n 
+    depends on LIRE_PYTHON_INST
+    help
+    ...text...

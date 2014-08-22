@@ -18,5 +18,6 @@ config LIRE_ROS_COMM_INST
     select LIRE_MESSAGE_RUNTIME_INST
     select LIRE_MESSAGE_GENERATION_INST
     select LIRE_PYTHON_INST
+    select LIRE_PYYAML_INST
     help
     ...text...

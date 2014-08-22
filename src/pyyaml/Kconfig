@@ -1,0 +1,8 @@
+
+config LIRE_PYYAML_BUILD_SRC
+    bool "    Build PyYAML for target"
+    default n
+    depends on LIRE_PYTHON_BUILD_SRC
+    help
+    ...
+

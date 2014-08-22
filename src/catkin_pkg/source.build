@@ -55,35 +55,36 @@ LIRE_INIT_SOURCE_BUILD
 # LIRE_EXIT_ERROR $VAL
 #
 
-if [ $BUILD -eq 1 ]; then
+#if [ $BUILD -eq 1 ]; then
 
 #========== START YOUR BUILD HERE  =============================================
 #
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-  cd $LIRE_CATKIN_PKG_SRCDIR
-  python setup.py install
-
 
 #========== STOP YOUR BUILD HERE  ==============================================
 
-fi
+#fi
 
 LIRE_STOP_BUILD_START_INSTALL
 
-#if [ $INSTALL -eq 1 ]; then
+if [ $INSTALL -eq 1 ]; then
 
 #========== START YOUR INSTALL HERE  ===========================================
 #
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
-		  
+
+  cd $LIRE_CATKIN_PKG_SRCDIR
+  python setup.py install
+  python setup.py install --prefix=$LIRE_CATKIN_PKG_INSTDIR
+  cd $LIRE_CATKIN_PKG_BUILDDIR
 
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
-#fi
+fi
 
 LIRE_STOP_INSTALL_START_MAKE_PACKAGE
 
@@ -100,8 +101,7 @@ if [ $MAKEPACK -eq 1 ]; then
    TAR="$PACKAGE.tar.bz2"
    DEST="$LIRE_CATKIN_PKG_PACKDIR/"
 
-   mkdir usr
-   tar -cjf "$TAR" usr
+   tar -cjf "$TAR" lib
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 

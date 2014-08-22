@@ -1,0 +1,11 @@
+--- tools/rosclean/src/rosclean/__init__.py.orig	2014-08-22 13:07:16.765622233 +0200
++++ tools/rosclean/src/rosclean/__init__.py	2014-08-22 13:08:16.293121829 +0200
+@@ -127,7 +127,7 @@ def get_disk_usage(d):
+     # only implemented on Linux and FreeBSD for now. Should work on OS X but need to verify first (du is not identical)
+     if platform.system() == 'Linux':
+         try:
+-            return int(subprocess.Popen(['du', '-sb', d], stdout=subprocess.PIPE).communicate()[0].split()[0])
++            return int(subprocess.Popen(['du', '-s', d], stdout=subprocess.PIPE).communicate()[0].split()[0]) * 1024
+         except:
+             raise CleanupException("rosclean is not supported on this platform")
+     elif platform.system() == 'FreeBSD':

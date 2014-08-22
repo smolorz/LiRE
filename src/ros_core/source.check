@@ -61,7 +61,13 @@ LIRE_INIT_SOURCE_CHECK
     #
     PACKAGE_VERSION=`cat $LIRE_ROS_CORE_SRCDIR/$LIRE_VERSION_FILE`
 
-
+    #
+    # Patch rosclean's __init__.py because busybox does not know option -b
+    # for command du
+    #
+    cd $LIRE_ROS_CORE_SRCDIR
+    patch --forward -p0 <  $LIRE_ROS_CORE_SCRDIR/rosclean.patch
+    cd $LIRE_ROS_CORE_SCRDIR
 #========== STOP YOUR CHECKS HERE ==============================================
 #
 # before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.

@@ -2,7 +2,7 @@
 
 #
 # python build script
-# 2014-06-25 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
+# 2014 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
 #
 
 # name of this package
@@ -64,14 +64,19 @@ if [ $BUILD -eq 1 ]; then
 
     if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
         UNSET_CC_VARS
-        cd ..
-        mkdir -p hostpython
-        cd hostpython
+#        cd ..
+#        mkdir -p hostpython
+#        cd hostpython
         $LIRE_PYTHON_SRCDIR/configure --prefix=${LIRE_HOSTDIR}
         make -j$CONFIG_LIRE_BUILD_JOBS
         make install
+        cp python hostpython
+        cp Parser/pgen Parser/hostpgen
+        make distclean
         cd ${LIRE_HOSTDIR}/bin
 	ln -s python3 python
+        cd $LIRE_PYTHON_SRCDIR
+        patch --forward -p1 < $LIRE_PYTHON_SCRDIR/Python-3.2.2-xcompile.patch
         cd $LIRE_PYTHON_BUILDDIR
         SET_CC_VARS
     fi
@@ -81,9 +86,9 @@ if [ $BUILD -eq 1 ]; then
     # configure python
     #
     echo " Configure python... "
-    export CONFIG_SITE="$LIRE_PYTHON_SCRDIR/config.site"
-    $LIRE_PYTHON_SRCDIR/configure --prefix=$LIRE_PYTHON_INSTDIR --disable-ipv6 \
-        --with-ensurepip=no LDFLAGS="-L$LIRE_NCURSES_INSTDIR/lib" \
+#    export CONFIG_SITE="$LIRE_PYTHON_SCRDIR/config.site"
+    $LIRE_PYTHON_SRCDIR/configure --prefix=$LIRE_PYTHON_INSTDIR \
+        --host=${host_alias} --build=${build_alias} LDFLAGS="-L$LIRE_NCURSES_INSTDIR/lib" \
         CPPFLAGS="-I$LIRE_NCURSES_INSTDIR/include -I$LIRE_NCURSES_INSTDIR/include/ncurses" \
         CFLAGS="-fPIC"
     
@@ -94,7 +99,10 @@ if [ $BUILD -eq 1 ]; then
     # build python
     #
     echo " Building python... "
-    make -j$CONFIG_LIRE_BUILD_JOBS
+    make -j$CONFIG_LIRE_BUILD_JOBS HOSTPYTHON=./hostpython \
+        HOSTPGEN=./Parser/hostpgen BLDSHARED="${CC} -shared" \
+        CROSS_COMPILE_TARGET=yes HOSTARCH=${host_alias} \
+        BUILDARCH=${build_alias}
 	
     [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make [OK]"
@@ -118,7 +126,9 @@ if [ $INSTALL -eq 1 ]; then
     # make install
     #
     echo " make install"
-    make install
+    make install HOSTPYTHON=./hostpython BLDSHARED="${CC} -shared" \
+        CROSS_COMPILE_TARGET=yes
+
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 			  
@@ -144,7 +154,7 @@ if [ $MAKEPACK -eq 1 ]; then
    DEST="$LIRE_PYTHON_PACKDIR/"
 
    echo -n " Creating $TAR ... "
-   tar -cjf "$TAR" lib/python3.4 bin
+   tar -cjf "$TAR" lib/python* bin
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 

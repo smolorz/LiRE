@@ -1,0 +1,8 @@
+
+config LIRE_NETIFACES_INST
+    bool "  Install netifaces on target"
+    default n 
+    depends on LIRE_PYTHON_INST
+    select LIRE_SETUPTOOLS_INST
+    help
+    ...text...

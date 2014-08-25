@@ -73,6 +73,7 @@ config LIRE_BUILD_ALL
     select LIRE_TINYXML2_BUILD_SRC 		if LIRE_TINYXML2_INST
     select LIRE_ROSPKG_BUILD_SRC 		if LIRE_ROSPKG_INST
     select LIRE_SETUPTOOLS_BUILD_SRC 		if LIRE_SETUPTOOLS_INST
+    select LIRE_NETIFACES_BUILD_SRC 		if LIRE_NETIFACES_INST
 
 
 source "src/linux/Kconfig"    
@@ -105,6 +106,7 @@ source "src/python/Kconfig"
 source "src/empy/Kconfig"
 source "src/setuptools/Kconfig"
 source "src/pyyaml/Kconfig"
+source "src/netifaces/Kconfig"
 
 comment "  WLAN"
     depends on LIRE_BUILD_SRC

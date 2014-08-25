@@ -1,0 +1,9 @@
+
+config LIRE_NETIFACES_BUILD_SRC
+    bool "    Build netifaces for target"
+    default n
+    depends on LIRE_PYTHON_BUILD_SRC && LIRE_NETIFACES_INST
+    select LIRE_SETUPTOOLS_BUILD_SRC
+    help
+    ...
+

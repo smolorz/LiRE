@@ -27,6 +27,7 @@ source      "packages/python/Kconfig"
 source      "packages/empy/Kconfig"
 source      "packages/setuptools/Kconfig"
 source      "packages/pyyaml/Kconfig"
+source      "packages/netifaces/Kconfig"
 
 comment "WLAN"
 source      "packages/wireless_tools/Kconfig"

@@ -15,3 +15,4 @@ ros_comm_msgs
 python
 pyyaml
 rospkg
+netifaces

@@ -78,8 +78,8 @@ if [ $INSTALL -eq 1 ]; then
 
   cd $LIRE_ROSPKG_INSTDIR
   mkdir -p bin
-  mkdir -p lib/python3.4/site-packages
-  cp -a $LIRE_ROSPKG_SRCDIR/src/rospkg lib/python3.4/site-packages
+  mkdir -p lib/python3.3/site-packages
+  cp -a $LIRE_ROSPKG_SRCDIR/src/rospkg lib/python3.3/site-packages
   cp $LIRE_ROSPKG_SRCDIR/scripts/rosversion bin
   sed -i 's/#!.*python/#!\/bin\/python3/g' bin/rosversion
   cd $LIRE_ROSPKG_BUILDDIR

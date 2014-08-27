@@ -11,6 +11,10 @@
 # copy runtime directory
 #
 RUNTIMEDIR="$LIRE_BASEDIR/runtime"
+
+echo -e "127.0.0.1\tlocalhost" > $RUNTIMEDIR/etc/hosts
+echo -e "127.0.0.1\t$CONFIG_LIRE_TARGET_HOSTNAME" >> $RUNTIMEDIR/etc/hosts
+
 d="$RUNTIMEDIR"
 
 FILES=`find $d -name '*' | \

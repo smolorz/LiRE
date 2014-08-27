@@ -76,7 +76,7 @@ if [ $BUILD -eq 1 ]; then
         cd ${LIRE_HOSTDIR}/bin
 	ln -s python3 python
         cd $LIRE_PYTHON_SRCDIR
-        patch --forward -p1 < $LIRE_PYTHON_SCRDIR/Python-3.2.2-xcompile.patch
+        patch --forward -p1 < $LIRE_PYTHON_SCRDIR/Python-3.3.5-xcompile.patch
         cd $LIRE_PYTHON_BUILDDIR
         SET_CC_VARS
     fi
@@ -86,8 +86,8 @@ if [ $BUILD -eq 1 ]; then
     # configure python
     #
     echo " Configure python... "
-#    export CONFIG_SITE="$LIRE_PYTHON_SCRDIR/config.site"
-    $LIRE_PYTHON_SRCDIR/configure --prefix=$LIRE_PYTHON_INSTDIR \
+    export CONFIG_SITE="$LIRE_PYTHON_SCRDIR/config.site"
+    $LIRE_PYTHON_SRCDIR/configure --prefix=$LIRE_PYTHON_INSTDIR --disable-ipv6 \
         --host=${host_alias} --build=${build_alias} LDFLAGS="-L$LIRE_NCURSES_INSTDIR/lib" \
         CPPFLAGS="-I$LIRE_NCURSES_INSTDIR/include -I$LIRE_NCURSES_INSTDIR/include/ncurses" \
         CFLAGS="-fPIC"

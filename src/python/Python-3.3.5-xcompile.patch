@@ -1,0 +1,125 @@
+diff -Naur Python-3.3.5.orig/Makefile.pre.in Python-3.3.5/Makefile.pre.in
+--- Python-3.3.5.orig/Makefile.pre.in	2014-03-09 09:40:23.000000000 +0100
++++ Python-3.3.5/Makefile.pre.in	2014-08-27 10:58:32.131290959 +0200
+@@ -485,7 +485,7 @@
+ # pybuilddir.txt contains the name of the build dir and is used for
+ # sys.path fixup -- see Modules/getpath.c.
+ pybuilddir.txt: $(BUILDPYTHON)
+-	$(RUNSHARED) $(PYTHON_FOR_BUILD) -S -m sysconfig --generate-posix-vars
++	$(RUNSHARED) $(HOSTPYTHON) -S -m sysconfig --generate-posix-vars
+ 
+ # Build the shared modules
+ # Under GNU make, MAKEFLAGS are sorted and normalized; the 's' for
+@@ -498,7 +498,7 @@
+ 	esac; \
+ 	$(RUNSHARED) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' \
+ 		_TCLTK_INCLUDES='$(TCLTK_INCLUDES)' _TCLTK_LIBS='$(TCLTK_LIBS)' \
+-		$(PYTHON_FOR_BUILD) $(srcdir)/setup.py $$quiet build
++		$(HOSTPYTHON) $(srcdir)/setup.py $$quiet build
+ 
+ # Build static library
+ # avoid long command lines, same as LIBRARY_OBJS
+@@ -674,7 +674,7 @@
+ $(GRAMMAR_H): $(GRAMMAR_INPUT) $(PGENSRCS)
+ 		@$(MKDIR_P) Include
+ 		$(MAKE) $(PGEN)
+-		$(PGEN) $(GRAMMAR_INPUT) $(GRAMMAR_H) $(GRAMMAR_C)
++		$(HOSTPGEN) $(GRAMMAR_INPUT) $(GRAMMAR_H) $(GRAMMAR_C)
+ $(GRAMMAR_C): $(GRAMMAR_H) $(GRAMMAR_INPUT) $(PGENSRCS)
+ 		$(MAKE) $(GRAMMAR_H)
+ 		touch $(GRAMMAR_C)
+@@ -1243,7 +1243,8 @@
+ # Install the dynamically loadable modules
+ # This goes into $(exec_prefix)
+ sharedinstall: sharedmods
+-	$(RUNSHARED) $(PYTHON_FOR_BUILD) $(srcdir)/setup.py install \
++	CC='$(CC)' LDSHARED='$(BLDSHARED)' LDFLAGS='$(LDFLAGS)' OPT='$(OPT)' CROSS_COMPILE='$(CROSS_COMPILE)' \
++	$(RUNSHARED) $(HOSTPYTHON) $(srcdir)/setup.py install \
+ 	   	--prefix=$(prefix) \
+ 		--install-scripts=$(BINDIR) \
+ 		--install-platlib=$(DESTSHARED) \
+diff -Naur Python-3.3.5.orig/configure Python-3.3.5/configure
+--- Python-3.3.5.orig/configure	2014-03-09 09:40:34.000000000 +0100
++++ Python-3.3.5/configure	2014-08-27 10:47:28.941010274 +0200
+@@ -13297,7 +13297,7 @@
+ if ${ac_cv_broken_sem_getvalue+:} false; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  if test "$cross_compiling" = yes; then :
++  if test "$cross_compiling" = no; then :
+   ac_cv_broken_sem_getvalue=yes
+ else
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+@@ -14734,7 +14734,7 @@
+   $as_echo_n "(cached) " >&6
+ else
+   if test "$cross_compiling" = yes; then :
+-  ac_cv_have_long_long_format="cross -- assuming no"
++  ac_cv_have_long_long_format="cross -- assuming yes"
+    if test x$GCC = xyes; then
+     save_CFLAGS=$CFLAGS
+     CFLAGS="$CFLAGS -Werror -Wformat"
+diff -Naur Python-3.3.5.orig/setup.py Python-3.3.5/setup.py
+--- Python-3.3.5.orig/setup.py	2014-03-09 09:40:35.000000000 +0100
++++ Python-3.3.5/setup.py	2014-08-27 10:33:16.288378006 +0200
+@@ -312,6 +312,8 @@
+             self.announce('WARNING: skipping import check for Cygwin-based "%s"'
+                 % ext.name)
+             return
++        if os.environ.get('CROSS_COMPILE_TARGET') == 'yes':
++            return
+         ext_filename = os.path.join(
+             self.build_lib,
+             self.get_ext_filename(self.get_ext_fullname(ext.name)))
+@@ -328,27 +330,31 @@
+         try:
+             imp.load_dynamic(ext.name, ext_filename)
+         except ImportError as why:
+-            self.failed.append(ext.name)
+-            self.announce('*** WARNING: renaming "%s" since importing it'
+-                          ' failed: %s' % (ext.name, why), level=3)
+-            assert not self.inplace
+-            basename, tail = os.path.splitext(ext_filename)
+-            newname = basename + "_failed" + tail
+-            if os.path.exists(newname):
+-                os.remove(newname)
+-            os.rename(ext_filename, newname)
++            if os.environ.get('CROSS_COMPILE_TARGET') != "yes":
++                self.announce('*** WARNING: renaming "%s" since importing it'
++                              ' failed: %s' % (ext.name, why), level=3)
++                assert not self.inplace
++                basename, tail = os.path.splitext(ext_filename)
++                newname = basename + "_failed" + tail
++                if os.path.exists(newname):
++                    os.remove(newname)
++                os.rename(ext_filename, newname)
+ 
+-            # XXX -- This relies on a Vile HACK in
+-            # distutils.command.build_ext.build_extension().  The
+-            # _built_objects attribute is stored there strictly for
+-            # use here.
+-            # If there is a failure, _built_objects may not be there,
+-            # so catch the AttributeError and move on.
+-            try:
+-                for filename in self._built_objects:
+-                    os.remove(filename)
+-            except AttributeError:
+-                self.announce('unable to remove files (ignored)')
++                # XXX -- This relies on a Vile HACK in
++                # distutils.command.build_ext.build_extension().  The
++                # _built_objects attribute is stored there strictly for
++                # use here.
++                # If there is a failure, _built_objects may not be there,
++                # so catch the AttributeError and move on.
++                try:
++                    for filename in self._built_objects:
++                        os.remove(filename)
++                except AttributeError:
++                    self.announce('unable to remove files (ignored)')
++            else:
++                self.announce('WARNING: "%s" failed importing, but we leave it '
++                              'because we are cross-compiling' %
++                              ext.name)
+         except:
+             exc_type, why, tb = sys.exc_info()
+             self.announce('*** WARNING: importing extension "%s" '

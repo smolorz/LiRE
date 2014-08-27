@@ -63,8 +63,8 @@ LIRE_INIT_SOURCE_BUILD
 #
   export LDSHARED="${CC} -shared"
   export PYPREFIX=$LIRE_PYTHON_INSTDIR
-  export CFLAGS="-I${PYPREFIX}/include/python3.2m"
-  export LDFLAGS="-L${PYPREFIX}/lib/python3.2m"
+  export CFLAGS="-I${PYPREFIX}/include/python3.3m"
+  export LDFLAGS="-L${PYPREFIX}/lib/python3.3m"
   export HOSTPYTHON=$LIRE_HOSTDIR/bin/python3
 
   cd $LIRE_NETIFACES_SRCDIR
@@ -112,8 +112,8 @@ if [ $MAKEPACK -eq 1 ]; then
    TAR="$PACKAGE.tar.bz2"
    DEST="$LIRE_NETIFACES_PACKDIR/"
 
-   mkdir -p lib/python3.2/site-packages
-   cp $LIRE_NETIFACES_SRCDIR/dist/*.egg lib/python3.2/site-packages
+   mkdir -p lib/python3.3/site-packages
+   cp $LIRE_NETIFACES_SRCDIR/dist/*.egg lib/python3.3/site-packages
    tar -cjf "$TAR" lib
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"

@@ -112,8 +112,8 @@ if [ $MAKEPACK -eq 1 ]; then
    TAR="$PACKAGE.tar.bz2"
    DEST="$LIRE_NETIFACES_PACKDIR/"
 
-   mkdir -p lib/python3.3/site-packages
-   cp $LIRE_NETIFACES_SRCDIR/dist/*.egg lib/python3.3/site-packages
+   mkdir -p lib/python3.3/site-packages/netifaces
+   cp $LIRE_NETIFACES_SRCDIR/dist/*.egg lib/python3.3/site-packages/netifaces
    tar -cjf "$TAR" lib
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"

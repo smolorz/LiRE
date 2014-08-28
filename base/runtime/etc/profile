@@ -18,6 +18,7 @@ alias o="less"
 
 export PYTHONHOME=/
 export ROS_ROOT=/usr
+export CMAKE_PREFIX_PATH=$ROS_ROOT
 export ROS_HOME=/tmp
 export ROS_MASTER_URI=http://localhost:11311
 export ROS_PYTHON_LOG_CONFIG_FILE=/etc/ros/python_logging.conf

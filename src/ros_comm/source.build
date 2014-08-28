@@ -136,11 +136,15 @@ if [ $MAKEPACK -eq 1 ]; then
    TAR="$PACKAGE.tar.bz2"
    DEST="$LIRE_ROS_COMM_PACKDIR/"
 
-   mkdir -p usr
+   mkdir -p usr/lib
    cp --parents share/roslaunch/package.xml usr
+   cp --parents share/rosout/package.xml usr
+   mv lib/ros* usr/lib
+   mv lib/topic_tools usr/lib
+   touch usr/.catkin
 
    echo -n " Creating $TAR ... "
-   tar -cjf "$TAR" bin lib/lib*.so lib/ros* lib/topic_tools lib/python* etc/ros usr
+   tar -cjf "$TAR" bin lib/lib*.so lib/python* etc/ros usr
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 

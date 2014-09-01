@@ -142,6 +142,7 @@ if [ $MAKEPACK -eq 1 ]; then
    mv lib/ros* usr/lib
    mv lib/topic_tools usr/lib
    touch usr/.catkin
+   cp lib/python3.3/site-packages/roslz4/_roslz4.so lib/python3.3/site-packages
 
    echo -n " Creating $TAR ... "
    tar -cjf "$TAR" bin lib/lib*.so lib/python* etc/ros usr

@@ -69,6 +69,7 @@ source      "packages/message_runtime/Kconfig"
 source      "packages/std_msgs/Kconfig"
 source      "packages/ros_comm_msgs/Kconfig"
 source      "packages/ros_comm/Kconfig"
+source      "packages/common_msgs/Kconfig"
 
 endif
 

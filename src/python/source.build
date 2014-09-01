@@ -88,8 +88,9 @@ if [ $BUILD -eq 1 ]; then
     echo " Configure python... "
     export CONFIG_SITE="$LIRE_PYTHON_SCRDIR/config.site"
     $LIRE_PYTHON_SRCDIR/configure --prefix=$LIRE_PYTHON_INSTDIR --disable-ipv6 \
-        --host=${host_alias} --build=${build_alias} LDFLAGS="-L$LIRE_NCURSES_INSTDIR/lib -L$LIRE_ZLIB_INSTDIR/lib" \
-        CPPFLAGS="-I$LIRE_NCURSES_INSTDIR/include -I$LIRE_NCURSES_INSTDIR/include/ncurses -I$LIRE_ZLIB_INSTDIR/include" \
+        --host=${host_alias} --build=${build_alias} \
+        LDFLAGS="-L$LIRE_NCURSES_INSTDIR/lib -L$LIRE_ZLIB_INSTDIR/lib -L$LIRE_BZIP2_INSTDIR/lib" \
+        CPPFLAGS="-I$LIRE_NCURSES_INSTDIR/include -I$LIRE_NCURSES_INSTDIR/include/ncurses -I$LIRE_ZLIB_INSTDIR/include -I$LIRE_BZIP2_INSTDIR/include" \
         CFLAGS="-fPIC"
     
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }

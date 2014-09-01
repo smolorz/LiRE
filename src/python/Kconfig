@@ -5,6 +5,7 @@ config LIRE_PYTHON_BUILD_SRC
     depends on LIRE_BUILD_SRC && LIRE_PYTHON_INST
     select LIRE_NCURSES_BUILD_SRC
     select LIRE_ZLIB_BUILD_SRC
+    select LIRE_BZIP2_BUILD_SRC
     help
     ...
 

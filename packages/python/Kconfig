@@ -4,5 +4,6 @@ config LIRE_PYTHON_INST
     default n 
     select LIRE_NCURSES_INST
     select LIRE_ZLIB_INST
+    select LIRE_BZIP2_INST
     help
     ...text...

@@ -133,7 +133,7 @@ if [ $MAKEPACK -eq 1 ]; then
     	    
     echo -n " Creating $TAR ... "
     $STRIP -s lib/*
-    tar -cjf "$TAR" lib include
+    tar -cjf "$TAR" lib
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"					
     echo -n " Move $TAR to $DEST... "

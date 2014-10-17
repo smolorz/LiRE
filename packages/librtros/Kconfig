@@ -1,0 +1,9 @@
+
+config LIRE_LIBRTROS_INST
+    bool "  Install librtros (Real-Time ROS library using TiMS)"
+    default n
+    select LIRE_XENOMAI_INST
+    select LIRE_LIBRACKRTROS_INST
+    select LIRE_CATKIN_INST
+    select LIRE_ROS_COMM_INST
+    help

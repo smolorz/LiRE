@@ -75,7 +75,7 @@ config LIRE_BUILD_ALL
     select LIRE_SETUPTOOLS_BUILD_SRC 		if LIRE_SETUPTOOLS_INST
     select LIRE_NETIFACES_BUILD_SRC 		if LIRE_NETIFACES_INST
     select LIRE_COMMON_MSGS_BUILD_SRC 		if LIRE_COMMON_MSGS_INST
-
+    select LIRE_LIBRACKRTROS_BUILD_SRC		if LIRE_LIBRACKRTROS_INST
 
 source "src/linux/Kconfig"    
 source "src/xenomai/Kconfig"
@@ -123,6 +123,7 @@ comment "  RACK"
     depends on LIRE_BUILD_SRC
 source "src/rack/Kconfig"
 source "src/rack_rts/Kconfig"
+source "src/librackrtros/Kconfig"
 
 comment "  ROS"
     depends on LIRE_BUILD_SRC

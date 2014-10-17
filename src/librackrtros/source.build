@@ -1,0 +1,181 @@
+#! /bin/bash
+
+#
+# librackrtros build script
+# 2014-10-16 Sebastian Smolorz (sesmo@gmx.net)
+#
+
+# name of this package
+PACKAGE="librackrtros"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_LIBRACKRTROS_BUILDDIR/.rackrtros_config"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # check and modify the Linux source- and the xenomai destination path
+    #
+    cp -f .rackrtros_config .rackrtros_config_LIRE_bak
+
+    echo "CONFIG_RACKRTROS_INSTALLDIR=\"$LIRE_LIBRACKRTROS_INSTDIR\" "          >  .rackrtros_config_LIRE_new
+    echo "CONFIG_RACKRTROS_LIRE_INSTALLDIR=\"$LIRE_INSTDIR\" "                  >> .rackrtros_config_LIRE_new
+
+
+    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+        echo "CONFIG_RACKRTROS_CROSS_COMPILE=y"                                      >> .rackrtros_config_LIRE_new
+        echo "CONFIG_RACKRTROS_TARGET_TUPLE=\"$CONFIG_LIRE_TARGET_TUPLE\" "          >> .rackrtros_config_LIRE_new
+        echo "CONFIG_RACKRTROS_TOOLCHAIN_PARENT_DIR=\"$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR\" "  >> .rackrtros_config_LIRE_new
+    else
+	echo "# CONFIG_RACKRTROS_CROSS_COMPILE is not set"                           >> .rackrtros_config_LIRE_new
+    fi
+
+    # disable all other values
+
+    sed '/CONFIG_RACKRTROS_LIRE_INSTALLDIR/D;
+         /CONFIG_RACKRTROS_INSTALLDIR/D;
+         /CONFIG_RACK_CROSS_COMPILE/D;
+         /CONFIG_RACK_TARGET_TUPLE/D;
+         /CONFIG_RACK_TOOLCHAIN_PARENT_DIR/D;' .rackrtros_config                 >> .rackrtros_config_LIRE_new
+
+    mv .rackrtros_config_LIRE_new .rackrtros_config
+    rm -f .rackrtros_config_LIRE_bak
+    make -f $LIRE_LIBRACKRTROS_SRCDIR/makefile oldconfig
+    [ $? -gt 0 ] && { echo "make oldconfig [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make oldconfig [OK]"
+
+    #
+    # build rackrtros
+    #
+    echo " build rackrtros"
+    make -j$CONFIG_LIRE_BUILD_JOBS
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    echo " make install"
+    make install-strip
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+    # remove .la files
+    rm ${LIRE_LIBRACKRTROS_INSTDIR}/lib/*.la
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf .tar
+    mkdir -p .tar/usr/lib
+
+
+    # copy files
+    echo " copy files ... "
+    cp -rf lib/*.so.* .tar/usr/lib
+
+    #
+    # create tar.bz2
+    #
+    DEST="$LIRE_LIBRACKRTROS_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"
+
+    cd .tar
+
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    cd ..
+
+    echo " remove tar tree ... "
+    rm -rf ".tar"
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

@@ -42,6 +42,7 @@ comment "Misc Drivers"
 comment "RACK"
 source      "packages/rack/Kconfig"
 source      "packages/rack_rts/Kconfig"
+source      "packages/librackrtros/Kconfig"
 
 comment ""
 menuconfig ROS

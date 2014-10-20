@@ -83,9 +83,9 @@ if [ $BUILD -eq 1 ]; then
 
     sed '/CONFIG_RACKRTROS_LIRE_INSTALLDIR/D;
          /CONFIG_RACKRTROS_INSTALLDIR/D;
-         /CONFIG_RACK_CROSS_COMPILE/D;
-         /CONFIG_RACK_TARGET_TUPLE/D;
-         /CONFIG_RACK_TOOLCHAIN_PARENT_DIR/D;' .rackrtros_config                 >> .rackrtros_config_LIRE_new
+         /CONFIG_RACKRTROS_CROSS_COMPILE/D;
+         /CONFIG_RACKRTROS_TARGET_TUPLE/D;
+         /CONFIG_RACKRTROS_TOOLCHAIN_PARENT_DIR/D;' .rackrtros_config                 >> .rackrtros_config_LIRE_new
 
     mv .rackrtros_config_LIRE_new .rackrtros_config
     rm -f .rackrtros_config_LIRE_bak

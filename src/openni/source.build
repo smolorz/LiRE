@@ -71,6 +71,7 @@ if [ $BUILD -eq 1 ]; then
     export ARM_STAGING=${LIRE_INSTDIR}/sys-root
     export X86_CXX=$CXX
     export X86_STAGING=${LIRE_INSTDIR}/sys-root
+    unset PYTHONPATH
 
     cd ${LIRE_OPENNI_SRCDIR}/Platform/Linux/CreateRedist
     ./RedistMaker $ARCH

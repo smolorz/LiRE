@@ -1,0 +1,7 @@
+--- openni/Platform/Linux/CreateRedist/RedistMaker.orig	2014-10-20 10:05:34.343635832 +0200
++++ openni/Platform/Linux/CreateRedist/RedistMaker	2014-10-20 09:59:33.826644727 +0200
+@@ -1,3 +1,3 @@
+ #!/bin/bash -e
+-python Redist_OpenNi.py $*
++/usr/bin/python Redist_OpenNi.py $*
+ 

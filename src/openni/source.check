@@ -65,6 +65,8 @@ echo "Patching out OpenNI's viewer samples."
 patch --forward -p0 < openni_remove_samples.patch
 echo "Deactivating glut support."
 patch --forward -p0 < openni_noglut.patch
+echo "Patching to use system's python."
+patch --forward -p0 < openni_hostpython.patch
 
 #========== STOP YOUR CHECKS HERE ==============================================
 #

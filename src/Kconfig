@@ -77,6 +77,8 @@ config LIRE_BUILD_ALL
     select LIRE_COMMON_MSGS_BUILD_SRC 		if LIRE_COMMON_MSGS_INST
     select LIRE_LIBRACKRTROS_BUILD_SRC		if LIRE_LIBRACKRTROS_INST
     select LIRE_LIBRTROS_BUILD_SRC		if LIRE_LIBRTROS_INST
+    select LIRE_GEOMETRY_BUILD_SRC		if LIRE_GEOMETRY_INST
+
 
 source "src/linux/Kconfig"    
 source "src/xenomai/Kconfig"
@@ -146,6 +148,7 @@ source "src/ros_comm_msgs/Kconfig"
 source "src/ros_comm/Kconfig"
 source "src/common_msgs/Kconfig"
 source "src/librtros/Kconfig"
+source "src/geometry/Kconfig"
 
 comment "  Libraries"
     depends on LIRE_BUILD_SRC

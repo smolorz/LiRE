@@ -1,0 +1,6 @@
+
+config LIRE_LIBSDL_BUILD_SRC
+    bool "    Build SDL"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_LIBSDL_INST
+    help

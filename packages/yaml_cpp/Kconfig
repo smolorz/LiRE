@@ -1,0 +1,7 @@
+
+config LIRE_YAML_CPP_INST
+    bool "  Install yaml-cpp"
+    default n 
+    select LIRE_BOOST_INST
+    help
+    ...text...

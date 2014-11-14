@@ -1,0 +1,9 @@
+
+config LIRE_SDL_IMAGE_INST
+    bool "  Install SDL-Image"
+    default n
+    select LIRE_LIBPNG_INST
+    select LIRE_LIBJPEG_INST
+    select LIRE_LIBSDL_INST
+    select LIRE_ZLIB_INST
+    help

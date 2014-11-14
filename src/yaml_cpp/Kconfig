@@ -1,0 +1,8 @@
+
+config LIRE_YAML_CPP_BUILD_SRC
+    bool "    Build yaml-cpp"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_YAML_CPP_INST
+    select LIRE_BOOST_BUILD_SRC
+    help
+	...

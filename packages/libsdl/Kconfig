@@ -1,0 +1,5 @@
+
+config LIRE_LIBSDL_INST
+    bool "  Install SDL"
+    default n
+    help

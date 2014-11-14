@@ -1,0 +1,10 @@
+
+config LIRE_SDL_IMAGE_BUILD_SRC
+    bool "    Build SDL-Image library"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_SDL_IMAGE_INST
+    select LIRE_LIBPNG_BUILD_SRC 
+    select LIRE_LIBJPEG_BUILD_SRC
+    select LIRE_LIBSDL_BUILD_SRC
+    select LIRE_ZLIB_BUILD_SRC
+    help

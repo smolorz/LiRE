@@ -18,7 +18,7 @@ LIRE_CHECK_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_STD_MSGS_SRCDIR/CMakeLists.txt"
+PACKAGE_SRCCONF="$LIRE_COMMON_MSGS_SRCDIR/common_msgs/CMakeLists.txt"
 
 #
 # before calling LIRE_INIT_SOURCE_CHECK you have to init following values:

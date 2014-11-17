@@ -137,8 +137,11 @@ if [ $MAKEPACK -eq 1 ]; then
    DEST="$LIRE_ROS_COMM_PACKDIR/"
 
    mkdir -p usr/lib
+   mkdir -p usr/config
+
    cp --parents share/roslaunch/package.xml usr
    cp --parents share/rosout/package.xml usr
+   cp share/ros/config/rosconsole.config usr/config
    mv lib/ros* usr/lib
    mv lib/topic_tools usr/lib
    touch usr/.catkin

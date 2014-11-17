@@ -1,12 +1,12 @@
 #! /bin/bash
 
 #
-# OpenNI build script
-# 2012-08-03 Sebastian Smolorz <smolorz@rts.uni-hannover.de>
+# librackrtros build script
+# 2014-10-16 Sebastian Smolorz (sesmo@gmx.net)
 #
 
 # name of this package
-PACKAGE="openni"
+PACKAGE="librackrtros"
 
 ################################################################################
 # don't touch this - start -
@@ -18,7 +18,7 @@ LIRE_BUILD_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_OPENNI_SRCDIR/Platform/Linux/CreateRedist/RedistMaker"
+PACKAGE_SRCCONF="$LIRE_LIBRACKRTROS_BUILDDIR/.rackrtros_config"
 
 #
 # before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
@@ -63,23 +63,43 @@ if [ $BUILD -eq 1 ]; then
 #
 
     #
-    # build OpenNI
+    # check and modify the Linux source- and the xenomai destination path
     #
-    echo " Building OpenNI ... "
+    cp -f .rackrtros_config .rackrtros_config_LIRE_bak
 
-    export ARM_CXX=$CXX
-    export ARM_STAGING=${LIRE_INSTDIR}/sys-root
-    export X86_CXX=$CXX
-    export X86_STAGING=${LIRE_INSTDIR}/sys-root
-    unset PYTHONPATH
+    echo "CONFIG_RACKRTROS_INSTALLDIR=\"$LIRE_LIBRACKRTROS_INSTDIR\" "          >  .rackrtros_config_LIRE_new
+    echo "CONFIG_RACKRTROS_LIRE_INSTALLDIR=\"$LIRE_INSTDIR\" "                  >> .rackrtros_config_LIRE_new
 
-    cd ${LIRE_OPENNI_SRCDIR}/Platform/Linux/CreateRedist
-    ./RedistMaker $ARCH
-	
+
+    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+        echo "CONFIG_RACKRTROS_CROSS_COMPILE=y"                                      >> .rackrtros_config_LIRE_new
+        echo "CONFIG_RACKRTROS_TARGET_TUPLE=\"$CONFIG_LIRE_TARGET_TUPLE\" "          >> .rackrtros_config_LIRE_new
+        echo "CONFIG_RACKRTROS_TOOLCHAIN_PARENT_DIR=\"$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR\" "  >> .rackrtros_config_LIRE_new
+    else
+	echo "# CONFIG_RACKRTROS_CROSS_COMPILE is not set"                           >> .rackrtros_config_LIRE_new
+    fi
+
+    # disable all other values
+
+    sed '/CONFIG_RACKRTROS_LIRE_INSTALLDIR/D;
+         /CONFIG_RACKRTROS_INSTALLDIR/D;
+         /CONFIG_RACKRTROS_CROSS_COMPILE/D;
+         /CONFIG_RACKRTROS_TARGET_TUPLE/D;
+         /CONFIG_RACKRTROS_TOOLCHAIN_PARENT_DIR/D;' .rackrtros_config                 >> .rackrtros_config_LIRE_new
+
+    mv .rackrtros_config_LIRE_new .rackrtros_config
+    rm -f .rackrtros_config_LIRE_bak
+    make -f $LIRE_LIBRACKRTROS_SRCDIR/makefile oldconfig
+    [ $? -gt 0 ] && { echo "make oldconfig [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make oldconfig [OK]"
+
+    #
+    # build rackrtros
+    #
+    echo " build rackrtros"
+    make -j$CONFIG_LIRE_BUILD_JOBS
     [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make [OK]"
-
-
 
 #========== STOP YOUR BUILD HERE  ==============================================
 
@@ -95,22 +115,15 @@ if [ $INSTALL -eq 1 ]; then
 #
 
     #
-    # install OpenNI
+    # make install
     #
-    cd ${LIRE_OPENNI_SRCDIR}/Platform/Linux/Redist
-    OPENNI_BINDIR=`ls -d OpenNI*`
-    cd ${OPENNI_BINDIR}
-    mkdir ${LIRE_OPENNI_INSTDIR}/usr
-    mkdir ${LIRE_OPENNI_INSTDIR}/usr/lib ${LIRE_OPENNI_INSTDIR}/usr/bin
-    ./install.sh -c ${LIRE_OPENNI_INSTDIR}
+    echo " make install"
+    make install-strip
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
 
-    # Copy installed files into sys-root (PrimeSense needs this)
-    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
-        echo -n " Copy installed files into sys-root ... "
-        cp -a ${LIRE_OPENNI_INSTDIR}/* ${LIRE_INSTDIR}/sys-root
-        [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
-        echo "[OK]"
-    fi
+    # remove .la files
+    rm ${LIRE_LIBRACKRTROS_INSTDIR}/lib/*.la
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
@@ -125,26 +138,40 @@ if [ $MAKEPACK -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
 
-    # Strip libs and bins
-    ${STRIP} usr/bin/* usr/lib/*
-    
-    DEST="$LIRE_OPENNI_PACKDIR/"
-    TAR="$LIRE_OPENNI_SRCDIR/$PACKAGE.tar.bz2"
-    
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf .tar
+    mkdir -p .tar/usr/lib
+
+
+    # copy files
+    echo " copy files ... "
+    cp -rf lib/*.so.* .tar/usr/lib
+
     #
     # create tar.bz2
     #
-    	    
+    DEST="$LIRE_LIBRACKRTROS_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"
+
+    cd .tar
+
     echo -n " Creating $TAR ... "
-    tar -cjf "$TAR" usr/bin usr/lib
+    tar -cjf "$TAR" *
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-    echo "[OK]"					
+    echo "[OK]"
+
     echo -n " Move $TAR to $DEST... "
     mv -f "$TAR" "$DEST"
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"
+
     cd ..
-							    
+
+    echo " remove tar tree ... "
+    rm -rf ".tar"
 
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 

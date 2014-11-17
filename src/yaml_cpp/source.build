@@ -1,12 +1,12 @@
 #! /bin/bash
 
 #
-# common_msgs build script
-# 2014-09-01 Sebastian Smolorz (sesmo@gmx.net)
+# yaml-cpp build script
+# 2014-11-13 Sebastian Smolorz <sesmo@gmx.net>
 #
 
 # name of this package
-PACKAGE="common_msgs"
+PACKAGE="yaml_cpp"
 
 ################################################################################
 # don't touch this - start -
@@ -18,7 +18,7 @@ LIRE_BUILD_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_COMMON_MSGS_SRCDIR/common_msgs/CMakeLists.txt"
+PACKAGE_SRCCONF="$LIRE_YAML_CPP_SRCDIR/CMakeLists.txt"
 
 #
 # before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
@@ -62,17 +62,25 @@ if [ $BUILD -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-    source ${LIRE_ROS_COMM_INSTDIR}/setup.bash
-    export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_STD_MSGS_INSTDIR:\
-$LIRE_MESSAGE_RUNTIME_INSTDIR:$LIRE_ROSCPP_CORE_INSTDIR:$LIRE_ROS_COMM_INSTDIR
+    #
+    # configure yaml-cpp
+    #
+    echo " Configure yaml-cpp ... "
+    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$LIRE_YAML_CPP_INSTDIR \
+    -D BOOST_ROOT=$LIRE_BOOST_INSTDIR -D BUILD_SHARED_LIBS=ON ${LIRE_YAML_CPP_SRCDIR}
 
-    catkin_make --source ${LIRE_COMMON_MSGS_SRCDIR} \
-	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release \
-        -DCATKIN_ENABLE_TESTING=0 -DBOOST_ROOT=$LIRE_BOOST_INSTDIR \
-        -DCMAKE_TOOLCHAIN_FILE=$LIRE_ROS_COMM_SRCDIR/toolchain.cmake
+    [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " configure [OK]"
 
-    [ $? -gt 0 ] && { echo "catkin_make [FAILED]"; LIRE_EXIT_ERROR 1; }
-    echo " catkin_make [OK]"
+    #
+    # build TinyXML-2
+    #
+    echo " Building yaml-cpp ... "
+
+    make -j$CONFIG_LIRE_BUILD_JOBS
+
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
 
 
 #========== STOP YOUR BUILD HERE  ==============================================
@@ -88,11 +96,13 @@ if [ $INSTALL -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-    catkin_make install/strip --source ${LIRE_COMMON_MSGS_SRCDIR} \
-         -DCMAKE_INSTALL_PREFIX=$LIRE_COMMON_MSGS_INSTDIR
+    #
+    # make install
+    #
+    echo " make install"
+    make install/strip
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
-
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
@@ -107,26 +117,21 @@ if [ $MAKEPACK -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
 
-   #
-   # create tar.bz2
-   #
-   TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_COMMON_MSGS_PACKDIR/"
-
-   mkdir -p usr/lib
-   cp -r share usr
-   find usr -name cmake -execdir rm -rf \{\} \;
-
-   tar -cjf "$TAR" lib/python* usr
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
-
-   echo -n " Move $TAR to $DEST... "
-   mv -f "$TAR" "$DEST"
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
-
-   rm -fr usr/share
+    
+    DEST="$LIRE_YAML_CPP_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"	
+    
+    #
+    # create tar.bz2
+    #
+    tar -cjf "$TAR" lib/lib*.so.*
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"					
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+							    
 
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 

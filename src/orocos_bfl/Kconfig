@@ -1,0 +1,8 @@
+
+config LIRE_OROCOS_BFL_BUILD_SRC
+    bool "    Build orocos-bfl"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_OROCOS_BFL_INST
+    select LIRE_BOOST_BUILD_SRC
+    help
+	...

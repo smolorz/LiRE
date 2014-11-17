@@ -1,0 +1,13 @@
+
+config LIRE_GEOMETRY_BUILD_SRC
+    bool "    Build ROS geometry package (including tf)"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_GEOMETRY_INST
+    select LIRE_ROS_COMM_BUILD_SRC
+    select LIRE_STD_MSGS_BUILD_SRC
+    select LIRE_COMMON_MSGS_BUILD_SRC
+    select LIRE_MESSAGE_GENERATION_BUILD_SRC
+    select LIRE_PYTHON_BUILD_SRC
+    select LIRE_BOOST_BUILD_SRC
+    help
+	...

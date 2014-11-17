@@ -43,6 +43,7 @@ comment "Misc Drivers"
 comment "RACK"
 source      "packages/rack/Kconfig"
 source      "packages/rack_rts/Kconfig"
+source      "packages/librackrtros/Kconfig"
 
 comment ""
 menuconfig ROS
@@ -71,6 +72,9 @@ source      "packages/std_msgs/Kconfig"
 source      "packages/ros_comm_msgs/Kconfig"
 source      "packages/ros_comm/Kconfig"
 source      "packages/common_msgs/Kconfig"
+source      "packages/librtros/Kconfig"
+source      "packages/geometry/Kconfig"
+source      "packages/orocos_bfl/Kconfig"
 
 endif
 
@@ -97,6 +101,9 @@ source      "packages/sensorkinect/Kconfig"
 source      "packages/console_bridge/Kconfig"
 source      "packages/lz4/Kconfig"
 source      "packages/libtinyxml/Kconfig"
+source      "packages/libsdl/Kconfig"
+source      "packages/sdl_image/Kconfig"
+source      "packages/yaml_cpp/Kconfig"
 
 endmenu
 

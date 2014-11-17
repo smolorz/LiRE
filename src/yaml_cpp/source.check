@@ -1,12 +1,12 @@
 #! /bin/bash
 
 #
-# ros_comm check script
-# 2014-07-08  Sebastian Smolorz (sesmo@gmx.net)
+# yaml-cpp check script
+# 2014-11-13 Sebastian Smolorz <sesmo@gmx.net>
 #
 
 # name of this package
-PACKAGE="ros_comm"
+PACKAGE="yaml_cpp"
 
 ################################################################################
 # don't touch this - start -
@@ -18,7 +18,7 @@ LIRE_CHECK_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_ROS_COMM_SRCDIR/ros_comm/CMakeLists.txt"
+PACKAGE_SRCCONF="$LIRE_YAML_CPP_SRCDIR/CMakeLists.txt"
 
 #
 # before calling LIRE_INIT_SOURCE_CHECK you have to init following values:
@@ -59,15 +59,8 @@ LIRE_INIT_SOURCE_CHECK
     #
     # set version
     #
-    PACKAGE_VERSION=`cat $LIRE_ROS_COMM_SRCDIR/$LIRE_VERSION_FILE`
+    PACKAGE_VERSION=`cat $LIRE_YAML_CPP_SRCDIR/$LIRE_VERSION_FILE`
 
-    #
-    # Patch CMakeLists.txt of tools/rosbag, it didn't find headers of bzip2.
-    # Patch a bunch of roscpp files in order to add support for TiMS.
-    #
-    cd $LIRE_ROS_COMM_SRCDIR
-    patch --forward -p1 <  $LIRE_ROS_COMM_SCRDIR/ros_comm.patch
-    cd $LIRE_ROS_COMM_SCRDIR
 
 #========== STOP YOUR CHECKS HERE ==============================================
 #

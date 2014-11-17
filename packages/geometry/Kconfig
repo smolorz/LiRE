@@ -1,0 +1,13 @@
+
+config LIRE_GEOMETRY_INST
+    bool "  Install ROS geometry package"
+    default n 
+    select LIRE_ROS_COMM_INST
+    select LIRE_LZ4_INST
+    select LIRE_STD_MSGS_INST
+    select LIRE_COMMON_MSGS_INST
+    select LIRE_MESSAGE_GENERATION_INST
+    select LIRE_PYTHON_INST
+    select LIRE_BOOST_INST
+    help
+    ...text...

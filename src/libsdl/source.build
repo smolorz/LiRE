@@ -1,12 +1,11 @@
 #! /bin/bash
 
 #
-# common_msgs build script
-# 2014-09-01 Sebastian Smolorz (sesmo@gmx.net)
-#
+# SDL build script
+# 2014 Sebastian Smolorz (sesmo@gmx.net)
 
 # name of this package
-PACKAGE="common_msgs"
+PACKAGE="libsdl"
 
 ################################################################################
 # don't touch this - start -
@@ -18,7 +17,7 @@ LIRE_BUILD_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_COMMON_MSGS_SRCDIR/common_msgs/CMakeLists.txt"
+PACKAGE_SRCCONF="$LIRE_LIBSDL_SRCDIR/configure"
 
 #
 # before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
@@ -61,18 +60,25 @@ if [ $BUILD -eq 1 ]; then
 #
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
+    #
+    # configure SDL
+    #
+    echo " Configure SDL ... "
+    $LIRE_LIBSDL_SRCDIR/configure --prefix=$LIRE_LIBSDL_INSTDIR \
 
-    source ${LIRE_ROS_COMM_INSTDIR}/setup.bash
-    export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_STD_MSGS_INSTDIR:\
-$LIRE_MESSAGE_RUNTIME_INSTDIR:$LIRE_ROSCPP_CORE_INSTDIR:$LIRE_ROS_COMM_INSTDIR
+    [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " configure [OK]"
+    
+    #
+    # build SDL
+    #
+    echo " Building SDL ... "
 
-    catkin_make --source ${LIRE_COMMON_MSGS_SRCDIR} \
-	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release \
-        -DCATKIN_ENABLE_TESTING=0 -DBOOST_ROOT=$LIRE_BOOST_INSTDIR \
-        -DCMAKE_TOOLCHAIN_FILE=$LIRE_ROS_COMM_SRCDIR/toolchain.cmake
+    make -j$CONFIG_LIRE_BUILD_JOBS
 
-    [ $? -gt 0 ] && { echo "catkin_make [FAILED]"; LIRE_EXIT_ERROR 1; }
-    echo " catkin_make [OK]"
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
 
 
 #========== STOP YOUR BUILD HERE  ==============================================
@@ -88,11 +94,13 @@ if [ $INSTALL -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-    catkin_make install/strip --source ${LIRE_COMMON_MSGS_SRCDIR} \
-         -DCMAKE_INSTALL_PREFIX=$LIRE_COMMON_MSGS_INSTDIR
+    #
+    # make install
+    #
+    echo " make install"
+    make install
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
-
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
@@ -107,27 +115,44 @@ if [ $MAKEPACK -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
 
-   #
-   # create tar.bz2
-   #
-   TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_COMMON_MSGS_PACKDIR/"
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
 
-   mkdir -p usr/lib
-   cp -r share usr
-   find usr -name cmake -execdir rm -rf \{\} \;
+    # make dirs
+    mkdir -p "tar/lib/"
 
-   tar -cjf "$TAR" lib/python* usr
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
+    # copy files
+    echo -n " Copy libraries ... "
+    cp -fd lib/lib*.so.*  "tar/lib/"
+    
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
 
-   echo -n " Move $TAR to $DEST... "
-   mv -f "$TAR" "$DEST"
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
+    #
+    # create tar.bz2
+    #
+    TAR="$PACKAGE.tar.bz2"
+    DEST="$LIRE_LIBSDL_PACKDIR/"
 
-   rm -fr usr/share
+    cd tar
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
 
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+
+    #
+    # remove tar dir
+    #
+    rm -rf tar
+    
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 
 fi

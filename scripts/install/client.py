@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env /usr/bin/python
 import socket
 import sys
 import os.path

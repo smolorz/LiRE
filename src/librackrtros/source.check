@@ -1,12 +1,12 @@
 #! /bin/bash
 
 #
-# ros_comm check script
-# 2014-07-08  Sebastian Smolorz (sesmo@gmx.net)
+# librackrtros check script
 #
+# 2014-10-16 Sebastian Smolorz (sesmo@gmx.net)
 
 # name of this package
-PACKAGE="ros_comm"
+PACKAGE="librackrtros"
 
 ################################################################################
 # don't touch this - start -
@@ -18,7 +18,7 @@ LIRE_CHECK_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_ROS_COMM_SRCDIR/ros_comm/CMakeLists.txt"
+PACKAGE_SRCCONF="$LIRE_LIBRACKRTROS_BUILDDIR/.rackrtros_config"
 
 #
 # before calling LIRE_INIT_SOURCE_CHECK you have to init following values:
@@ -30,7 +30,9 @@ LIRE_INIT_SOURCE_CHECK
 #
 # - the package name is valid
 # - you are in the SRC/$PACKAGE directory now (source script directory )
-# - you can use this values now ($PACK = upcase name of this package)
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
 #
 #       all values in .lire_config
 #       LIRE_"$PACK"_SCRDIR
@@ -39,6 +41,8 @@ LIRE_INIT_SOURCE_CHECK
 #       LIRE_"$PACK"_INSTDIR
 #       LIRE_"$PACK"_PACKDIR
 #       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF (!!! not this package source config !!!)
+#       LIRE_"$PACK"_VERSION (!!! not this package source config !!!)
 #
 #       LIRE_PACKDIR
 #       LIRE_OUTDIR
@@ -52,29 +56,30 @@ LIRE_INIT_SOURCE_CHECK
 # LIRE_EXIT_ERROR $VAL
 #
 #========== START YOUR CHECKS HERE =============================================
+
 #
-# You are in $LIRE_"$PACKAGE"_SCRDIR (package script directory)
+# set version
 #
+FILE="$LIRE_LIBRACKRTROS_SRCDIR/$LIRE_VERSION_FILE"
+if [ -f $FILE ]; then
+    PACKAGE_VERSION=`cat $FILE`
+else
+    PACKAGE_VERSION=`cat "$LIRE_LIBRACKRTROS_SRCDIR/config/version"`
+fi
 
-    #
-    # set version
-    #
-    PACKAGE_VERSION=`cat $LIRE_ROS_COMM_SRCDIR/$LIRE_VERSION_FILE`
+#
+# init config
+#
+CONFIG_NAME="rackrtros_config"
+CONFIG_FILE="$LIRE_LIBRACKRTROS_BUILDDIR/.$CONFIG_NAME"
 
-    #
-    # Patch CMakeLists.txt of tools/rosbag, it didn't find headers of bzip2.
-    # Patch a bunch of roscpp files in order to add support for TiMS.
-    #
-    cd $LIRE_ROS_COMM_SRCDIR
-    patch --forward -p1 <  $LIRE_ROS_COMM_SCRDIR/ros_comm.patch
-    cd $LIRE_ROS_COMM_SCRDIR
-
+LIRE_SELECT_CONFIG_FILE
 #========== STOP YOUR CHECKS HERE ==============================================
 #
 # before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.
 # the build script can get this values by LIRE_$PACK$_$VALUE$ (e.g. LIRE_LINUX_VERSION)
 #
 # PACKAGE_SRCCONF must be a vild source config file
-# PACKAGE_VERSION
+# PACKAGE_VERSION (version of this package)
 #
 LIRE_EXIT_SOURCE_CHECK

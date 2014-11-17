@@ -1,0 +1,265 @@
+diff -upr ros_comm/clients/roscpp/include/ros/advertise_options.h ros_comm-1.11.7-patched/clients/roscpp/include/ros/advertise_options.h
+--- ros_comm/clients/roscpp/include/ros/advertise_options.h	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/include/ros/advertise_options.h	2014-09-24 15:41:42.279779248 +0200
+@@ -43,6 +43,7 @@ struct ROSCPP_DECL AdvertiseOptions
+   AdvertiseOptions()
+   : callback_queue(0)
+   , latch(false)
++  , tims_addr(0)
+   {
+   }
+ 
+@@ -130,6 +131,7 @@ struct ROSCPP_DECL AdvertiseOptions
+    */
+   bool has_header;
+ 
++  uint32_t tims_addr;
+ 
+   /**
+    * \brief Templated helper function for creating an AdvertiseOptions for a message type with most options.
+diff -upr ros_comm/clients/roscpp/include/ros/publication.h ros_comm-1.11.7-patched/clients/roscpp/include/ros/publication.h
+--- ros_comm/clients/roscpp/include/ros/publication.h	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/include/ros/publication.h	2014-09-24 16:03:08.069185238 +0200
+@@ -59,7 +59,8 @@ public:
+             const std::string& message_definition,
+             size_t max_queue,
+             bool latch,
+-            bool has_header);
++            bool has_header,
++            uint32_t tims_address);
+ 
+   ~Publication();
+ 
+@@ -117,6 +118,8 @@ public:
+ 
+   bool isLatched() { return latch_; }
+ 
++  uint32_t getTimsAddr() { return tims_addr; }
++
+   /**
+    * \brief Adds a publisher to our list
+    */
+@@ -182,6 +185,8 @@ private:
+ 
+   uint32_t intraprocess_subscriber_count_;
+ 
++  uint32_t tims_addr;
++
+   typedef std::vector<SerializedMessage> V_SerializedMessage;
+   V_SerializedMessage publish_queue_;
+   boost::mutex publish_queue_mutex_;
+diff -upr ros_comm/clients/roscpp/include/ros/subscribe_options.h ros_comm-1.11.7-patched/clients/roscpp/include/ros/subscribe_options.h
+--- ros_comm/clients/roscpp/include/ros/subscribe_options.h	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/include/ros/subscribe_options.h	2014-09-30 15:15:03.004749394 +0200
+@@ -140,6 +140,9 @@ struct ROSCPP_DECL SubscribeOptions
+ 
+   TransportHints transport_hints;                                   ///< Hints for transport type and options
+ 
++  boost::function<void(uint32_t)> pendConnDoneCb;
++  boost::function<void(void)> stopContDataCb;
++
+   /**
+    * \brief Templated helper function for creating an AdvertiseServiceOptions with most of its options
+    * \param topic Topic name to subscribe to
+diff -upr ros_comm/clients/roscpp/include/ros/subscription.h ros_comm-1.11.7-patched/clients/roscpp/include/ros/subscription.h
+--- ros_comm/clients/roscpp/include/ros/subscription.h	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/include/ros/subscription.h	2014-09-30 14:00:42.495135646 +0200
+@@ -65,7 +65,7 @@ typedef boost::shared_ptr<SubscriptionCa
+ class ROSCPP_DECL Subscription : public boost::enable_shared_from_this<Subscription>
+ {
+ public:
+-  Subscription(const std::string &name, const std::string& md5sum, const std::string& datatype, const TransportHints& transport_hints);
++  Subscription(const std::string &name, const std::string& md5sum, const std::string& datatype, const TransportHints& transport_hints, const boost::function<void(uint32_t)>& pendConnDoneCb, const boost::function<void(void)>& stopContDataCb);
+   virtual ~Subscription();
+ 
+   /**
+@@ -183,6 +183,8 @@ public:
+ 
+   void headerReceived(const PublisherLinkPtr& link, const Header& h);
+ 
++  boost::function<void(void)> stopContDataCb_;
++
+ private:
+   Subscription(const Subscription &); // not copyable
+   Subscription &operator =(const Subscription &); // nor assignable
+@@ -228,6 +230,8 @@ private:
+ 
+   StatisticsLogger statistics_;
+ 
++  boost::function<void(uint32_t)> pendConnDoneCb_;
++
+   struct LatchInfo
+   {
+     SerializedMessage message;
+diff -upr ros_comm/clients/roscpp/include/ros/transport_hints.h ros_comm-1.11.7-patched/clients/roscpp/include/ros/transport_hints.h
+--- ros_comm/clients/roscpp/include/ros/transport_hints.h	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/include/ros/transport_hints.h	2014-09-22 13:11:13.859417803 +0200
+@@ -159,6 +159,13 @@ public:
+    */
+   const M_string& getOptions() { return options_; }
+ 
++  TransportHints& tims()
++  {
++    transports_.push_back("TiMS");
++    return *this;
++  }
++
++
+ private:
+   V_string transports_;
+   M_string options_;
+diff -upr ros_comm/clients/roscpp/src/libros/publication.cpp ros_comm-1.11.7-patched/clients/roscpp/src/libros/publication.cpp
+--- ros_comm/clients/roscpp/src/libros/publication.cpp	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/src/libros/publication.cpp	2014-09-24 16:01:39.917912708 +0200
+@@ -79,7 +79,8 @@ Publication::Publication(const std::stri
+                          const std::string& message_definition,
+                          size_t max_queue,
+                          bool latch,
+-                         bool has_header)
++                         bool has_header,
++                         uint32_t tims_address)
+ : name_(name),
+   datatype_(datatype),
+   md5sum_(_md5sum),
+@@ -89,6 +90,7 @@ Publication::Publication(const std::stri
+   dropped_(false),
+   latch_(latch),
+   has_header_(has_header),
++  tims_addr(tims_address),
+   intraprocess_subscriber_count_(0)
+ {
+ }
+diff -upr ros_comm/clients/roscpp/src/libros/subscription.cpp ros_comm-1.11.7-patched/clients/roscpp/src/libros/subscription.cpp
+--- ros_comm/clients/roscpp/src/libros/subscription.cpp	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/src/libros/subscription.cpp	2014-09-30 13:46:44.913674059 +0200
+@@ -66,7 +66,7 @@ using XmlRpc::XmlRpcValue;
+ namespace ros
+ {
+ 
+-Subscription::Subscription(const std::string &name, const std::string& md5sum, const std::string& datatype, const TransportHints& transport_hints)
++Subscription::Subscription(const std::string &name, const std::string& md5sum, const std::string& datatype, const TransportHints& transport_hints, const boost::function<void(uint32_t)>& pendConnDoneCb, const boost::function<void(void)>& stopContDataCb)
+ : name_(name)
+ , md5sum_(md5sum)
+ , datatype_(datatype)
+@@ -74,6 +74,8 @@ Subscription::Subscription(const std::st
+ , dropped_(false)
+ , shutting_down_(false)
+ , transport_hints_(transport_hints)
++, pendConnDoneCb_(pendConnDoneCb)
++, stopContDataCb_(stopContDataCb)
+ {
+ }
+ 
+@@ -340,6 +342,7 @@ bool Subscription::negotiateConnection(c
+ {
+   XmlRpcValue tcpros_array, protos_array, params;
+   XmlRpcValue udpros_array;
++  XmlRpcValue timsros_array;
+   TransportUDPPtr udp_transport;
+   int protos = 0;
+   V_string transports = transport_hints_.getTransports();
+@@ -381,6 +384,11 @@ bool Subscription::negotiateConnection(c
+       tcpros_array[0] = std::string("TCPROS");
+       protos_array[protos++] = tcpros_array;
+     }
++    else if (*it == "TiMS")
++    {
++      timsros_array[0] = std::string("TiMSROS");
++      protos_array[protos++] = timsros_array;
++    }
+     else
+     {
+       ROS_WARN("Unsupported transport type hinted: %s, skipping", it->c_str());
+@@ -587,6 +595,19 @@ void Subscription::pendingConnectionDone
+       return;
+     }
+   }
++  else if (proto_name == "TiMSROS")
++  {
++    if (proto.size() != 2 ||
++        proto[1].getType() != XmlRpcValue::TypeInt)
++    {
++        ROSCPP_LOG_DEBUG("publisher implements TiMSROS, but the " \
++                         "parameter is not int");
++      return;
++    }
++    int tims_addr = proto[1];
++    ROSCPP_LOG_DEBUG("Connecting to publisher of topic [%s] with cmd mbx [%x] over TiMS ...", name_.c_str(), tims_addr);
++    pendConnDoneCb_(tims_addr);
++  }
+   else
+   {
+   	ROSCPP_LOG_DEBUG("Publisher offered unsupported transport [%s]", proto_name.c_str());
+diff -upr ros_comm/clients/roscpp/src/libros/topic_manager.cpp ros_comm-1.11.7-patched/clients/roscpp/src/libros/topic_manager.cpp
+--- ros_comm/clients/roscpp/src/libros/topic_manager.cpp	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/clients/roscpp/src/libros/topic_manager.cpp	2014-09-30 13:58:39.780095595 +0200
+@@ -281,7 +281,7 @@ bool TopicManager::subscribe(const Subsc
+   const std::string& md5sum = ops.md5sum;
+   std::string datatype = ops.datatype;
+ 
+-  SubscriptionPtr s(new Subscription(ops.topic, md5sum, datatype, ops.transport_hints));
++  SubscriptionPtr s(new Subscription(ops.topic, md5sum, datatype, ops.transport_hints, ops.pendConnDoneCb, ops.stopContDataCb));
+   s->addCallback(ops.helper, ops.md5sum, ops.callback_queue, ops.queue_size, ops.tracked_object, ops.allow_concurrent_callbacks);
+ 
+   if (!registerSubscriber(s, ops.datatype))
+@@ -357,7 +357,7 @@ bool TopicManager::advertise(const Adver
+       return true;
+     }
+ 
+-    pub = PublicationPtr(new Publication(ops.topic, ops.datatype, ops.md5sum, ops.message_definition, ops.queue_size, ops.latch, ops.has_header));
++    pub = PublicationPtr(new Publication(ops.topic, ops.datatype, ops.md5sum, ops.message_definition, ops.queue_size, ops.latch, ops.has_header, ops.tims_addr));
+     pub->addCallbacks(callbacks);
+     advertised_topics_.push_back(pub);
+   }
+@@ -689,6 +689,29 @@ bool TopicManager::requestTopic(const st
+       ret[2] = udpros_params;
+       return true;
+     }
++    else if (proto_name == string("TiMSROS"))
++    {
++      int tims_addr;
++      PublicationPtr pub_ptr = lookupPublication(topic);
++      if(!pub_ptr)
++      {
++        ROSCPP_LOG_DEBUG("Unable to find advertised topic %s for TiMSROS connection", topic.c_str());
++        return false;
++      }
++      tims_addr = pub_ptr->getTimsAddr();
++      if (tims_addr == 0)
++      {
++        ROSCPP_LOG_DEBUG("Publisher %s doesn't have a valid command mailbox address", this_node::getName().c_str());
++        return false;
++      }
++      XmlRpcValue timsros_params;
++      timsros_params[0] = string("TiMSROS");
++      timsros_params[1] = tims_addr;
++      ret[0] = int(1);
++      ret[1] = string();
++      ret[2] = timsros_params;
++      return true;
++    }
+     else
+     {
+       ROSCPP_LOG_DEBUG( "an unsupported protocol was offered: [%s]",
+@@ -827,6 +850,9 @@ bool TopicManager::unsubscribe(const std
+ 
+   sub->removeCallback(helper);
+ 
++  if (sub->stopContDataCb_)
++    sub->stopContDataCb_();
++
+   if (sub->getNumCallbacks() == 0)
+   {
+     // nobody is left. blow away the subscription.
+diff -upr ros_comm/tools/rosbag/CMakeLists.txt ros_comm-1.11.7-patched/tools/rosbag/CMakeLists.txt
+--- ros_comm/tools/rosbag/CMakeLists.txt	2014-07-28 08:36:54.000000000 +0200
++++ ros_comm-1.11.7-patched/tools/rosbag/CMakeLists.txt	2014-09-01 10:45:35.390872690 +0200
+@@ -9,7 +9,7 @@ catkin_python_setup()
+ # Support large bags (>2GB) on 32-bit systems
+ add_definitions(-D_FILE_OFFSET_BITS=64)
+ 
+-include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
++include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${BZIP2_INCLUDE_DIR})
+ 
+ catkin_package(
+   LIBRARIES rosbag

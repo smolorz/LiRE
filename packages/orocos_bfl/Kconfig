@@ -1,0 +1,7 @@
+
+config LIRE_OROCOS_BFL_INST
+    bool "  Install orocos-bfl"
+    default n 
+    select LIRE_BOOST_INST
+    help
+    ...text...

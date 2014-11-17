@@ -1,12 +1,25 @@
 #! /bin/bash
 
 #
-# common_msgs build script
-# 2014-09-01 Sebastian Smolorz (sesmo@gmx.net)
+# geometry build script
+# 2014-11-07 Sebastian Smolorz (sesmo@gmx.net)
 #
+# WARNING: This source.build script expects a meta package geometry.
+# For now, this is a quick, dirty and nasty hack. You have to provide a
+# geometry_{un}stable.tar.bz2 with the following contents:
+# 
+# - ros/geometry
+# - orocos/orocos_kinematics_dynamics (remove python_orocos_kdl!!)
+# - ros/angles
+# - ros/actionlib
+# - ros/geometry_experimental
+#       and there, do the following:
+#       - remove the bullet dependency from tf2_bullet/package.xml and tf2_bullet/CMakeLists.txt
+#       - in tf2_ros, remove tf2_py directory and from package.xml, CMakeLists.txt and setup.py
+#       - in tf/CMakeLists.txt, remove all occurrences of pytf
 
 # name of this package
-PACKAGE="common_msgs"
+PACKAGE="geometry"
 
 ################################################################################
 # don't touch this - start -
@@ -18,7 +31,7 @@ LIRE_BUILD_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_COMMON_MSGS_SRCDIR/common_msgs/CMakeLists.txt"
+PACKAGE_SRCCONF="$LIRE_GEOMETRY_SRCDIR/geometry/CMakeLists.txt"
 
 #
 # before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
@@ -55,29 +68,17 @@ LIRE_INIT_SOURCE_BUILD
 # LIRE_EXIT_ERROR $VAL
 #
 
-if [ $BUILD -eq 1 ]; then
+#if [ $BUILD -eq 1 ]; then
 
 #========== START YOUR BUILD HERE  =============================================
 #
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-    source ${LIRE_ROS_COMM_INSTDIR}/setup.bash
-    export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_STD_MSGS_INSTDIR:\
-$LIRE_MESSAGE_RUNTIME_INSTDIR:$LIRE_ROSCPP_CORE_INSTDIR:$LIRE_ROS_COMM_INSTDIR
-
-    catkin_make --source ${LIRE_COMMON_MSGS_SRCDIR} \
-	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release \
-        -DCATKIN_ENABLE_TESTING=0 -DBOOST_ROOT=$LIRE_BOOST_INSTDIR \
-        -DCMAKE_TOOLCHAIN_FILE=$LIRE_ROS_COMM_SRCDIR/toolchain.cmake
-
-    [ $? -gt 0 ] && { echo "catkin_make [FAILED]"; LIRE_EXIT_ERROR 1; }
-    echo " catkin_make [OK]"
-
 
 #========== STOP YOUR BUILD HERE  ==============================================
 
-fi
+#fi
 
 LIRE_STOP_BUILD_START_INSTALL
 
@@ -88,10 +89,24 @@ if [ $INSTALL -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
 
-    catkin_make install/strip --source ${LIRE_COMMON_MSGS_SRCDIR} \
-         -DCMAKE_INSTALL_PREFIX=$LIRE_COMMON_MSGS_INSTDIR
-    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
-    echo "make install [OK]"
+#    catkin_make install/strip --source ${LIRE_GEOMETRY_SRCDIR} \
+#         -DCMAKE_INSTALL_PREFIX=$LIRE_GEOMETRY_INSTDIR
+#    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+#    echo "make install [OK]"
+    source ${LIRE_ROS_COMM_INSTDIR}/setup.bash
+    export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$LIRE_ROS_COMM_INSTDIR:\
+$LIRE_STD_MSGS_INSTDIR:$LIRE_MESSAGE_GENERATION_INSTDIR:\
+$LIRE_COMMON_MSGS_INSTDIR:$LIRE_CMAKE_MODULES_INSTDIR
+
+    catkin_make_isolated --install --install-space $LIRE_GEOMETRY_INSTDIR --source ${LIRE_GEOMETRY_SRCDIR} \
+	-DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_BUILD_TYPE=Release \
+        -DCATKIN_ENABLE_TESTING=0 -DEIGEN3_INCLUDE_DIR=$LIRE_EIGEN_INSTDIR/include/eigen3 \
+        -DEIGEN_INCLUDE_DIR=$LIRE_EIGEN_INSTDIR/include/eigen3 \
+        -DBOOST_ROOT=$LIRE_BOOST_INSTDIR -DCMAKE_TOOLCHAIN_FILE=$LIRE_ROS_COMM_SRCDIR/toolchain.cmake
+
+    [ $? -gt 0 ] && { echo "catkin_make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " catkin_make [OK]"
+
 
 
 #========== STOP YOUR INSTALL HERE  ============================================
@@ -111,13 +126,14 @@ if [ $MAKEPACK -eq 1 ]; then
    # create tar.bz2
    #
    TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_COMMON_MSGS_PACKDIR/"
+   DEST="$LIRE_GEOMETRY_PACKDIR/"
 
-   mkdir -p usr/lib
+   echo -n " Creating $TAR ... "
+   mkdir -p usr
    cp -r share usr
    find usr -name cmake -execdir rm -rf \{\} \;
 
-   tar -cjf "$TAR" lib/python* usr
+   tar -cjf "$TAR" lib/lib*.so* lib/python* lib/actionlib lib/tf* usr
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 
@@ -126,7 +142,7 @@ if [ $MAKEPACK -eq 1 ]; then
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"
 
-   rm -fr usr/share
+   rm -rf usr
 
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 

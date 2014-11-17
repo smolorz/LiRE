@@ -1,0 +1,7 @@
+
+config LIRE_LIBRACKRTROS_INST
+    bool "  Install librackrtros (for RTROS)"
+    default y
+    select LIRE_XENOMAI_INST
+    select LIRE_RACK_INST
+    help

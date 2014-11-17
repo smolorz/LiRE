@@ -1,0 +1,11 @@
+
+config LIRE_LIBRTROS_BUILD_SRC
+    bool "    Build librtros (Real-Time ROS library)"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_LIBRTROS_INST
+    select LIRE_XENOMAI_BUILD_SRC
+    select LIRE_LIBRACKRTROS_BUILD_SRC
+    select LIRE_CATKIN_BUILD_SRC
+    select LIRE_ROS_COMM_BUILD_SRC
+    help
+    ...T_T...

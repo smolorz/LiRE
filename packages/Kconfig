@@ -21,6 +21,7 @@ source      "packages/e2fsprogs/Kconfig"
 source      "packages/setserial/Kconfig"
 source      "packages/dhcpcd/Kconfig"
 source      "packages/tinyxml2/Kconfig"
+source      "packages/curl/Kconfig"
 
 comment "Python"
 source      "packages/python/Kconfig"

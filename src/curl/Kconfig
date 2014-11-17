@@ -1,0 +1,9 @@
+
+config LIRE_CURL_BUILD_SRC
+    bool "    Build Curl libcurl library"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_CURL_INST
+    select LIRE_OPENSSL_BUILD_SRC
+    select LIRE_ZLIB_BUILD_SRC
+    help
+    curl is a command line tool and library for transferring data with URL syntax 

@@ -71,6 +71,7 @@ config LIRE_BUILD_ALL
     select LIRE_ROSPACK_BUILD_SRC 		if LIRE_ROSPACK_INST
     select LIRE_STD_MSGS_BUILD_SRC 		if LIRE_STD_MSGS_INST
     select LIRE_TINYXML2_BUILD_SRC 		if LIRE_TINYXML2_INST
+    select LIRE_CURL_BUILD_SRC 		if LIRE_CURL_INST
     select LIRE_ROSPKG_BUILD_SRC 		if LIRE_ROSPKG_INST
     select LIRE_SETUPTOOLS_BUILD_SRC 		if LIRE_SETUPTOOLS_INST
     select LIRE_NETIFACES_BUILD_SRC 		if LIRE_NETIFACES_INST
@@ -179,6 +180,7 @@ source "src/sensorkinect/Kconfig"
 source "src/console_bridge/Kconfig"
 source "src/lz4/Kconfig"
 source "src/libtinyxml/Kconfig"
+source "src/curl/Kconfig"
 source "src/libsdl/Kconfig"
 source "src/sdl_image/Kconfig"
 source "src/yaml_cpp/Kconfig"

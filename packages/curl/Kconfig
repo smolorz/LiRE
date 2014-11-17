@@ -1,0 +1,8 @@
+
+config LIRE_CURL_INST
+    bool "  Install Curl"
+    default n
+    select LIRE_OPENSSL_INST
+    select LIRE_ZLIB_INST
+    help
+    curl is a command line tool and library for transferring data with URL syntax 

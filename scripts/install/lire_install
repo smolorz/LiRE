@@ -168,11 +168,11 @@ CHECK_ERROR $? "Copying custom directory"
 echo ""
 echo " ===--- Executing depmod "
 echo ""
-/sbin/depmod -ae -F $SYSMAP -b $LIRE_OUTDIR -r $LINUX_VERSION
+/sbin/depmod -ae -F $SYSMAP -b $LIRE_OUTDIR  $LINUX_VERSION
 CHECK_ERROR $? "depmod"
 echo "[OK]"
 if [ "$CONFIG_LIRE_LINUX_SCND_INST" == "y" ]; then
-    /sbin/depmod -ae -F $SYSMAP_SCND -b $LIRE_OUTDIR -r $LINUX_SCND_VERSION
+    /sbin/depmod -ae -F $SYSMAP_SCND -b $LIRE_OUTDIR  $LINUX_SCND_VERSION
     CHECK_ERROR $? "depmod (Second Kernel)"
 fi
 #TODO depmod -r seems to be deprecated

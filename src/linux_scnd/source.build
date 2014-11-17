@@ -121,8 +121,6 @@ if [ $INSTALL -eq 1 ]; then
     # remove links
     #
     echo " rm links source and build ... "
-
-#    for i in `find "$LIRE_LINUX_SCND_INSTDIR/lib/modules/" -type l`; do rm $i; done TODO
     rm -f "$LIRE_LINUX_SCND_INSTDIR/lib/modules/$LIRE_LINUX_SCND_VERSION/build"
     rm -f "$LIRE_LINUX_SCND_INSTDIR/lib/modules/$LIRE_LINUX_SCND_VERSION/source"
 

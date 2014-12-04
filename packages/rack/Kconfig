@@ -186,4 +186,24 @@ config LIRE_RACK_TARGET_TIMS_ROUTER_LOG_LEVEL
     help
     Log Level 0,1 or 2
 
+config LIRE_RACK_TARGET_TIMS_ROUTER_LOG_PATH
+    string "Log path"
+    default "/data/logs"
+    help
+    Log path for the tims_router_tcp created log files
+
+config LIRE_RACK_TARGET_TIMS_ROUTER_LOG_MOUNTDEV
+    string "mounting device"
+    default "/dev/sdb0"
+    help
+    mounting device for the logging destination
+
+config LIRE_RACK_TARGET_TIMS_ROUTER_LOG_MOUNTPOINT
+    string "mounting point"
+    default "/data"
+    help
+    mounting point for the writable data partition
+
+
+
 endmenu

@@ -41,7 +41,7 @@ if [ $RACK_TIMS_CLOCK_SYNC_DEV ]; then
 fi
 
 if [ $RACK_TIMS_CLOCK_SYNC_CAN_ID -gt 0 ]; then
-    OPT=$OPT" can_sync_id=$RACK_TIMS_CLOCK_SYNC_CAN_ID"
+    OPT=$OPT" clock_sync_can_id=$RACK_TIMS_CLOCK_SYNC_CAN_ID"
 fi
 
 if [ $RACK_TIMS_RTNET_BUFFERS -gt 0 ]; then

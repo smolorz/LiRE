@@ -14,5 +14,7 @@ echo ""
 echo "LiRE custom start ... "
 echo ""
 
-echo "mounting /dev/sda5 on /data"
-mount /dev/sda5 /data
+echo "starting software in /PRODUKTIV/active"
+cd /PRODUKTIV
+./active
+

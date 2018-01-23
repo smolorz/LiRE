@@ -1,0 +1,170 @@
+#! /bin/bash
+
+#
+# OpenDDS build script
+# 2017-12-18 Sebastian Smolorz (sesmo@gmx.net)
+#
+
+# name of this package
+PACKAGE="opendds"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_OPENDDS_SRCDIR/configure"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # configure OpenDDS
+    #
+    echo " Configure OpenDDS ... "
+    cd "$LIRE_OPENDDS_SRCDIR"
+
+    patch --forward -p0 < $LIRE_OPENDDS_SCRDIR/opendds-3.12.1.patch
+
+    LIRE_TMP_CC="$CC"
+    unset CC
+    unset LD
+    unset CXX
+    unset CROSS_COMPILE
+    unset ARCH
+    unset host_alias
+    unset AS
+    unset AR
+    unset CPP
+    unset NM
+    unset OBJCOPY
+    unset OBJDUMP
+    unset RANLIB
+    unset READELF
+    unset SIZE
+    unset STRINGS
+    
+    ./configure --prefix=$LIRE_OPENDDS_INSTDIR \
+	--target=linux-cross --target-compiler="$LIRE_TMP_CC"
+    
+    [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo " configure [OK]"
+
+    #
+    # build OpenDDS
+    #
+    echo " Building OpenDDS ... "
+
+    make -j$CONFIG_LIRE_BUILD_JOBS
+	
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    echo " make install"
+    cd "$LIRE_OPENDDS_SRCDIR"/build/target
+    make install
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+			  
+
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    DEST="$LIRE_OPENDDS_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"	
+    
+    #
+    # create tar.bz2
+    #
+    
+    ${STRIP} -s lib/*.so.* bin/*	    
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" bin lib/lib*.so*
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"					
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+							    
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

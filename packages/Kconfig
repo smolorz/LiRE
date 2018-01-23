@@ -22,6 +22,7 @@ source      "packages/setserial/Kconfig"
 source      "packages/dhcpcd/Kconfig"
 source      "packages/tinyxml2/Kconfig"
 source      "packages/curl/Kconfig"
+source      "packages/opendds/Kconfig"
 
 comment "Python"
 source      "packages/python/Kconfig"

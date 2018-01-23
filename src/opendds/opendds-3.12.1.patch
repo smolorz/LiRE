@@ -1,0 +1,11 @@
+--- tests/DCPS/ContentFilteredTopic/ContentFilteredTopicTest.cpp	2017-10-05 00:13:07.000000000 +0200
++++ tests/DCPS/ContentFilteredTopic/ContentFilteredTopicTest.cpp.new	2017-12-19 08:14:59.890311275 +0100
+@@ -19,7 +19,7 @@
+ #include <cstdlib>
+ #include <iostream>
+ 
+-#if defined __GNUC__ && __GNUC__ == 4 && __GNUC_MINOR__ <= 1
++#if defined __GNUC__ && __GNUC__ == 4 && __GNUC_MINOR__ <= 3
+ # define INT64_LITERAL_SUFFIX(X) X ## ll
+ #else
+ # define INT64_LITERAL_SUFFIX(X) X

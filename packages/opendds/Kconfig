@@ -1,0 +1,6 @@
+
+config LIRE_OPENDDS_INST
+    bool "  Install OpenDDS"
+    default n
+    help
+    ...text...

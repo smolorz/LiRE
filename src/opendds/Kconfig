@@ -1,0 +1,7 @@
+
+config LIRE_OPENDDS_BUILD_SRC
+    bool "    Build OpenDDS"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_OPENDDS_INST
+    help
+    ...

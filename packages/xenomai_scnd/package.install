@@ -34,8 +34,7 @@ LIRE_INIT_INSTALL
 # You are in the package directory LIRE_PACKDIR (.....LIRE/packages/$PACKAGE)
 #
 
-# Let's skip a second xenomai archive.
-#LIRE_EXTRACT_TAR_ARCHIVE
+LIRE_EXTRACT_TAR_ARCHIVE
 
 #========== STOP YOUR ROOT INSTALL HERE  ======================================
 

@@ -3,7 +3,7 @@
 #
 # xenomai_scnd build script
 # 2009-09-25 Oliver Weidner (Oliver.Weidner@gmail.com)
-# 2018-05-29 Sebastian Smolorz (sebastian.smolorz@still.de)
+# 2018-06-20 Sebastian Smolorz (sebastian.smolorz@still.de)
 
 # name of this package
 PACKAGE="xenomai_scnd"
@@ -67,8 +67,7 @@ if [ $BUILD -eq 1 ]; then
     #
     echo " Configure Xenomai _SECOND_ userspace part ... "
 
-    $LIRE_XENOMAI_SCND_SRCDIR/configure --prefix=$LIRE_XENOMAI_SCND_INSTDIR
-#--host=${ARCH}-unknown-linux-gnu
+    $LIRE_XENOMAI_SCND_SRCDIR/configure --prefix=$LIRE_XENOMAI_SCND_INSTDIR/usr
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"
 
@@ -107,7 +106,7 @@ if [ $INSTALL -eq 1 ]; then
     echo "make install [OK]"
 
     # remove .la files
-    rm ${LIRE_XENOMAI_SCND_INSTDIR}/lib/*.la
+    rm ${LIRE_XENOMAI_SCND_INSTDIR}/usr/lib/*.la
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
@@ -127,27 +126,26 @@ if [ $MAKEPACK -eq 1 ]; then
     #
     echo " build tar tree ... "
     rm -rf tar
-    mkdir -p tar/bin
-    mkdir -p tar/lib
+    mkdir -p tar/usr/bin
+    mkdir -p tar/usr/lib
 
     # copy files
     echo -n " Copy binaries ... "
-#    cp -fd usr/bin/clocktest usr/bin/cyclictest usr/bin/irq* usr/bin/*latency usr/bin/rtcan* usr/bin/switchtest tar/usr/bin
-    cp -fd bin/* tar/bin
+    cp -fd usr/bin/clocktest usr/bin/latency usr/bin/rtcan* usr/bin/switchtest tar/usr/bin
+
     echo -n " Copy libraries ... "
-    cp -fd lib/libalchemy.so.* lib/libcobalt.so.* lib/libcopperplate.so.* lib/libtrank.so.* lib/libmodechk.so.* lib/libsmokey.so.* tar/lib
-    if [ -d sbin ]; then
-        mkdir -p tar/sbin
-#        cp -fd usr/sbin/rtcanconfig usr/sbin/rtps tar/usr/sbin
-        cp -fd sbin/* tar/sbin
+    cp -fd usr/lib/libalchemy.so.* usr/lib/libcobalt.so.* usr/lib/libcopperplate.so.* usr/lib/libtrank.so.* usr/lib/libmodechk.so.* usr/lib/libsmokey.so.* tar/usr/lib
+
+    if [ -d usr/sbin ]; then
+        mkdir -p tar/usr/sbin
+        cp -fd usr/sbin/rt* usr/sbin/autotune tar/usr/sbin
     fi
 
-    if [ -d demo ]; then
-        mkdir -p tar/bin/demo
-        cp -fd demo/* tar/bin/demo
+    if [ -d usr/demo ]; then
+       cp -fd usr/demo/cyclictest tar/usr/bin
     fi
 
-    cp -rf etc tar/
+    cp -rf usr/etc tar
 
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"
@@ -156,9 +154,9 @@ if [ $MAKEPACK -eq 1 ]; then
     cp -f $LIRE_XENOMAI_SCND_SCRDIR/target_config/rtnet.conf "tar/etc/"
 
     # Clear prefix in rtnet script
-    sed "s+\(^prefix=\)\(..*$\)+\1\"\"+" tar/sbin/rtnet > tar/sbin/rtnet.lirenew
-    mv tar/sbin/rtnet.lirenew tar/sbin/rtnet
-    chmod +x tar/sbin/rtnet
+    sed "s+\(^prefix=\)\(..*$\)+\1\"\"+" tar/usr/sbin/rtnet > tar/usr/sbin/rtnet.lirenew
+    mv tar/usr/sbin/rtnet.lirenew tar/usr/sbin/rtnet
+    chmod +x tar/usr/sbin/rtnet
 
     #
     # create tar.bz2

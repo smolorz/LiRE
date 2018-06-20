@@ -135,7 +135,7 @@ if [ $MAKEPACK -eq 1 ]; then
 #    cp -fd usr/bin/clocktest usr/bin/cyclictest usr/bin/irq* usr/bin/*latency usr/bin/rtcan* usr/bin/switchtest tar/usr/bin
     cp -fd bin/* tar/bin
     echo -n " Copy libraries ... "
-    cp -fd lib/libalchemy.so.* lib/libcobalt.so.* lib/libcopperplate.so.* lib/libmodechk.so.* lib/libsmokey.so.* tar/lib
+    cp -fd lib/libalchemy.so.* lib/libcobalt.so.* lib/libcopperplate.so.* lib/libtrank.so.* lib/libmodechk.so.* lib/libsmokey.so.* tar/lib
     if [ -d sbin ]; then
         mkdir -p tar/sbin
 #        cp -fd usr/sbin/rtcanconfig usr/sbin/rtps tar/usr/sbin

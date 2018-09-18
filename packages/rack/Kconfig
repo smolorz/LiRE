@@ -100,7 +100,7 @@ config LIRE_RACK_TARGET_TIMS_RTNET_BUFFERS
 
 config LIRE_RACK_TARGET_TIMS_MSG_SIZE
     int "Max Message size (in KByte)"
-    default 5192
+    default 4096
     help
 
 config LIRE_RACK_TARGET_TIMS_MSG_SLOTS

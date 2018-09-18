@@ -26,6 +26,13 @@ if [ "$RACK_TIMS_ROUTER_LOG_LEVEL" != "" ]; then
     OPT=$OPT" -l $RACK_TIMS_ROUTER_LOG_LEVEL"
 fi
 
+if [ "$RACK_TIMS_ROUTER_LOG_PATH" != "" ]; then
+    echo "mounting rack log path"
+    mount $RACK_TIMS_ROUTER_LOG_MOUNTDEV $RACK_TIMS_ROUTER_LOG_MOUNTPOINT
+    OPT=$OPT" -g $RACK_TIMS_ROUTER_LOG_PATH"
+fi
+
+
 while(true); do
     echo "Starting TiMS Router (TCP)... "
     echo "Options : $OPT"

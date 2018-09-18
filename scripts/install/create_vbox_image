@@ -45,11 +45,11 @@ if [ -n "$qemu_data_image" ]; then
 fi
 
 VBoxManage export $machine_name --output "$target_dir/LiRE.ovf"
-VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium none
+#VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium none
 
-if [ -n "$qemu_data_image" ]; then
-    VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium none
-fi
+#if [ -n "$qemu_data_image" ]; then
+#    VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium none
+#fi
 
 VBoxManage unregistervm $machine_name --delete
 

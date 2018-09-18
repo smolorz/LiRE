@@ -19,6 +19,7 @@ if [ "$TARGET_USB_SUPPORT" == "y" ]; then
     modprobe uhci_hcd
     modprobe usb_storage
     modprobe usbhid
+    modprobe ehci_pci
 fi
 
 

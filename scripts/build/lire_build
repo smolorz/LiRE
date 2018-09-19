@@ -5,6 +5,8 @@
 # 2006-02-11 Joerg Langenberg (joerg.langenberg@gmx.net)
 # 2012-08-03 Sebastian Smolorz (smolorz@rts.uni-hannover.de)
 #	    : Copy toolchain's sys-root directory
+# 2018-09-18 Sebastian Smolorz (sebastian.smolorz@still.de)
+#	    : Install LiRE-toolchain.cmake
 #
 
 if [ ! -f .lire_config ]; then
@@ -83,7 +85,8 @@ mkdir -p "$LIRE_INSTDIR"
 echo "[OK]"
 
 #
-# copy $LIRE_INSTDIR/sys-root from toolchain, create LIRE_HOSTDIR and set PYTHONPATH
+# copy $LIRE_INSTDIR/sys-root from toolchain, create LIRE_HOSTDIR, set PYTHONPATH
+# and install LiRE-toolchain.cmake
 #
 if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
     echo -n " Copy toolchain's sys-root ... "
@@ -98,6 +101,13 @@ if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
 
     export PATH=${LIRE_HOSTDIR}/bin:$PATH
     export PYTHONPATH=${LIRE_HOSTDIR}/lib
+
+    echo -n " Install LiRE-toolchain.cmake ... "
+    cp -a "${LiRE_DIR}/configs/LiRE-toolchain.cmake" "$LIRE_INSTDIR"
+    [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
+    echo "[OK]"
+    echo "set(CROSS_COMPILE $CROSS_COMPILE)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
+    echo "set(CMAKE_C_COMPILER $CC)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
 fi
 
 #

@@ -107,7 +107,7 @@ if [ $INSTALL -eq 1 ]; then
     cd $LIRE_OPENSSL_SRCDIR
 
     echo " make install OpenSSL"
-    make install DESTDIR="$LIRE_OPENSSL_INSTDIR"
+    make install_sw DESTDIR="$LIRE_OPENSSL_INSTDIR"
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 

@@ -1,0 +1,53 @@
+#! /bin/sh
+
+################################################################################
+#
+# RACK core package start script
+#
+################################################################################
+
+. /etc/lire.conf
+
+if [ "$RACKCORE_TIMS_CLIENT_START" == "y" ]; then
+    /etc/rc.d/packages/rackcore/tims_client_loop &
+fi
+
+sleep 1
+
+if [ "$RACKCORE_TIMS_ROUTER_START" == "y" ]; then
+    /etc/rc.d/packages/rackcore/tims_router_loop &
+fi
+
+sleep 3
+
+echo "Loading TiMS Driver module  ... "
+
+OPT="dbglevel=$RACKCORE_TIMS_DRIVER_LOG_LEVEL"
+
+if [ $RACKCORE_TIMS_MSG_SIZE -gt 64 ]; then
+    OPT=$OPT" max_msg_size=$RACKCORE_TIMS_MSG_SIZE"
+fi
+
+if [ $RACKCORE_TIMS_MSG_SLOTS -gt 1 ]; then
+    OPT=$OPT" max_msg_slots=$RACKCORE_TIMS_MSG_SLOTS"
+fi
+
+if [ $RACKCORE_TIMS_CLOCK_SYNC_MODE -gt 0 ]; then
+    OPT=$OPT" clock_sync_mode=$RACKCORE_TIMS_CLOCK_SYNC_MODE"
+fi
+
+if [ $RACKCORE_TIMS_CLOCK_SYNC_DEV ]; then
+    OPT=$OPT" clock_sync_dev=$RACKCORE_TIMS_CLOCK_SYNC_DEV"
+fi
+
+if [ $RACKCORE_TIMS_CLOCK_SYNC_CAN_ID -gt 0 ]; then
+    OPT=$OPT" clock_sync_can_id=$RACKCORE_TIMS_CLOCK_SYNC_CAN_ID"
+fi
+
+if [ $RACKCORE_TIMS_RTNET_BUFFERS -gt 0 ]; then
+    OPT=$OPT" rtnet_buffers=$RACKCORE_TIMS_RTNET_BUFFERS"
+fi
+
+modprobe tims $OPT
+
+[ $? -ne 0 ] && { echo "Loading TiMS driver module failed"; }

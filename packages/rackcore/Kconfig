@@ -1,0 +1,227 @@
+
+config LIRE_RACKCORE_INST
+    bool "  Install Robotic Application Construction Kit (RACK) core"
+    default y
+    select LIRE_XENOMAI_SCND_INST
+    help
+
+menu "  Dependencies"
+
+depends on LIRE_RACKCORE_INST
+
+config LIRE_RACKCORE_LIBRAW1394_SUPPORT
+    bool "Enable libraw1394 support"
+    default y
+    select LIRE_LIBRAW1394_INST
+    help
+
+config LIRE_RACKCORE_LIBDC1394_SUPPORT
+    bool "Enable libdc1394 support"
+    default y
+    select LIRE_RACKCORE_LIBRAW1394_SUPPORT
+    select LIRE_LIBDC1394_INST
+    help
+
+config LIRE_RACKCORE_LIBJPEG_SUPPORT
+    bool "Enable libjpeg support"
+    default y
+    select LIRE_LIBJPEG_INST
+    help
+
+config LIRE_RACKCORE_LIBPNG_SUPPORT
+    bool "Enable libpng support"
+    default y
+    select LIRE_LIBPNG_INST
+    select LIRE_RACKCORE_ZLIB_SUPPORT
+    help
+
+config LIRE_RACKCORE_OPENCV_SUPPORT
+    bool "Enable OpenCV support"
+    default y
+    select LIRE_RACKCORE_LIBRAW1394_SUPPORT
+    select LIRE_RACKCORE_LIBDC1394_SUPPORT
+    select LIRE_RACKCORE_LIBJPEG_SUPPORT
+    select LIRE_RACKCORE_LIBPNG_SUPPORT
+    select LIRE_OPENCV_INST
+    help
+
+config LIRE_RACKCORE_GSL_SUPPORT
+    bool "Enable gsl support"
+    default n
+    select LIRE_GSL_INST
+    help
+
+config LIRE_RACKCORE_ZLIB_SUPPORT
+    bool "Enable zlib support"
+    default y
+    select LIRE_ZLIB_INST
+    help
+
+config LIRE_RACKCORE_LIBUSB_SUPPORT
+    bool "Enable libusb support"
+    default y
+    select LIRE_LIBUSB_INST
+    help
+
+config LIRE_RACKCORE_BOOST_SUPPORT
+    bool "Enable boost support for RACK"
+    default y
+    select LIRE_BOOST_INST
+    help
+
+config LIRE_RACKCORE_PCL_SUPPORT
+    bool "Enable point cloud library support for RACK"
+    default y
+    select LIRE_PCL_INST
+    help
+
+config LIRE_RACKCORE_CURL_SUPPORT
+    bool "Enable cURL support for RACK"
+    default y
+    select LIRE_CURL_INST
+    help
+
+config LIRE_RACKCORE_EIGEN_SUPPORT
+    bool "Enable Eigen support for RACK"
+    default y
+    select LIRE_EIGEN_INST
+    help
+
+config LIRE_RACKCORE_OPENNI_SUPPORT
+    bool "Enable OpenNI support for RACK"
+    default n
+    select LIRE_OPENNI_INST
+    help
+
+config LIRE_RACKCORE_OPENSSL_SUPPORT
+    bool "Enable OpenSSL support for RACK"
+    default y
+    select LIRE_OPENSSL_INST
+    help
+
+endmenu
+
+menu "  Rack Target Configuration"
+    depends on LIRE_RACKCORE_INST
+
+comment "TiMS"
+
+config LIRE_RACKCORE_TARGET_TIMS_RTNET_CONFIG
+    string "RTnet config file on target"
+    default ""
+    help
+
+config LIRE_RACKCORE_TARGET_TIMS_RTNET_BUFFERS
+    int "Number of RTnet buffers (rtskb) in TiMS kernel module"
+    default 200
+    help
+
+config LIRE_RACKCORE_TARGET_TIMS_MSG_SIZE
+    int "Max Message size (in KByte)"
+    default 4096
+    help
+
+config LIRE_RACKCORE_TARGET_TIMS_MSG_SLOTS
+    int "Max Message slots"
+    default 2
+    help
+
+config LIRE_RACKCORE_TARGET_TIMS_DRIVER_LOG_LEVEL
+    int "Driver module log level"
+    default 1
+    help
+    Log Level 0-5
+
+config LIRE_RACKCORE_TARGET_TIMS_CLOCK_SYNC_MODE
+    int "TIMS Clock Sync Mode"
+    default 0
+    help
+    SYNC_NONE           0
+    SYNC_RTNET          1
+    SYNC_CAN_MASTER     2
+    SYNC_CAN_SLAVE      3
+    SYNC_SER_MASTER     4
+    SYNC_SER_SLAVE      5
+				    
+config LIRE_RACKCORE_TARGET_TIMS_CLOCK_SYNC_DEV
+    string "TIMS Clock Sync Device"
+    default ""
+				    
+config LIRE_RACKCORE_TARGET_TIMS_CLOCK_SYNC_CAN_ID
+    int "TIMS CAN ID"
+    default 0
+						    
+
+comment "TiMS Message Client"
+
+config LIRE_RACKCORE_TARGET_TIMS_CLIENT_START
+    bool "Start client"
+    default y
+    help
+    ...text...
+
+config LIRE_RACKCORE_TARGET_TIMS_CLIENT_ROUTER_IP
+    string "Connect to Router IP"
+    default 127.0.0.1
+    help
+    ...text...
+
+config LIRE_RACKCORE_TARGET_TIMS_CLIENT_ROUTER_PORT
+    int "Connect to Server Port"
+    default 2000
+    help
+    ...text...
+
+config LIRE_RACKCORE_TARGET_TIMS_CLIENT_LOG_LEVEL
+    int "Log level"
+    default 0
+    help
+    Log Level 0,1 or 2
+
+comment "TiMS Message Server"
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_START
+    bool "Start Server"
+    default y
+    help
+    ...text...
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LISTEN_IP
+    string "Listen for clients with IP"
+    default ""
+    help
+    ...text...
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_PORT
+    int "Listen on Port"
+    default 2000
+    help
+    ...text...
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_LEVEL
+    int "Log level"
+    default 0
+    help
+    Log Level 0,1 or 2
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_PATH
+    string "Log path"
+    default "/data/logs"
+    help
+    Log path for the tims_router_tcp created log files
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_MOUNTDEV
+    string "mounting device"
+    default "/dev/sdb0"
+    help
+    mounting device for the logging destination
+
+config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_MOUNTPOINT
+    string "mounting point"
+    default "/data"
+    help
+    mounting point for the writable data partition
+
+
+
+endmenu

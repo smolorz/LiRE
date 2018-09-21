@@ -1,0 +1,294 @@
+#! /bin/bash
+
+#
+# RACK core build script
+# 2018-09-20 Sebastian Smolorz (sebastian.smolorz@still.de)
+#
+
+# name of this package
+PACKAGE="rackcore"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_BUILD_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_RACKCORE_SRCDIR/CMakeLists.txt"
+
+#
+# before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_BUILD
+
+#
+# - the package name is valid
+# - you can use this values now ($PACK = upcase name of this and all packages
+#   in depends_on)
+#   INFO: all dirs and files have the full path (from root)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#       LIRE_"$PACK"_SRCCONF
+#       LIRE_"$PACK"_VERSION
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you have an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+
+if [ $BUILD -eq 1 ]; then
+
+#========== START YOUR BUILD HERE  =============================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # construct .lire_rackcore-initial-cache.cmake
+    #
+    echo "set(Build_Doxygen \"OFF\" CACHE BOOL \"\")"		>  .lire_rackcore-initial-cache.cmake
+    echo "set(Build_Geometry_Tool \"ON\" CACHE BOOL \"\")"	>> .lire_rackcore-initial-cache.cmake
+    echo "set(Build_KMod \"ON\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
+    echo "set(Build_OS_Xenomai \"ON\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
+    echo "set(Build_RACK_Java \"ON\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
+    echo "set(Build_RACK_JavaGUI \"ON\" CACHE BOOL \"\")"	>> .lire_rackcore-initial-cache.cmake
+    echo "set(CMAKE_INSTALL_PREFIX \"$LIRE_RACKCORE_INSTDIR\" CACHE PATH  \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
+        echo "set(CMAKE_TOOLCHAIN_FILE \"$LIRE_INSTDIR/LiRE-toolchain.cmake\" CACHE FILEPATH  \"\")" >> .lire_rackcore-initial-cache.cmake
+    fi
+
+    if [ "$CONFIG_LIRE_RACKCORE_CURL_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "curl"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_Curl \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_EIGEN_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "eigen"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_Eigen \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+
+    if [ "$CONFIG_LIRE_RACKCORE_LIBRAW1394_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "libraw1394"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_libraw1394 \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_LIBDC1394_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "libdc1394"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_libdc1394 \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_LIBJPEG_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "libjpeg"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_libjpeg \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_LIBPNG_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "libpng"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_libpng \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_OPENCV_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "opencv"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_OpenCV \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_OPENNI_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "openni"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_OpenNI \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_OPENSSL_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "openssl"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_OpenSSL \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_GSL_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "gsl"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_gsl \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_PCL_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "pcl"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_pcl \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_ZLIB_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "zlib"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_zlib \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_LIBUSB_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "libusb"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_libusb \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    if [ "$CONFIG_LIRE_RACKCORE_BOOST_SUPPORT" == "y" ]; then
+        LOAD_CONFIG "boost"
+        EXT_DEP="ON" 
+    else
+        EXT_DEP="OFF"
+    fi
+    echo "set(ExternalDependencies_boost \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
+
+    cmake -C.lire_rackcore-initial-cache.cmake $LIRE_RACKCORE_SRCDIR 
+    [ $? -gt 0 ] && { echo "cmake [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "cmake [OK]"
+
+    #
+    # build RACK core
+    #
+    echo " build RACK core"
+    make -j$CONFIG_LIRE_BUILD_JOBS
+    [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make [OK]"
+
+#========== STOP YOUR BUILD HERE  ==============================================
+
+fi
+
+LIRE_STOP_BUILD_START_INSTALL
+
+if [ $INSTALL -eq 1 ]; then
+
+#========== START YOUR INSTALL HERE  ===========================================
+#
+# You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
+#
+
+    #
+    # make install
+    #
+    echo " make install"
+    make install/strip
+    [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "make install [OK]"
+
+#========== STOP YOUR INSTALL HERE  ============================================
+
+fi
+
+LIRE_STOP_INSTALL_START_MAKE_PACKAGE
+
+if [ $MAKEPACK -eq 1 ]; then
+
+#========== START YOUR MAKE PACKAGE HERE  ======================================
+#
+# You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
+#
+
+    #
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf .tar
+    mkdir -p .tar/usr/lib
+    mkdir -p .tar/var/httpd/htdocs
+
+    # make tar dir
+    mkdir -p .tar/lib/modules/$LIRE_LINUX_SCND_VERSION/rack
+
+    # copy files
+    echo " copy files ... "
+    cp -rf bin lib .tar/usr
+    mkdir -p .tar/usr/share
+    cp -rf share/rack .tar/usr/share
+
+    # move modules
+    echo " move modules ... "
+    mv .tar/usr/lib/rack/*.ko .tar/lib/modules/$LIRE_LINUX_SCND_VERSION/rack/
+
+    # links for httpd
+    echo -n " Setting up http access ..."
+    ln -s /usr/lib/rack/rack.jar .tar/var/httpd/htdocs/
+    ln -s /usr/share/rack/rack_gui.html .tar/var/httpd/htdocs/index.html
+    ln -s /usr/share/rack/gui.cfg .tar/var/httpd/htdocs/
+
+    #
+    # create tar.bz2
+    #
+    DEST="$LIRE_RACKCORE_PACKDIR/"
+    TAR="$PACKAGE.tar.bz2"
+
+    cd .tar
+
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    cd ..
+
+    echo " remove tar tree ... "
+    rm -rf ".tar"
+
+#========== STOP YOUR MAKE PACKAGE HERE  =======================================
+
+fi
+
+LIRE_STOP_MAKE_PACKAGE
+LIRE_EXIT_SOURCE_BUILD

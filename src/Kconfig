@@ -19,8 +19,8 @@ config LIRE_BUILD_ALL
     select LIRE_NANO_BUILD_SRC			if LIRE_NANO_INST
     select LIRE_WIRELESS_TOOLS_BUILD_SRC	if LIRE_WIRELESS_TOOLS_INST
     select LIRE_OPENSSH_BUILD_SRC		if LIRE_OPENSSH_INST
-    select LIRE_RACK_BUILD_SRC			if LIRE_RACK_INST
-    select LIRE_RACK_RTS_BUILD_SRC		if LIRE_RACK_RTS_INST
+    select LIRE_RACKCORE_BUILD_SRC		if LIRE_RACKCORE_INST
+#    select LIRE_RACK_RTS_BUILD_SRC		if LIRE_RACK_RTS_INST
     select LIRE_RTNET_BUILD_SRC			if LIRE_RTNET_INST
     select LIRE_OPENCV_BUILD_SRC		if LIRE_OPENCV_INST
     select LIRE_LIBDC1394_BUILD_SRC		if LIRE_LIBDC1394_INST
@@ -33,7 +33,7 @@ config LIRE_BUILD_ALL
     select LIRE_LINUX_SCND_BUILD_SRC		if LIRE_LINUX_SCND_INST
     select LIRE_XENOMAI_SCND_BUILD_SRC		if LIRE_XENOMAI_SCND_INST
     select LIRE_RTNET_SCND_BUILD_SRC		if LIRE_RTNET_SCND_INST
-    select LIRE_RACK_SCND_BUILD_SRC		if LIRE_RACK_SCND_INST
+#    select LIRE_RACK_SCND_BUILD_SRC		if LIRE_RACK_SCND_INST
     select LIRE_GSL_BUILD_SRC           	if LIRE_GSL_INST
     select LIRE_E2FSPROGS_BUILD_SRC		if LIRE_E2FSPROGS_INST
     select LIRE_WLANPOLL_BUILD_SRC      	if LIRE_WLANPOLL_INST
@@ -95,7 +95,7 @@ comment "*SECOND* Kernel Build Options"
 source "src/linux_scnd/Kconfig"
 source "src/xenomai_scnd/Kconfig"
 source "src/rtnet_scnd/Kconfig"
-source "src/rack_scnd/Kconfig"
+#source "src/rack_scnd/Kconfig"
 
 comment "  Applications"
     depends on LIRE_BUILD_SRC
@@ -132,8 +132,8 @@ source "src/rtnet/Kconfig"
 
 comment "  RACK"
     depends on LIRE_BUILD_SRC
-source "src/rack/Kconfig"
-source "src/rack_rts/Kconfig"
+source "src/rackcore/Kconfig"
+#source "src/rack_rts/Kconfig"
 source "src/librackrtros/Kconfig"
 
 comment "  ROS"

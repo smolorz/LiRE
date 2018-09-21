@@ -1,0 +1,42 @@
+#! /bin/sh
+
+################################################################################
+#
+# RACK core TiMS router loop
+#
+################################################################################
+
+. /etc/lire.conf
+
+PROG="tims_router_tcp"
+
+[ ! -x `which $PROG` ] && { exit 1; }
+
+OPT=""
+if [ "$RACKCORE_TIMS_ROUTER_IP" != "" ]; then
+    OPT=$OPT" -i $RACKCORE_TIMS_ROUTER_IP"
+fi
+if [ "$RACKCORE_TIMS_ROUTER_PORT" != "" ]; then
+    OPT=$OPT" -p $RACKCORE_TIMS_ROUTER_PORT"
+fi
+if [ "$RACKCORE_TIMS_MSG_SIZE" != "" ]; then
+    OPT=$OPT" -m $RACKCORE_TIMS_MSG_SIZE"
+fi
+if [ "$RACKCORE_TIMS_ROUTER_LOG_LEVEL" != "" ]; then
+    OPT=$OPT" -l $RACKCORE_TIMS_ROUTER_LOG_LEVEL"
+fi
+
+if [ "$RACKCORE_TIMS_ROUTER_LOG_PATH" != "" ]; then
+    echo "mounting rack log path"
+    mount $RACKCORE_TIMS_ROUTER_LOG_MOUNTDEV $RACKCORE_TIMS_ROUTER_LOG_MOUNTPOINT
+    OPT=$OPT" -g $RACKCORE_TIMS_ROUTER_LOG_PATH"
+fi
+
+
+while(true); do
+    echo "Starting TiMS Router (TCP)... "
+    echo "Options : $OPT"
+    $PROG $OPT
+
+    sleep 3
+done

@@ -1,0 +1,38 @@
+#! /bin/sh
+
+################################################################################
+#
+# RACK core tims client loop
+#
+################################################################################
+
+. /etc/lire.conf
+
+PROG="tims_client"
+
+[ ! -x `which $PROG` ] && { exit 1; }
+
+OPT=""
+if [ "$RACKCORE_TIMS_CLIENT_ROUTER_IP" != "" ]; then
+    OPT=$OPT" -i $RACKCORE_TIMS_CLIENT_ROUTER_IP"
+fi
+if [ "$RACKCORE_TIMS_CLIENT_ROUTER_PORT" != "" ]; then
+    OPT=$OPT" -p $RACKCORE_TIMS_CLIENT_ROUTER_PORT"
+fi
+if [ -f "$RACKCORE_TIMS_RTNET_CONFIG" ]; then
+    OPT=$OPT" -c $RACKCORE_TIMS_RTNET_CONFIG"
+fi
+if [ "$RACKCORE_TIMS_MSG_SIZE" != "" ]; then
+    OPT=$OPT" -m $RACKCORE_TIMS_MSG_SIZE"
+fi
+if [ "$RACKCORE_TIMS_CLIENT_LOG_LEVEL" != "" ]; then
+    OPT=$OPT" -l $RACKCORE_TIMS_CLIENT_LOG_LEVEL"
+fi
+
+while(true); do
+    echo "Starting TiMS Client (TCP)... "
+    echo "Options : $OPT"
+    $PROG $OPT
+
+    sleep 1
+done

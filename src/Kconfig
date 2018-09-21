@@ -36,6 +36,7 @@ config LIRE_BUILD_ALL
 #    select LIRE_RACK_SCND_BUILD_SRC		if LIRE_RACK_SCND_INST
     select LIRE_GSL_BUILD_SRC           	if LIRE_GSL_INST
     select LIRE_E2FSPROGS_BUILD_SRC		if LIRE_E2FSPROGS_INST
+    select LIRE_PARTED_BUILD_SRC		if LIRE_PARTED_INST
     select LIRE_WLANPOLL_BUILD_SRC      	if LIRE_WLANPOLL_INST
     select LIRE_LIBUSB_BUILD_SRC        	if LIRE_LIBUSB_INST
     select LIRE_SETSERIAL_BUILD_SRC     	if LIRE_SETSERIAL_INST
@@ -107,6 +108,7 @@ source "src/nano/Kconfig"
 source "src/pciutils/Kconfig"
 source "src/hdparm/Kconfig"
 source "src/e2fsprogs/Kconfig"
+source "src/parted/Kconfig"
 source "src/setserial/Kconfig"
 source "src/dhcpcd/Kconfig"
 source "src/tinyxml2/Kconfig"

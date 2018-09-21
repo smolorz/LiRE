@@ -1,0 +1,6 @@
+
+config LIRE_PARTED_INST
+    bool "  Install parted"
+    default y
+    help
+    Installs partitioning utilities.

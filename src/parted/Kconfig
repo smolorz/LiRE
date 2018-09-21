@@ -1,0 +1,8 @@
+
+config LIRE_PARTED_BUILD_SRC
+    bool "    Build parted"
+    default y
+    depends on LIRE_BUILD_SRC && LIRE_PARTED_INST
+    select LIRE_E2FSPROGS_BUILD_SRC
+    help
+    Build the parted package.

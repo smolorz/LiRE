@@ -1,13 +1,12 @@
 #! /bin/bash
 
 #
-# e2fsprogs build script
-# 2009-12-03 Oliver Weidner (Oliver.Weidner@gmail.com)
+# parted build script
 # 2018-09-21 Sebastian Smolorz (sebastian.smolorz@still.de)
 #
 
 # name of this package
-PACKAGE="e2fsprogs"
+PACKAGE="parted"
 
 ################################################################################
 # don't touch this - start -
@@ -19,7 +18,7 @@ LIRE_BUILD_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_E2FSPROGS_SRCDIR/configure"
+PACKAGE_SRCCONF="$LIRE_PARTED_SRCDIR/configure"
 
 #
 # before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
@@ -64,19 +63,19 @@ if [ $BUILD -eq 1 ]; then
 #
 
     #
-    # configure e2fsprogs
+    # configure parted
     #
-    echo " Configure e2fsprogs... "
+    echo " Configure parted ... "
     
-    $LIRE_E2FSPROGS_SRCDIR/configure --prefix=$LIRE_E2FSPROGS_INSTDIR --enable-symlink-build --enable-symlink-install
+    $LIRE_PARTED_SRCDIR/configure --prefix=$LIRE_PARTED_INSTDIR LDFLAGS=-L$LIRE_E2FSPROGS_INSTDIR/lib CFLAGS=-I$LIRE_E2FSPROGS_INSTDIR/include UUID_LIBS=-luuid --disable-device-mapper --without-readline
     
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"
 
     #
-    # build e2fsprogs
+    # build parted
     #
-    echo " Building e2fsprogs... "
+    echo " Building parted ... "
     
     make -j$CONFIG_LIRE_BUILD_JOBS
 	
@@ -106,10 +105,8 @@ if [ $INSTALL -eq 1 ]; then
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 
-    echo " make install-libs"
-    make install-libs
-    [ $? -gt 0 ] && { echo "make install-libs [FAILED]"; LIRE_EXIT_ERROR 1; }
-    echo "make install-libs [OK]"
+    # remove .la files
+    rm ${LIRE_PARTED_INSTDIR}/lib/*.la
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
@@ -127,10 +124,10 @@ if [ $MAKEPACK -eq 1 ]; then
     #
     # strip binaries
     #
-#    echo " strip binaries"
-#    ${STRIP} -s bin/* sbin/*
-#    [ $? -gt 0 ] && { echo "strip binaries [FAILED]"; LIRE_EXIT_ERROR 1; }
-#    echo "strip binaries [OK]"
+    echo " strip binaries"
+    ${STRIP} -s sbin/*
+    [ $? -gt 0 ] && { echo "strip binaries [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "strip binaries [OK]"
 
     #
     # building tar tree
@@ -142,15 +139,16 @@ if [ $MAKEPACK -eq 1 ]; then
     mkdir tar
     [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
 
-    cp -r etc tar/ && cp -r bin tar/ && cp -r sbin tar/ || { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    mkdir tar/lib
+    cp -r lib/libparted.so* tar/lib && cp -r sbin tar/ || { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
 
 
     #
     # create tar.bz2
     #
 
-    DEST="$LIRE_E2FSPROGS_PACKDIR/"
-    TAR="$LIRE_E2FSPROGS_SRCDIR/$PACKAGE.tar.bz2"
+    DEST="$LIRE_PARTED_PACKDIR/"
+    TAR="$LIRE_PARTED_SRCDIR/$PACKAGE.tar.bz2"
 
     # switching into tar dir
     cd tar/

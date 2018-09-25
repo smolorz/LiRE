@@ -122,7 +122,6 @@ config LIRE_TARGET_LAUNCH_HTTPD
 config LIRE_TARGET_LAUNCH_SYSLOGD
     bool "Run system log daemon"
     default y
-    select LIRE_TARGET_DEV_ON_TMPFS
 
 config LIRE_TARGET_SYSLOGCONSOLE
     int "Console for dumping kernel messages"
@@ -162,7 +161,10 @@ config LIRE_TARGET_NR_HALT_BEEPS
     default 2
 
 config LIRE_TARGET_DEV_ON_TMPFS
-    bool
+    bool "Remount /dev on tmpfs"
+    default n
+    help
+    Leave this option off if your kernel supports devtmpfs.
 
 config LIRE_TARGET_USB_SUPPORT
     bool "USB support"

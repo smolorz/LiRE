@@ -226,6 +226,13 @@ config LIRE_HOSTDIR
     e.g. /tmp/instdir (absolute) or instdir (relative).
     WARNING !! Do not use relative paths into parent directories (../../XYZ)
 
+config LIRE_CMAKE_DIR
+    string "Directory where to find an alternative cmake binary to use"
+    default ""
+    help
+    LiRE can use a different cmake binary than the system one
+    (e.g. if you compiled a newer version inside /opt or your home directory).
+
 config LIRE_CROSS_COMPILE
     bool "Use own toolchain"
     default y

@@ -173,6 +173,10 @@ function INIT_ALL_LIRE_VALUES()
 	export PATH="${PATH}:$TOOLCHAIN_BIN_DIR"
     fi
 
+    if [ "$CONFIG_LIRE_CMAKE_DIR" != "" ]; then
+	export PATH="${CONFIG_LIRE_CMAKE_DIR}:${PATH}"
+    fi
+    echo $PATH
   fi
 
   # if you want to use netboot

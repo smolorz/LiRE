@@ -69,8 +69,8 @@ if [ $BUILD -eq 1 ]; then
     echo "set(Build_Geometry_Tool \"ON\" CACHE BOOL \"\")"	>> .lire_rackcore-initial-cache.cmake
     echo "set(Build_KMod \"ON\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
     echo "set(Build_OS_Xenomai \"ON\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
-    echo "set(Build_RACK_Java \"ON\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
-    echo "set(Build_RACK_JavaGUI \"ON\" CACHE BOOL \"\")"	>> .lire_rackcore-initial-cache.cmake
+    echo "set(Build_RACK_Java \"OFF\" CACHE BOOL \"\")"		>> .lire_rackcore-initial-cache.cmake
+    echo "set(Build_RACK_JavaGUI \"OFF\" CACHE BOOL \"\")"	>> .lire_rackcore-initial-cache.cmake
     echo "set(CMAKE_INSTALL_PREFIX \"$LIRE_RACKCORE_INSTDIR\" CACHE PATH  \"\")" >> .lire_rackcore-initial-cache.cmake
 
     if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then

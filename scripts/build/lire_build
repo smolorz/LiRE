@@ -106,8 +106,10 @@ if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
     cp -a "${LiRE_DIR}/configs/LiRE-toolchain.cmake" "$LIRE_INSTDIR"
     [ $? -gt 0 ] && { echo "[FAILED]"; exit 1; }
     echo "[OK]"
-    echo "set(CROSS_COMPILE $CROSS_COMPILE)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
-    echo "set(CMAKE_C_COMPILER $CC)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
+
+    echo "find_file(CMAKE_C_COMPILER ${host_alias}-gcc HINTS \${Build_LIRE_INSTALLDIR}/.. ENV HOME PATH_SUFFIXES ${host_alias}/bin NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
+    echo "get_filename_component(LIRE_TOOLCHAIN_BIN_DIR \${CMAKE_C_COMPILER} DIRECTORY)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
+    echo "set(CROSS_COMPILE \${LIRE_TOOLCHAIN_BIN_DIR}/${host_alias}-)" >> $LIRE_INSTDIR/LiRE-toolchain.cmake
 fi
 
 #

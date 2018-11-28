@@ -74,7 +74,7 @@ if [ $BUILD -eq 1 ]; then
     # configure opencv
     #
     echo " Configure OpenCV... "
-    LDFLAGS="-Wl,-rpath=$LIRE_LIBJPEG_INSTDIR/lib -Wl,-rpath=$LIRE_LIBPNG_INSTDIR/lib -Wl,-rpath=$LIRE_ZLIB_INSTDIR/lib -L$LIRE_LIBDC1394_INSTDIR/lib -Wl,-rpath=$LIRE_LIBDC1394_INSTDIR/lib -Wl,-rpath=$LIRE_LIBRAW1394_INSTDIR/lib" \
+    LDFLAGS="-Wl,-rpath=$LIRE_LIBJPEG_INSTDIR/lib -Wl,-rpath=$LIRE_LIBPNG_INSTDIR/lib -Wl,-rpath=$LIRE_ZLIB_INSTDIR/lib" \
     PKG_CONFIG_LIBDIR="$LIRE_LIBDC1394_INSTDIR/lib/pkgconfig" \
     cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$LIRE_OPENCV_INSTDIR \
     -D CMAKE_SYSTEM_NAME=Linux \

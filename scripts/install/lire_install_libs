@@ -11,15 +11,18 @@
 # lib directory.
 #
 
-LIBS="ld- libc libdl libgcc_s.so. libm libnsl libnss libpthread libresolv librt libthread_db libutil libstdc++.so."
+LIBS="ld- libc- libc.so. libdl libgcc_s.so. libm- libm.so. libnsl libnss libpthread libresolv librt libthread_db libutil libstdc++.so."
 
 if [ "$CONFIG_LIRE_CROSS_COMPILE" == "y" ]; then
-    LIBS_DIR="$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR/$CONFIG_LIRE_TARGET_TUPLE/$CONFIG_LIRE_TARGET_TUPLE/sys-root/lib"
+    LIBS_DIR="$CONFIG_LIRE_TOOLCHAIN_PARENT_DIR/$CONFIG_LIRE_TARGET_TUPLE/$CONFIG_LIRE_TARGET_TUPLE/sys-root/lib64"
     for f in `echo "$LIBS"`; do
         cp -fdv "$LIBS_DIR/$f"* "$LIRE_OUTDIR/lib/"
         [ $? -gt 0 ] && { echo "ERROR installing $f library"; exit 1; }
     done
     rm -fv "$LIRE_OUTDIR/lib/"*.py
+
+    ln -sr "$LIRE_OUTDIR/lib" "$LIRE_OUTDIR/lib64"
+    ln -sr "$LIRE_OUTDIR/usr/lib" "$LIRE_OUTDIR/usr/lib64"
 else
     for f in `echo "$LIBS"`; do
         cp -fdv "/lib/$f"* "$LIRE_OUTDIR/lib/"

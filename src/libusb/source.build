@@ -69,7 +69,7 @@ if [ $BUILD -eq 1 ]; then
     #
     echo " Configure libusb... "
     
-    $LIRE_LIBUSB_SRCDIR/configure --prefix='/'
+    $LIRE_LIBUSB_SRCDIR/configure --disable-udev --prefix='/'
     
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"

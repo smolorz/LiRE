@@ -76,7 +76,7 @@ if [ $BUILD -eq 1 ]; then
     # build expat
     #
     echo " Building expat... "
-    make buildlib -j$CONFIG_LIRE_BUILD_JOBS
+    make -j$CONFIG_LIRE_BUILD_JOBS
 	
     [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make [OK]"
@@ -100,7 +100,7 @@ if [ $INSTALL -eq 1 ]; then
     # make install
     #
     echo " make install"
-    make installlib
+    make install
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 

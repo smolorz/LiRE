@@ -76,7 +76,7 @@ if [ $BUILD -eq 1 ]; then
     if [ -n "$CONFIG_LIRE_CROSS_COMPILE" ]; then
 
         GPP_VER=`$CXX -v 2>&1 | tail -1 | awk '{print $3}'`
-        echo "using gcc : ${GPP_VER} : ${CXX}  ; " > tools/build/v2/user-config.jam
+        sed -i "/using gcc/c\using gcc : ${GPP_VER} : ${CXX}  ; " project-config.jam
 
         BJAM_CROSS_OPTIONS="--toolset=gcc-${GPP_VER}"
     else
@@ -92,7 +92,7 @@ if [ $BUILD -eq 1 ]; then
     ./bjam release debug-symbols=off --layout=system \
     --build-dir=$LIRE_BOOST_BUILDDIR -j$CONFIG_LIRE_BUILD_JOBS \
     --without-python $BJAM_CROSS_OPTIONS
-    
+
     [ $? -gt 0 ] && { LIRE_EXIT_ERROR 1; }
     echo " build [OK]"
 

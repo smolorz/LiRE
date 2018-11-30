@@ -67,7 +67,10 @@ if [ $BUILD -eq 1 ]; then
     #
     echo " Configure parted ... "
     
-    $LIRE_PARTED_SRCDIR/configure --prefix=$LIRE_PARTED_INSTDIR LDFLAGS=-L$LIRE_E2FSPROGS_INSTDIR/lib CFLAGS=-I$LIRE_E2FSPROGS_INSTDIR/include UUID_LIBS=-luuid --disable-device-mapper --without-readline
+    $LIRE_PARTED_SRCDIR/configure --prefix=$LIRE_PARTED_INSTDIR \
+            LDFLAGS=-L$LIRE_E2FSPROGS_INSTDIR/lib \
+            CFLAGS="-I$LIRE_E2FSPROGS_INSTDIR/include -fPIC" \
+            UUID_LIBS=-luuid --disable-device-mapper --without-readline
     
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"

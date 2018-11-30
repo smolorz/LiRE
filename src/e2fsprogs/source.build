@@ -67,9 +67,11 @@ if [ $BUILD -eq 1 ]; then
     # configure e2fsprogs
     #
     echo " Configure e2fsprogs... "
-    
-    $LIRE_E2FSPROGS_SRCDIR/configure --prefix=$LIRE_E2FSPROGS_INSTDIR --enable-symlink-build --enable-symlink-install
-    
+
+    CFLAGS="-fPIC" $LIRE_E2FSPROGS_SRCDIR/configure \
+            --prefix=$LIRE_E2FSPROGS_INSTDIR \
+            --enable-symlink-build --enable-symlink-install
+
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"
 

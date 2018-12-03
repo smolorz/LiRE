@@ -11,13 +11,13 @@ depends on LIRE_RACKCORE_INST
 
 config LIRE_RACKCORE_LIBRAW1394_SUPPORT
     bool "Enable libraw1394 support"
-    default y
+    default n
     select LIRE_LIBRAW1394_INST
     help
 
 config LIRE_RACKCORE_LIBDC1394_SUPPORT
     bool "Enable libdc1394 support"
-    default y
+    default n
     select LIRE_RACKCORE_LIBRAW1394_SUPPORT
     select LIRE_LIBDC1394_INST
     help
@@ -38,8 +38,6 @@ config LIRE_RACKCORE_LIBPNG_SUPPORT
 config LIRE_RACKCORE_OPENCV_SUPPORT
     bool "Enable OpenCV support"
     default y
-    select LIRE_RACKCORE_LIBRAW1394_SUPPORT
-    select LIRE_RACKCORE_LIBDC1394_SUPPORT
     select LIRE_RACKCORE_LIBJPEG_SUPPORT
     select LIRE_RACKCORE_LIBPNG_SUPPORT
     select LIRE_OPENCV_INST

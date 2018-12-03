@@ -1,2 +1,12 @@
 linux_scnd
 xenomai_scnd
+curl
+libjpeg
+libpng
+opencv
+zlib
+libusb
+boost
+pcl
+eigen
+openssl

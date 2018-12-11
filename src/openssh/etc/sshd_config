@@ -11,20 +11,14 @@
 # default value.
 
 Port 22
-Protocol 2,1
+Protocol 2
 #ListenAddress 0.0.0.0
 #ListenAddress ::
 
-# HostKey for protocol version 1
-HostKey /etc/ssh/ssh_host_key
 # HostKeys for protocol version 2
 HostKey /etc/ssh/ssh_host_rsa_key
 
 HostKey /etc/ssh/ssh_host_dsa_key
-
-# Lifetime and size of ephemeral version 1 server key
-KeyRegenerationInterval 3600
-ServerKeyBits 768
 
 # Logging
 #obsoletes QuietMode and FascistLogging
@@ -37,7 +31,6 @@ ServerKeyBits 768
 PermitRootLogin yes
 #StrictModes yes
 
-RSAAuthentication yes
 #PubkeyAuthentication yes
 #AuthorizedKeysFile	.ssh/authorized_keys
 

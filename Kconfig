@@ -76,7 +76,7 @@ config LIRE_IMGNAME
 
 config LIRE_IMGSIZE
     int "Image size"
-    default 100000
+    default 300000
     depends on LIRE_NETBOOT || LIRE_QEMU || LIRE_ISO || LIRE_VIRTUALBOX
     help
 

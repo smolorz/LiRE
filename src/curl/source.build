@@ -124,44 +124,45 @@ if [ $MAKEPACK -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
 
-   # build tar tree
-   #
-   echo " build tar tree ... "
-   rm -rf tar
-   mkdir tar
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf tar
+    mkdir tar
 
-   # make dirs
-   mkdir -p "tar/lib/"
+    # make dirs
+    mkdir -p "tar/lib/"
 
-   # copy files
-   echo -n " Copy Files ... "
-   cp -rf bin  "tar/"
-   cp -rf lib/lib*.so* "tar/lib"
+    # copy files
+    echo -n " Copy Files ... "
+    cp -rf bin  "tar/"
+    cp -rf lib/lib*.so* "tar/lib"
 
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
 
-   #
-   # create tar.bz2
-   #
-   TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_CURL_PACKDIR/"
+    #
+    # create tar.bz2
+    #
+    TAR="$PACKAGE.tar.bz2"
+    DEST="$LIRE_CURL_PACKDIR/"
 
-   echo -n " Creating $TAR ... "
-   tar -cjf "$TAR" *
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
+    cd tar
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
 
-   echo -n " Move $TAR to $DEST... "
-   mv -f "$TAR" "$DEST"
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
-   cd ..
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
 
-   #
-   # remove tar directory
-   #
-   rm -rf tar
+    #
+    # remove tar directory
+    #
+    rm -rf tar
 
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 

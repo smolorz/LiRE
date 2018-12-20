@@ -88,7 +88,7 @@ if [ $BUILD -eq 1 ]; then
     # strip dhcpcd
     #
     echo " strip dhcpcd"
-    ${STRIP} -s dhcpcd
+    ${STRIP} -s src/dhcpcd
     [ $? -gt 0 ] && { echo "strip dhcdcp [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "strip dhcpcd [OK]"
 
@@ -111,7 +111,7 @@ if [ $INSTALL -eq 1 ]; then
     #
     cd "$LIRE_DHCPCD_SRCDIR"
     echo " make install"
-    make DESTDIR="$LIRE_DHCPCD_INSTDIR" _proginstall
+    make DESTDIR="$LIRE_DHCPCD_INSTDIR" proginstall
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 

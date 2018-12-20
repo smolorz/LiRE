@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # curl check script
-# 2014-11-18 tino krueger-basjmeleh (tino.kruegerqstill.de)
+# 2014-11-18 tino krueger-basjmeleh (tino.krueger@still.de)
+# 2018-12-20 Sebastian Smolorz (sebastian.smolorz@still.de)
 #
 
 # name of this package
@@ -123,25 +124,44 @@ if [ $MAKEPACK -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
 
-    
-    
-    DEST="$LIRE_CURL_PACKDIR/"
-    TAR="$LIRE_CURL_SRCDIR/$PACKAGE.tar.bz2"	
-    
-    #
-    # create tar.bz2
-    #
-    	    
-    echo -n " Creating $TAR ... "
-    tar -cjf "$TAR" bin lib
-    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-    echo "[OK]"					
-    echo -n " Move $TAR to $DEST... "
-    mv -f "$TAR" "$DEST"
-    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-    echo "[OK]"
-    cd ..
-							    
+   # build tar tree
+   #
+   echo " build tar tree ... "
+   rm -rf tar
+   mkdir tar
+
+   # make dirs
+   mkdir -p "tar/lib/"
+
+   # copy files
+   echo -n " Copy Files ... "
+   cp -rf bin  "tar/"
+   cp -rf lib/lib*.so* "tar/lib"
+
+   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+   echo "[OK]"
+
+   #
+   # create tar.bz2
+   #
+   TAR="$PACKAGE.tar.bz2"
+   DEST="$LIRE_CURL_PACKDIR/"
+
+   echo -n " Creating $TAR ... "
+   tar -cjf "$TAR" *
+   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+   echo "[OK]"
+
+   echo -n " Move $TAR to $DEST... "
+   mv -f "$TAR" "$DEST"
+   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+   echo "[OK]"
+   cd ..
+
+   #
+   # remove tar directory
+   #
+   rm -rf tar
 
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 

@@ -41,6 +41,7 @@ config LIRE_BUILD_ALL
     select LIRE_WLANPOLL_BUILD_SRC      	if LIRE_WLANPOLL_INST
     select LIRE_LIBUSB_BUILD_SRC        	if LIRE_LIBUSB_INST
     select LIRE_SETSERIAL_BUILD_SRC     	if LIRE_SETSERIAL_INST
+    select LIRE_IPROUTE2_BUILD_SRC      	if LIRE_IPROUTE2_INST
     select LIRE_DHCPCD_BUILD_SRC        	if LIRE_DHCPCD_INST
     select LIRE_WPA_SUPPLICANT_BUILD_SRC    	if LIRE_WPA_SUPPLICANT_INST
     select LIRE_EXPAT_BUILD_SRC         	if LIRE_EXPAT_INST
@@ -110,6 +111,7 @@ source "src/pciutils/Kconfig"
 source "src/hdparm/Kconfig"
 source "src/e2fsprogs/Kconfig"
 source "src/parted/Kconfig"
+source "src/iproute2/Kconfig"
 source "src/setserial/Kconfig"
 source "src/dhcpcd/Kconfig"
 source "src/tinyxml2/Kconfig"

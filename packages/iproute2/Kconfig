@@ -1,0 +1,7 @@
+
+config LIRE_IPROUTE2_INST
+    bool "  Install iproute2"
+    default y
+    help
+    Installs iproute2. This contains mainly the ip command which
+    is important for setting CAN baudrates for SocketCAN device drivers.

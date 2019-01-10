@@ -87,7 +87,7 @@ config LIRE_BUILD_ALL
     select LIRE_YAML_CPP_BUILD_SRC		if LIRE_YAML_CPP_INST
     select LIRE_OROCOS_BFL_BUILD_SRC		if LIRE_OROCOS_BFL_INST
     select LIRE_OPENDDS_BUILD_SRC		if LIRE_OPENDDS_INST
-
+    select LIRE_LIBSOCKETCAN_BUILD_SRC		if LIRE_LIBSOCKETCAN_INST
 
 
 source "src/linux/Kconfig"    
@@ -182,6 +182,7 @@ source "src/bzip2/Kconfig"
 source "src/eigen/Kconfig"
 source "src/flann/Kconfig"
 source "src/pcl/Kconfig"
+source "src/libsocketcan/Kconfig"
 source "src/openni/Kconfig"
 source "src/primesense/Kconfig"
 source "src/sensorkinect/Kconfig"

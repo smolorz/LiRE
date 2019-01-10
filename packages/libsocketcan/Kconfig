@@ -1,0 +1,6 @@
+
+config LIRE_LIBSOCKETCAN_INST
+    bool "  Install libsocketcan"
+    default y
+    help
+    Installs libsocketcan.

@@ -1,5 +1,5 @@
 set(CMAKE_SYSTEM_NAME Linux)
-set(CMAKE_SYSTEM_PROCESSOR "i386")
+set(CMAKE_SYSTEM_PROCESSOR "x86_64")
 
 if(NOT DEFINED Build_LIRE_INSTALLDIR)
   if(DEFINED CMAKE_TOOLCHAIN_FILE)
@@ -29,6 +29,7 @@ if(DEFINED Build_LIRE_INSTALLDIR)
       ${Build_LIRE_INSTALLDIR}/openni
       ${Build_LIRE_INSTALLDIR}/openssl
       ${Build_LIRE_INSTALLDIR}/eigen
+      ${Build_LIRE_INSTALLDIR}/libsocketcan
   )
 
   set(Linux_Kernel_SRC ${Build_LIRE_INSTALLDIR}/linux_scnd/src)

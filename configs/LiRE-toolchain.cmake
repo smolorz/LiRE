@@ -31,10 +31,8 @@ if(DEFINED Build_LIRE_INSTALLDIR)
       ${Build_LIRE_INSTALLDIR}/libsocketcan
   )
 
-  set(Linux_Kernel_SRC ${Build_LIRE_INSTALLDIR}/linux_scnd/src)
-  execute_process(COMMAND cat ${Linux_Kernel_SRC}/.version_LIRE
-                  OUTPUT_VARIABLE CMAKE_SYSTEM_VERSION
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(Linux_Kernel_SRC ${Build_LIRE_INSTALLDIR}/linux/src)
+  set(Xenomai_Kernel_SRC ${Build_LIRE_INSTALLDIR}/linux_scnd/src)
 
 endif(DEFINED Build_LIRE_INSTALLDIR)
 

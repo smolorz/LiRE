@@ -66,19 +66,14 @@ if [ $BUILD -eq 1 ]; then
 # You are in $LIRE_"$PACKAGE"_BUILDDIR (package build directory)
 #
     #
-    # remove all files in builddir before copy config file
-    #
-    rm -rf *
-
-    #
     # configure opencv
     #
     echo " Configure OpenCV... "
     LDFLAGS="-Wl,-rpath=$LIRE_LIBJPEG_INSTDIR/lib -Wl,-rpath=$LIRE_LIBPNG_INSTDIR/lib -Wl,-rpath=$LIRE_ZLIB_INSTDIR/lib" \
-    PKG_CONFIG_LIBDIR="$LIRE_LIBDC1394_INSTDIR/lib/pkgconfig" \
     cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$LIRE_OPENCV_INSTDIR \
     -D CMAKE_SYSTEM_NAME=Linux \
     -D BUILD_NEW_PYTHON_SUPPORT=OFF -D WITH_JASPER=OFF -D WITH_TIFF=OFF -D BUILD_DOXYGEN_DOCS=OFF \
+    -D BUILD_DOCS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF -D BUILD_opencv_apps=OFF \
     -D ZLIB_LIBRARY=$LIRE_ZLIB_INSTDIR/lib/libz.so -D ZLIB_INCLUDE_DIR=$LIRE_ZLIB_INSTDIR/include \
     -D PNG_PNG_INCLUDE_DIR=$LIRE_LIBPNG_INSTDIR/include -D PNG_LIBRARY=$LIRE_LIBPNG_INSTDIR/lib/libpng.so \
     -D JPEG_INCLUDE_DIR=$LIRE_LIBJPEG_INSTDIR/include -D JPEG_LIBRARY=$LIRE_LIBJPEG_INSTDIR/lib/libjpeg.so \

@@ -158,8 +158,8 @@ if [ $MAKEPACK -eq 1 ]; then
     #
 
     echo -n " Creating $TAR ... "
-    ${STRIP:-strip} -s lib/*.so* bin/*
-    tar -cjf "$TAR" lib/*.so.* bin/*
+    ${STRIP:-strip} -s lib/*.so*
+    tar -cjf "$TAR" lib/*.so.*
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"
     echo -n " Move $TAR to $DEST... "

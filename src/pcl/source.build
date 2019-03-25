@@ -107,7 +107,7 @@ sed -e "s/%SSE%/$sse/" \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_CMAKE" \
           -DWITH_CUDA=OFF -DWITH_QT=OFF -DWITH_VTK=OFF \
-          -DWITH_PCAP=OFF -DWITH_OPENGL=OFF \
+          -DWITH_PCAP=OFF -DWITH_OPENGL=OFF -D BUILD_tools=OFF \
           "$LIRE_PCL_SRCDIR"
 
     [ $? -gt 0 ] && { echo "make [FAILED]"; LIRE_EXIT_ERROR 1; }

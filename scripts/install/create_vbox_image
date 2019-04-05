@@ -36,7 +36,8 @@ if [ -n "$qemu_data_image" ]; then
     VBoxManage convertfromraw $qemu_data_image $vmdk_data_image
 fi
 
-VBoxManage createvm --name $machine_name --ostype "Linux" --register 
+VBoxManage createvm --name $machine_name --ostype "Linux_64" --register
+VBoxManage modifyvm $machine_name --memory 1024 --cpus 2
 VBoxManage storagectl $machine_name --name "SATA Controller" --add sata --portcount 2
 VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $vmdk_image
 

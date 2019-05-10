@@ -4,7 +4,7 @@
 
 #def. is frame buffer 1024x768
 
-default 3
+default 4
 
 timeout 5
 

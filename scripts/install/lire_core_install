@@ -164,7 +164,7 @@ echo "DEFAULT menu.c32
 PROMPT 0
 MENU TITLE Boot Menu
 TIMEOUT 50
-ONTIMEOUT lire_fb_1024x768
+ONTIMEOUT lire_smp_fb_1024x768
 
 LABEL lire_text
     MENU LABEL lire TEXT

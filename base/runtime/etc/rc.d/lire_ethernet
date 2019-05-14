@@ -27,7 +27,7 @@ if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
     echo "SETTING IP            $TARGET_MAIN_IP"
     if [ "$TARGET_MAIN_IP" == "DHCP" ]; then
         rm -rf /etc/dhcpc > /dev/null 2> /dev/null
-        dhcpcd $TARGET_ETHERNET_NIC -t 5 -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME -q
+        dhcpcd $TARGET_ETHERNET_NIC -t 9 -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME -q
         echo -n "           "
         ifconfig | grep inet
         echo

@@ -68,7 +68,9 @@ if [ $BUILD -eq 1 ]; then
     echo " Configure dhcpcd... "
 
     cd "$LIRE_DHCPCD_SRCDIR"
-    $LIRE_DHCPCD_SRCDIR/configure  --target=${host_alias} --host=${host_alias}
+    $LIRE_DHCPCD_SRCDIR/configure --target=${host_alias} --host=${host_alias} \
+                                  --small --disable-inet6 --disable-auth \
+                                  --disable-dhcp6
 
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"

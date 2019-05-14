@@ -67,7 +67,14 @@ if [ $BUILD -eq 1 ]; then
     #
     echo " Configure ncurses... "
     
-    $LIRE_NCURSES_SRCDIR/configure --prefix=$LIRE_NCURSES_INSTDIR --with-shared --without-debug --with-fallbacks=linux,vt100,xterm
+    $LIRE_NCURSES_SRCDIR/configure --prefix=$LIRE_NCURSES_INSTDIR \
+                                   --with-shared \
+                                   --without-debug \
+                                   --with-fallbacks=linux,vt100,xterm \
+                                   --with-termlib \
+                                   --without-manpages \
+                                   --without-progs \
+                                   --with-terminfo-dirs=/usr/share/terminfo
     
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"
@@ -119,29 +126,54 @@ if [ $MAKEPACK -eq 1 ]; then
 #
 # You are in $LIRE_"$PACKAGE"_INSTDIR (package install directory)
 #
+
     #
     # strip library
     #
-    echo " strip library"
-    ${STRIP} -s lib/libncurses.so.*
-    [ $? -gt 0 ] && { echo "strip library [FAILED]"; LIRE_EXIT_ERROR 1; }
-    echo "strip library [OK]"
+    echo " strip libraries ..."
+    ${STRIP} -s lib/lib*.so.*
+    [ $? -gt 0 ] && { echo "strip libraries [FAILED]"; LIRE_EXIT_ERROR 1; }
+    echo "strip libraries [OK]"
 
-   #
-   # create tar.bz2
-   #
-   TAR="$PACKAGE.tar.bz2"
-   DEST="$LIRE_NCURSES_PACKDIR/"
+    # build tar tree
+    #
+    echo " build tar tree ... "
+    rm -rf tar
+    mkdir tar
 
-   echo -n " Creating $TAR ... "
-   tar -cjf "$TAR" lib/libncurses.so.*
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
+    # make dirs
+    mkdir -p "tar/usr/"
+    mkdir -p "tar/lib/"
 
-   echo -n " Move $TAR to $DEST... "
-   mv -f "$TAR" "$DEST"
-   [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
-   echo "[OK]"
+    # copy files
+    echo -n " Copy Files ... "
+    cp -rf lib/lib*.so* "tar/lib"
+    cp -rf share "tar/usr/"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    #
+    # create tar.bz2
+    #
+    TAR="$PACKAGE.tar.bz2"
+    DEST="$LIRE_NCURSES_PACKDIR/"
+
+    cd tar
+    echo -n " Creating $TAR ... "
+    tar -cjf "$TAR" *
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+
+    echo -n " Move $TAR to $DEST... "
+    mv -f "$TAR" "$DEST"
+    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
+    echo "[OK]"
+    cd ..
+
+    #
+    # remove tar directory
+    #
+    rm -rf tar
 
 #========== STOP YOUR MAKE PACKAGE HERE  =======================================
 

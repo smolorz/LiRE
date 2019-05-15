@@ -160,11 +160,12 @@ LABEL lire_scnd
 
 ECHO_EXTLINUX_CONF() {
     root_device=$1
-echo "DEFAULT menu.c32
+echo "UI vesamenu.c32
 PROMPT 0
-MENU TITLE Boot Menu
+MENU TITLE LiRE Boot Menu
 TIMEOUT 50
 ONTIMEOUT lire_smp_fb_1024x768
+DEFAULT lire_smp_fb_1024x768
 
 LABEL lire_text
     MENU LABEL lire TEXT
@@ -248,7 +249,10 @@ QEMU_CREATE() {
         CHECK_ERROR 1 "QEMU_MOUNT_DIR-variable is empty. Don't want to install extlinux on /boot."
     else
         mkdir -p "$QEMU_MOUNT_DIR/boot/extlinux"
-        cp "$LIRE_HOST_SYSLINUX_DIR/menu.c32" "$QEMU_MOUNT_DIR/boot/extlinux/"
+        cp "$LIRE_HOST_SYSLINUX_DIR/menu.c32"     \
+           "$LIRE_HOST_SYSLINUX_DIR/vesamenu.c32" \
+           "$LIRE_HOST_SYSLINUX_DIR/libutil.c32"  \
+           "$LIRE_HOST_SYSLINUX_DIR/libcom32.c32" "$QEMU_MOUNT_DIR/boot/extlinux/"
         CHECK_ERROR $? "Unable to install bootloader"
         extlinux --install "$QEMU_MOUNT_DIR/boot/extlinux"
         CHECK_ERROR $? "Unable to install bootloader"

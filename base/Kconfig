@@ -28,7 +28,7 @@ config LIRE_TARGET_MAIN_IP
 
 config LIRE_TARGET_ETH_DRIVERS
     string "List of Ethernet drivers to load" if !LIRE_QEMU
-    default "e100 8139too 3c59x r8169 e1000 via-rhine pcnet32 e1000e igb tg3" if !LIRE_QEMU
+    default "e100 8139too 3c59x r8169 e1000 via-rhine pcnet32 e1000e igb tg3 mcs7830 asix" if !LIRE_QEMU
     default "ne2k-pci e1000" if LIRE_QEMU
     depends on LIRE_TARGET_INIT_ETHERNET
     help

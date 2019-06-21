@@ -69,7 +69,7 @@ if [ $BUILD -eq 1 ]; then
     echo " Configure e2fsprogs... "
 
     CFLAGS="-fPIC" $LIRE_E2FSPROGS_SRCDIR/configure \
-            --prefix=$LIRE_E2FSPROGS_INSTDIR \
+            --prefix=/ \
             --enable-symlink-build --enable-symlink-install
 
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
@@ -104,12 +104,12 @@ if [ $INSTALL -eq 1 ]; then
     # make install
     #
     echo " make install"
-    make install
+    make DESTDIR=$LIRE_E2FSPROGS_INSTDIR install
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 
     echo " make install-libs"
-    make install-libs
+    make DESTDIR=$LIRE_E2FSPROGS_INSTDIR install-libs
     [ $? -gt 0 ] && { echo "make install-libs [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install-libs [OK]"
 

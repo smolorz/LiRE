@@ -227,10 +227,10 @@ if [ "$CONFIG_LIRE_VIRTUALBOX" == "y" ]; then
     tar -xf $LIRE_REAL_OUTDIR/lire.tar.bz2
     mkdir lire_vbox
     if [ -f "lireQE_data.img" ]; then
-        "$LIRE_ISCRDIR/create_vbox_image" lireQE.img lireQE_data.img lire_vbox
+        . $LIRE_ISCRDIR/create_vbox_image lireQE.img lireQE_data.img lire_vbox
         tar -cvjf lire.tar.bz2 lire_vbox
     else
-        "$LIRE_ISCRDIR/create_vbox_image" lireQE.img lire_vbox
+        . $LIRE_ISCRDIR/create_vbox_image lireQE.img lire_vbox
         tar -cvjf lire.tar.bz2 lire_vbox
     fi
     mv lire.tar.bz2 $LIRE_REAL_OUTDIR

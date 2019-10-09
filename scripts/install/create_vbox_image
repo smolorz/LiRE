@@ -28,7 +28,7 @@ machine_name="LiRE-$RANDOM"
 
 
 temp_dir=$(mktemp -d)
-vmdk_image="$temp_dir/LiRE.vmdk"
+vmdk_image="$temp_dir/LiRE$CONFIG_LIRE_VERSION.vmdk"
 vmdk_data_image="$temp_dir/LiRE_data.vmdk"
 VBoxManage convertfromraw $qemu_image $vmdk_image
 
@@ -37,7 +37,7 @@ if [ -n "$qemu_data_image" ]; then
 fi
 
 VBoxManage createvm --name $machine_name --ostype "Linux_64" --register
-VBoxManage modifyvm $machine_name --memory 1024 --cpus 2
+VBoxManage modifyvm $machine_name --memory 2048 --cpus 4
 VBoxManage storagectl $machine_name --name "SATA Controller" --add sata --portcount 2
 VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $vmdk_image
 
@@ -45,7 +45,7 @@ if [ -n "$qemu_data_image" ]; then
     VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 1 --device 0 --type hdd --medium $vmdk_data_image
 fi
 
-VBoxManage export $machine_name --output "$target_dir/LiRE.ovf"
+VBoxManage export $machine_name --output "$target_dir/LiRE$CONFIG_LIRE_VERSION.ovf"
 #VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium none
 
 #if [ -n "$qemu_data_image" ]; then
@@ -54,7 +54,6 @@ VBoxManage export $machine_name --output "$target_dir/LiRE.ovf"
 
 VBoxManage unregistervm $machine_name --delete
 
-
 rm -r $temp_dir
-sed -i "s/$machine_name/LiRE/g" "$target_dir/LiRE.ovf"
+sed -i "s/$machine_name/LiRE$CONFIG_LIRE_VERSION/g" "$target_dir/LiRE$CONFIG_LIRE_VERSION.ovf"
 

@@ -12,20 +12,13 @@ if(DEFINED Build_LIRE_INSTALLDIR)
 
       ${Build_LIRE_INSTALLDIR}/boost
       ${Build_LIRE_INSTALLDIR}/xenomai_scnd
-      ${Build_LIRE_INSTALLDIR}/xenomai
-      ${Build_LIRE_INSTALLDIR}/rtnet
-      ${Build_LIRE_INSTALLDIR}/libraw1394
-      ${Build_LIRE_INSTALLDIR}/libdc1394
       ${Build_LIRE_INSTALLDIR}/libjpeg
       ${Build_LIRE_INSTALLDIR}/libpng
       ${Build_LIRE_INSTALLDIR}/opencv
       ${Build_LIRE_INSTALLDIR}/curl
-      ${Build_LIRE_INSTALLDIR}/gsl
       ${Build_LIRE_INSTALLDIR}/zlib
-      ${Build_LIRE_INSTALLDIR}/libusb
       ${Build_LIRE_INSTALLDIR}/flann
       ${Build_LIRE_INSTALLDIR}/pcl
-      ${Build_LIRE_INSTALLDIR}/openni
       ${Build_LIRE_INSTALLDIR}/openssl
       ${Build_LIRE_INSTALLDIR}/eigen
       ${Build_LIRE_INSTALLDIR}/libsocketcan

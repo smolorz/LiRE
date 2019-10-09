@@ -1,6 +1,6 @@
 
 config LIRE_LIBUSB_INST
     bool "  Install libusb"
-    default y
+    default n
     help
     ...text...

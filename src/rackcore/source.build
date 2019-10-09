@@ -93,23 +93,6 @@ if [ $BUILD -eq 1 ]; then
     fi
     echo "set(ExternalDependencies_Eigen \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
 
-
-    if [ "$CONFIG_LIRE_RACKCORE_LIBRAW1394_SUPPORT" == "y" ]; then
-        LOAD_CONFIG "libraw1394"
-        EXT_DEP="ON" 
-    else
-        EXT_DEP="OFF"
-    fi
-    echo "set(ExternalDependencies_libraw1394 \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
-
-    if [ "$CONFIG_LIRE_RACKCORE_LIBDC1394_SUPPORT" == "y" ]; then
-        LOAD_CONFIG "libdc1394"
-        EXT_DEP="ON" 
-    else
-        EXT_DEP="OFF"
-    fi
-    echo "set(ExternalDependencies_libdc1394 \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
-
     if [ "$CONFIG_LIRE_RACKCORE_LIBJPEG_SUPPORT" == "y" ]; then
         LOAD_CONFIG "libjpeg"
         EXT_DEP="ON" 
@@ -134,14 +117,6 @@ if [ $BUILD -eq 1 ]; then
     fi
     echo "set(ExternalDependencies_OpenCV \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
 
-    if [ "$CONFIG_LIRE_RACKCORE_OPENNI_SUPPORT" == "y" ]; then
-        LOAD_CONFIG "openni"
-        EXT_DEP="ON" 
-    else
-        EXT_DEP="OFF"
-    fi
-    echo "set(ExternalDependencies_OpenNI \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
-
     if [ "$CONFIG_LIRE_RACKCORE_OPENSSL_SUPPORT" == "y" ]; then
         LOAD_CONFIG "openssl"
         EXT_DEP="ON" 
@@ -149,14 +124,6 @@ if [ $BUILD -eq 1 ]; then
         EXT_DEP="OFF"
     fi
     echo "set(ExternalDependencies_OpenSSL \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
-
-    if [ "$CONFIG_LIRE_RACKCORE_GSL_SUPPORT" == "y" ]; then
-        LOAD_CONFIG "gsl"
-        EXT_DEP="ON" 
-    else
-        EXT_DEP="OFF"
-    fi
-    echo "set(ExternalDependencies_gsl \"$EXT_DEP\" CACHE BOOL \"\")" >> .lire_rackcore-initial-cache.cmake
 
     if [ "$CONFIG_LIRE_RACKCORE_PCL_SUPPORT" == "y" ]; then
         LOAD_CONFIG "pcl"

@@ -9,19 +9,6 @@ menu "  Dependencies"
 
 depends on LIRE_RACKCORE_INST
 
-config LIRE_RACKCORE_LIBRAW1394_SUPPORT
-    bool "Enable libraw1394 support"
-    default n
-    select LIRE_LIBRAW1394_INST
-    help
-
-config LIRE_RACKCORE_LIBDC1394_SUPPORT
-    bool "Enable libdc1394 support"
-    default n
-    select LIRE_RACKCORE_LIBRAW1394_SUPPORT
-    select LIRE_LIBDC1394_INST
-    help
-
 config LIRE_RACKCORE_LIBJPEG_SUPPORT
     bool "Enable libjpeg support"
     default y
@@ -43,12 +30,6 @@ config LIRE_RACKCORE_OPENCV_SUPPORT
     select LIRE_OPENCV_INST
     help
 
-config LIRE_RACKCORE_GSL_SUPPORT
-    bool "Enable gsl support"
-    default n
-    select LIRE_GSL_INST
-    help
-
 config LIRE_RACKCORE_ZLIB_SUPPORT
     bool "Enable zlib support"
     default y
@@ -57,7 +38,7 @@ config LIRE_RACKCORE_ZLIB_SUPPORT
 
 config LIRE_RACKCORE_LIBUSB_SUPPORT
     bool "Enable libusb support"
-    default y
+    default n
     select LIRE_LIBUSB_INST
     help
 
@@ -83,12 +64,6 @@ config LIRE_RACKCORE_EIGEN_SUPPORT
     bool "Enable Eigen support for RACK"
     default y
     select LIRE_EIGEN_INST
-    help
-
-config LIRE_RACKCORE_OPENNI_SUPPORT
-    bool "Enable OpenNI support for RACK"
-    default n
-    select LIRE_OPENNI_INST
     help
 
 config LIRE_RACKCORE_OPENSSL_SUPPORT
@@ -219,7 +194,5 @@ config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_MOUNTPOINT
     default "/data"
     help
     mounting point for the writable data partition
-
-
 
 endmenu

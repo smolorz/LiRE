@@ -5,7 +5,6 @@ libjpeg
 libpng
 opencv
 zlib
-libusb
 boost
 pcl
 eigen

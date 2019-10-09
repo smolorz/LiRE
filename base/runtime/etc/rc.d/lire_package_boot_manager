@@ -37,10 +37,8 @@ for PACK in $PACKAGES_DEP_LIST; do
     fi
 
     if [ -x $START_FILE ]; then
-        if [ "$PACK" != "rtnet" -o "$RTNET_AUTOSTART" == "y" ]; then
-            echo "Starting ... "
-            $START_FILE
-        fi
+        echo "Starting ... "
+        $START_FILE
     fi
 
     if [ -x $INIT_FILE -o -x $START_FILE ]; then

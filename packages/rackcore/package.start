@@ -8,17 +8,9 @@
 
 . /etc/lire.conf
 
-if [ "$RACKCORE_TIMS_CLIENT_START" == "y" ]; then
-    /etc/rc.d/packages/rackcore/tims_client_loop &
-fi
-
-sleep 1
-
 if [ "$RACKCORE_TIMS_ROUTER_START" == "y" ]; then
     /etc/rc.d/packages/rackcore/tims_router_loop &
 fi
-
-sleep 3
 
 echo "Loading TiMS Driver module  ... "
 
@@ -49,5 +41,8 @@ if [ $RACKCORE_TIMS_RTNET_BUFFERS -gt 0 ]; then
 fi
 
 modprobe tims $OPT
-
 [ $? -ne 0 ] && { echo "Loading TiMS driver module failed"; }
+
+if [ "$RACKCORE_TIMS_CLIENT_START" == "y" ]; then
+    /etc/rc.d/packages/rackcore/tims_client_loop &
+fi

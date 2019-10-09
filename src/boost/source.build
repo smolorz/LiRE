@@ -67,7 +67,7 @@ if [ $BUILD -eq 1 ]; then
     # configure boost
     #
     cd "$LIRE_BOOST_SRCDIR"
-    if [ ! -e bjam ]; then
+    if [ ! -e b2 ]; then
         echo "Bootstrapping boost"
         ./bootstrap.sh --without-icu --without-libraries=python
     fi
@@ -82,14 +82,14 @@ if [ $BUILD -eq 1 ]; then
     else
         unset BJAM_CROSS_OPTIONS
     fi
-    echo "using mp ; " >> user-config.jam
+
         EXPAT_INCLUDE="$LIRE_EXPAT_INSTDIR/include" \
         EXPAT_LIBPATH="$LIRE_EXPAT_INSTDIR/lib" \
         BZIP2_INCLUDE="$LIRE_BZIP2_INSTDIR/include" \
         BZIP2_LIBPATH="$LIRE_BZIP2_INSTDIR/lib" \
         ZLIB_INCLUDE="$LIRE_ZLIB_INSTDIR/include" \
         ZLIB_LIBPATH="$LIRE_ZLIB_INSTDIR/lib" \
-    ./bjam release debug-symbols=off --layout=system \
+    ./b2 release debug-symbols=off --layout=system \
     --build-dir=$LIRE_BOOST_BUILDDIR -j$CONFIG_LIRE_BUILD_JOBS \
     --without-python $BJAM_CROSS_OPTIONS
 
@@ -112,19 +112,10 @@ if [ $INSTALL -eq 1 ]; then
 
     echo "Boost install"
     cd "$LIRE_BOOST_SRCDIR"
-    if [ -n "$CONFIG_LIRE_CROSS_COMPILE" ]; then
 
-        GPP_VER=`$CXX -v 2>&1 | tail -1 | awk '{print $3}'`
-        echo "using gcc : ${GPP_VER} : ${CXX}  ; " > tools/build/v2/user-config.jam
-
-        BJAM_CROSS_OPTIONS="--toolset=gcc-${GPP_VER}"
-    else
-        unset BJAM_CROSS_OPTIONS
-    fi
-
-        EXPAT_INCLUDE="$LIRE_EXPAT_INSTDIR/include" \
-        EXPAT_LIBPATH="$LIRE_EXPAT_INSTDIR/lib" \
-    ./bjam release debug-symbols=off --layout=system --prefix=$LIRE_BOOST_INSTDIR  \
+    EXPAT_INCLUDE="$LIRE_EXPAT_INSTDIR/include" \
+    EXPAT_LIBPATH="$LIRE_EXPAT_INSTDIR/lib" \
+    ./b2 release debug-symbols=off --layout=system --prefix=$LIRE_BOOST_INSTDIR  \
     --build-dir=$LIRE_BOOST_BUILDDIR --stagedir=$LIRE_BOOST_INSTDIR \
     $BJAM_CROSS_OPTIONS install
 

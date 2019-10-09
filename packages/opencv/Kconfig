@@ -2,6 +2,7 @@
 config LIRE_OPENCV_INST
     bool "  Install OpenCV"
     default y
+    select LIRE_BOOST_INST
     select LIRE_LIBPNG_INST
     select LIRE_LIBJPEG_INST
     select LIRE_ZLIB_INST

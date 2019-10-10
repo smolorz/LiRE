@@ -3,6 +3,7 @@
 #
 # Linux_scnd check script
 # 2009-09-25 Oliver Weidner (Oliver.Weidner@gmail.com)
+# 2019 Sebastian Smolorz (sebastian.smolorz@still.de)
 #
 
 
@@ -57,20 +58,6 @@ LIRE_INIT_SOURCE_CHECK
 # You are in $LIRE_"$PACKAGE"_SCRDIR (package script directory)
 #
 
-
-
-##
-## VERY IMPORTANT TODO !!!
-## 
-
-# if you don't have a .config file in $LIRE_LINUX_SCND_SRCDIR yet, this function will be called.
-# This function can only determine what values are in $LIRE_LINUX_SCND_SRCDIR/Makefile.
-# In the file Makefile there is no value for LOCALVERSION (that is the "-smp" tail for our core2 kernel)
-# That means, this function can _NOT_ set the correct value for LIRE_LINUX_SCND_VERSION !!!
-# You can only get the correct version from the config file for the core2 kernel !!!
-
-# Because of that, here was added a "-smp" String HARDCODED to LINUX_VERSION, as you can see below.
-# That HAS to be IMPROVED !!!
 function GRAB_VERSION_FROM_MAKEFILE()
 {
     echo " Try to generate kernel version from Makefile ..."
@@ -86,25 +73,36 @@ function GRAB_VERSION_FROM_MAKEFILE()
     EXTRAVERSION=`cat $FILE | sed -n '4,1p' | gawk -F" = " '{print $2}'`
 
     LINUX_VERSION_PRE="$VERSION.$PATCHLEVEL"
-    PACKAGE_VERSION="$LINUX_VERSION_PRE.$SUBLEVEL$EXTRAVERSION-smp"
+    PACKAGE_VERSION="$LINUX_VERSION_PRE.$SUBLEVEL$EXTRAVERSION"
 
     echo ""
-    echo " Found Linux version $LINUX_VERSION"
+    echo " Found Linux version $PACKAGE_VERSION"
     echo ""
 }
 
-#FILE="$LIRE_LINUX_SCND_SRCDIR/$LIRE_VERSION_FILE"
-#if [ -f $FILE ]; then
-#    PACKAGE_VERSION="$(cat $FILE)-smp"
-#else
+FILE="$LIRE_LINUX_SCND_SRCDIR/$LIRE_VERSION_FILE"
+if [ -f $FILE ]; then
+    PACKAGE_VERSION="$(cat $FILE)"
+else
     GRAB_VERSION_FROM_MAKEFILE
-#fi
+fi
 
 CONFIG_NAME="config"
 CONFIG_FILE="$LIRE_LINUX_SCND_SRCDIR/.$CONFIG_NAME"
 
 LIRE_SELECT_CONFIG_FILE
 
+cd $LIRE_LINUX_SCND_SRCDIR
+make prepare
+[ $? -gt 0 ] && { echo "make prepare [FAILED]"; LIRE_EXIT_ERROR 1; }
+FILE="$LIRE_LINUX_SCND_SRCDIR/include/config/kernel.release"
+if [ -f $FILE ]; then
+    PACKAGE_VERSION="$(cat $FILE)"
+else
+    echo "WARNING: Cannot find $FILE !"
+fi
+
+cd $LIRE_LINUX_SCND_SCRDIR
 
 #========== STOP YOUR CHECKS HERE ==============================================
 #

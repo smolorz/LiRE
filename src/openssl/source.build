@@ -18,7 +18,7 @@ LIRE_BUILD_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_OPENSSL_SRCDIR/Makefile"
+PACKAGE_SRCCONF="$LIRE_OPENSSL_SRCDIR/Configure"
 
 #
 # before calling LIRE_INIT_SOURCE_BUILD you have to init following values:
@@ -107,7 +107,7 @@ if [ $INSTALL -eq 1 ]; then
     cd $LIRE_OPENSSL_SRCDIR
 
     echo " make install OpenSSL"
-    make install_sw DESTDIR="$LIRE_OPENSSL_INSTDIR"
+    make install_sw
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
 
@@ -132,14 +132,12 @@ if [ $MAKEPACK -eq 1 ]; then
    mkdir tar
 
    # make dirs
-   mkdir -p "tar/etc/openssl/"
    mkdir -p "tar/lib/"
 
    # copy files
    echo -n " Copy Files ... "
    cp -rf bin  "tar/"
    cp -rf lib/lib*.so* "tar/lib"
-   cp -rf ssl/* "tar/etc/openssl/"
    
    [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
    echo "[OK]"

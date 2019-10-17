@@ -18,7 +18,7 @@ LIRE_CHECK_START
 ################################################################################
 
 # package source config file
-PACKAGE_SRCCONF="$LIRE_OPENSSL_SRCDIR/Makefile"
+PACKAGE_SRCCONF="$LIRE_OPENSSL_SRCDIR/Configure"
 
 #
 # before calling LIRE_INIT_SOURCE_CHECK you have to init following values:
@@ -56,7 +56,7 @@ LIRE_INIT_SOURCE_CHECK
     #
     # set version
     #
-    PACKAGE_VERSION=`grep "^VERSION=" $LIRE_OPENSSL_SRCDIR/Makefile | gawk -F"=" '{print$2}'`
+    PACKAGE_VERSION=`grep "OPENSSL_VERSION_TEXT" $LIRE_OPENSSL_SRCDIR/include/openssl/opensslv.h | gawk -F "OpenSSL " '{print$2}' | gawk -F " " '{print$1}'`
 
 #========== STOP YOUR CHECKS HERE ==============================================
 #

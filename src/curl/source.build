@@ -67,11 +67,15 @@ if [ $BUILD -eq 1 ]; then
     #
     echo " Configure Curl... "
 
-     LDFLAGS="-L$LIRE_OPENSSL_INSTDIR/lib -lssl -lcrypto" \
-     CROSS_COMPILE=""  $LIRE_CURL_SRCDIR/configure --host="$host_alias" --build="$build_alias" --prefix="$LIRE_CURL_INSTDIR" --enable-shared  --with-ssl="$LIRE_OPENSSL_INSTDIR" --disable-manual --with-zlib="$LIRE_ZLIB_INSTDIR" --disable-ldap
-
-
-
+    LDFLAGS="-L$LIRE_OPENSSL_INSTDIR/lib" LIBS="-lssl -lcrypto" CROSS_COMPILE="" \
+    $LIRE_CURL_SRCDIR/configure --host="$host_alias" \
+                                --build="$build_alias" \
+                                --prefix="$LIRE_CURL_INSTDIR" \
+                                --enable-shared \
+                                --with-ssl="$LIRE_OPENSSL_INSTDIR" \
+                                --disable-manual \
+                                --with-zlib="$LIRE_ZLIB_INSTDIR" \
+                                --disable-ldap
 
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"

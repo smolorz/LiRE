@@ -37,7 +37,7 @@ if [ -n "$qemu_data_image" ]; then
 fi
 
 VBoxManage createvm --name $machine_name --ostype "Linux_64" --register
-VBoxManage modifyvm $machine_name --memory 2048 --cpus 4
+VBoxManage modifyvm $machine_name --memory 2048 --cpus 4 --nic1 intnet
 VBoxManage storagectl $machine_name --name "SATA Controller" --add sata --portcount 2
 VBoxManage storageattach $machine_name --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium $vmdk_image
 

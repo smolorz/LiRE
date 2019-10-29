@@ -160,57 +160,42 @@ LABEL lire_scnd
 
 ECHO_EXTLINUX_CONF() {
     root_device=$1
+    if [ "$2" == "y" ]; then
+        on_timeout="lire_xeno_fb_1024x768"
+    else
+        on_timeout="lire_xeno"
+    fi
 echo "UI vesamenu.c32
 PROMPT 0
 MENU TITLE LiRE Boot Menu
-TIMEOUT 50
-ONTIMEOUT lire_smp_fb_1024x768
-DEFAULT lire_smp_fb_1024x768
+TIMEOUT 1
+ONTIMEOUT $on_timeout
+DEFAULT lire_xeno
 
-LABEL lire_text
-    MENU LABEL lire TEXT
-    KERNEL /boot/bzImage
-    APPEND root=$root_device ro libata.dma=0
+LABEL lire_xeno
+    MENU LABEL LiRE -- Xenomai 3
+    KERNEL /boot/bzImage_scnd
+    APPEND root=$root_device ro isolcpus=1,2,3
 
-LABEL lire_fb_640X480
-    MENU LABEL lire framebuffer 640x480
-    KERNEL /boot/bzImage
-    APPEND root=$root_device ro vga=786 libata.dma=0
+LABEL lire_xeno_fb_1024x768
+    MENU LABEL LiRE framebuffer 1024x768 -- Xenomai 3
+    KERNEL /boot/bzImage_scnd
+    APPEND root=$root_device ro vga=773 isolcpus=1,2,3
 
-LABEL lire_fb_800x600
-    MENU LABEL lire framebuffer 800x600
+LABEL lire_preempt_rt
+    MENU LABEL LiRE -- PREEMPT_RT
     KERNEL /boot/bzImage
-    APPEND root=$root_device ro vga=789 libata.dma=0
+    APPEND root=$root_device ro isolcpus=1,2,3
 
-LABEL lire_fb_1024x768
-    MENU LABEL lire framebuffer 1024x768
+LABEL lire_preempt_rt_fb_1024x768
+    MENU LABEL LiRE framebuffer 1024x768 -- PREEMPT_RT
     KERNEL /boot/bzImage
-    APPEND root=$root_device ro vga=773 libata.dma=0
+    APPEND root=$root_device ro vga=773 isolcpus=1,2,3
 
 LABEL lire_fb_1024x768_vb
     MENU LABEL lire framebuffer 1024x768 (Virtualbox)
     KERNEL /boot/bzImage
     APPEND root=$root_device ro vga=773
-
-LABEL lire_smp_fb_1024x768
-    MENU LABEL lire framebuffer 1024x768 -- CORE2-smp
-    KERNEL /boot/bzImage_scnd
-    APPEND root=$root_device ro vga=773
-
-LABEL lire_fb_1280x1024
-    MENU LABEL lire framebuffer 1280x1024
-    KERNEL /boot/bzImage
-    APPEND root=$root_device ro vga=775 libata.dma=0
-
-LABEL lire_rw
-    MENU LABEL lire text mount /dev/sda WRITEABLE
-    KERNEL /boot/bzImage
-    APPEND root=$root_device rw libata.dma=0
-
-LABEL lire_text_console
-    MENU LABEL lire text console COM 1 FP 640x480
-    KERNEL /boot/bzImage
-    APPEND root=$root_device ro console=ttyS0,115200PN console=tty0 vga=786 libata.dma=0
 
 LABEL netboot
     MENU LABEL network boot
@@ -256,7 +241,7 @@ QEMU_CREATE() {
         CHECK_ERROR $? "Unable to install bootloader"
         extlinux --install "$QEMU_MOUNT_DIR/boot/extlinux"
         CHECK_ERROR $? "Unable to install bootloader"
-        ECHO_EXTLINUX_CONF "/dev/sda" > "$QEMU_MOUNT_DIR/boot/extlinux/extlinux.conf"
+        ECHO_EXTLINUX_CONF "/dev/sda" $LIRE_QE_CREATE > "$QEMU_MOUNT_DIR/boot/extlinux/extlinux.conf"
         CHECK_ERROR $? "Unable to install bootloader"
         echo "[OK]"
     fi
@@ -346,9 +331,13 @@ cp -r $ROOT_DIR/* $OUT_DIR
 # Create extlinux.conf
 #
 
-if [ "$LIRE_ISO_CREATE" != "y" -a "$LIRE_QEMU_CREATE" != "y" ]; then
+if [ "$LIRE_ISO_CREATE" != "y" -a "$LIRE_QE_CREATE" != "y" ]; then
     mkdir -p "$OUT_DIR/boot/extlinux"
     ECHO_EXTLINUX_CONF "/dev/sda1" > "$OUT_DIR/boot/extlinux/extlinux.conf"
+    cp "$LIRE_HOST_SYSLINUX_DIR/menu.c32"     \
+       "$LIRE_HOST_SYSLINUX_DIR/vesamenu.c32" \
+       "$LIRE_HOST_SYSLINUX_DIR/libutil.c32"  \
+       "$LIRE_HOST_SYSLINUX_DIR/libcom32.c32" "$OUT_DIR/boot/extlinux/"
 fi
 
 #

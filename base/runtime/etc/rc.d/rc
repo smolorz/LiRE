@@ -118,7 +118,7 @@ hostname "$TARGET_HOSTNAME"
 #
 # Start Ethernet
 #
-/etc/rc.d/lire_ethernet
+/etc/rc.d/lire_ethernet &
 
 #
 # Start WLAN

@@ -25,6 +25,7 @@ if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
 
     echo "Initializing ETHERNET on interface $TARGET_ETHERNET_NIC"
     echo "SETTING IP            $TARGET_MAIN_IP"
+    sleep 2
     if [ "$TARGET_MAIN_IP" == "DHCP" ]; then
         rm -rf /etc/dhcpc > /dev/null 2> /dev/null
         dhcpcd $TARGET_ETHERNET_NIC -t 9 -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME -q

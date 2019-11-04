@@ -183,16 +183,4 @@ config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_PATH
     help
     Log path for the tims_router_tcp created log files
 
-config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_MOUNTDEV
-    string "mounting device"
-    default "/dev/sda2"
-    help
-    mounting device for the logging destination
-
-config LIRE_RACKCORE_TARGET_TIMS_ROUTER_LOG_MOUNTPOINT
-    string "mounting point"
-    default "/data"
-    help
-    mounting point for the writable data partition
-
 endmenu

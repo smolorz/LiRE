@@ -27,8 +27,6 @@ if [ "$RACKCORE_TIMS_ROUTER_LOG_LEVEL" != "" ]; then
 fi
 
 if [ "$RACKCORE_TIMS_ROUTER_LOG_PATH" != "" ]; then
-    echo "mounting rack log path"
-    mount $RACKCORE_TIMS_ROUTER_LOG_MOUNTDEV $RACKCORE_TIMS_ROUTER_LOG_MOUNTPOINT
     OPT=$OPT" -g $RACKCORE_TIMS_ROUTER_LOG_PATH"
 fi
 

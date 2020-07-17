@@ -1,0 +1,17 @@
+diff -upr pcl-1.9.1/cmake/Modules/FindFLANN.cmake pcl-1.9.1-patched/cmake/Modules/FindFLANN.cmake
+--- pcl-1.9.1/cmake/Modules/FindFLANN.cmake	2018-11-26 12:50:33.000000000 +0100
++++ pcl-1.9.1-patched/cmake/Modules/FindFLANN.cmake	2020-07-17 11:39:38.351702442 +0200
+@@ -17,13 +17,6 @@ else(FLANN_USE_STATIC)
+   set(FLANN_DEBUG_NAME flann_cpp-gd)
+ endif(FLANN_USE_STATIC)
+ 
+-find_package(PkgConfig QUIET)
+-if (FLANN_FIND_VERSION)
+-    pkg_check_modules(FLANN flann>=${FLANN_FIND_VERSION})
+-else(FLANN_FIND_VERSION)
+-    pkg_check_modules(FLANN flann)
+-endif(FLANN_FIND_VERSION)
+-
+ if(NOT FLANN_FOUND)
+     find_path(FLANN_INCLUDE_DIR flann/flann.hpp
+               HINTS "${FLANN_ROOT}" "$ENV{FLANN_ROOT}"

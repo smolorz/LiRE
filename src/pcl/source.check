@@ -58,6 +58,14 @@ LIRE_INIT_SOURCE_CHECK
     #
     PACKAGE_VERSION="$(cat $LIRE_PCL_SRCDIR/$LIRE_VERSION_FILE)"
 
+    #
+    # Patch FindFLANN.cmake in order not to use pkg-config of the host system.
+    # Otherwise, it would find flann there if it is installed.
+    #
+    cd $LIRE_PCL_SRCDIR
+    patch --forward -p1 < $LIRE_PCL_SCRDIR/pcl_find_flann.patch
+    cd $LIRE_PCL_SCRDIR
+
 #========== STOP YOUR CHECKS HERE ==============================================
 #
 # before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.

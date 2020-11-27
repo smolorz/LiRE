@@ -1,0 +1,7 @@
+
+config LIRE_SSDP_RESPONDER_BUILD_SRC
+    bool "    Build ssdp-responder"
+    default n
+    depends on LIRE_BUILD_SRC && LIRE_SSDP_RESPONDER_INST
+    help
+    Build the ssdp-responder daemon.

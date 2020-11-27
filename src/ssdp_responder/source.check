@@ -1,0 +1,75 @@
+#! /bin/bash
+
+#
+# ssdp-responder check script
+# 2020-11-25 Sebastian Smolorz (sebastian.smolorz@still.de)
+#
+
+# name of this package
+PACKAGE="ssdp_responder"
+
+################################################################################
+# don't touch this - start -
+[ ! -f ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS ] && exit 1
+. ${LiRE_DIR}/scripts/build/LIRE_SOURCE_SCRIPTS
+
+LIRE_CHECK_START
+# don't touch this - stop -
+################################################################################
+
+# package source config file
+PACKAGE_SRCCONF="$LIRE_SSDP_RESPONDER_SRCDIR/configure"
+
+#
+# before calling LIRE_INIT_SOURCE_CHECK you have to init following values:
+# PACKAGE
+# PACKAGE_SRCCONF
+#
+LIRE_INIT_SOURCE_CHECK
+
+#
+# - the package name is valid
+# - you are in the SRC/$PACKAGE directory now (source script directory )
+# - you can use this values now ($PACK = upcase name of this package)
+#
+#       all values in .lire_config
+#       LIRE_"$PACK"_SCRDIR
+#       LIRE_"$PACK"_SRCDIR
+#       LIRE_"$PACK"_BUILDDIR
+#       LIRE_"$PACK"_INSTDIR
+#       LIRE_"$PACK"_PACKDIR
+#       LIRE_"$PACK"_CONFIG
+#
+#       LIRE_PACKDIR
+#       LIRE_OUTDIR
+#       LIRE_SRCDIR
+#       LIRE_BUILDDIR
+#       LIRE_INSTDIR
+#       LIRE_SCRDIR
+#       LIRE_CONFDIR
+#
+# INFO: if you find an error in your script, you have to call
+# LIRE_EXIT_ERROR $VAL
+#
+#========== START YOUR CHECKS HERE =============================================
+#
+# You are in $LIRE_"$PACKAGE"_SCRDIR (package script directory)
+#
+
+    #
+    # set version
+    #
+    PACKAGE_VERSION=`cat $LIRE_SSDP_RESPONDER_SRCDIR/$LIRE_VERSION_FILE`
+    cd ${LIRE_SSDP_RESPONDER_SRCDIR}
+    ./autogen.sh
+    cd  ${LIRE_SSDP_RESPONDER_SCRDIR}
+
+#========== STOP YOUR CHECKS HERE ==============================================
+#
+# before calling LIRE_EXIT_SOURCE_CHECK you have to init following values.
+# the build script can get this values by LIRE_$PACK$_$VALUE$ (e.g. LIRE_LINUX_VERSION)
+#
+# PACKAGE_SRCCONF must be a valid source config file
+# PACKAGE_VERSION
+#
+LIRE_EXIT_SOURCE_CHECK

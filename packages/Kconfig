@@ -25,6 +25,7 @@ source      "packages/dhcpcd/Kconfig"
 source      "packages/tinyxml2/Kconfig"
 source      "packages/curl/Kconfig"
 source      "packages/opendds/Kconfig"
+source      "packages/ssdp_responder/Kconfig"
 
 comment "Python"
 source      "packages/python/Kconfig"

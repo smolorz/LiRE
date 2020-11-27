@@ -1,0 +1,6 @@
+
+config LIRE_SSDP_RESPONDER_INST
+    bool "  Install ssdp-responder"
+    default n
+    help
+    Installs ssdp-responder.

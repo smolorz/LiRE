@@ -88,6 +88,7 @@ config LIRE_BUILD_ALL
     select LIRE_OROCOS_BFL_BUILD_SRC		if LIRE_OROCOS_BFL_INST
     select LIRE_OPENDDS_BUILD_SRC		if LIRE_OPENDDS_INST
     select LIRE_LIBSOCKETCAN_BUILD_SRC		if LIRE_LIBSOCKETCAN_INST
+    select LIRE_SSDP_RESPONDER_BUILD_SRC	if LIRE_SSDP_RESPONDER_INST
 
 
 source "src/linux/Kconfig"    
@@ -116,6 +117,7 @@ source "src/setserial/Kconfig"
 source "src/dhcpcd/Kconfig"
 source "src/tinyxml2/Kconfig"
 source "src/opendds/Kconfig"
+source "src/ssdp_responder/Kconfig"
 
 comment "  Python"
     depends on LIRE_BUILD_SRC

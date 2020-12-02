@@ -123,6 +123,10 @@ config LIRE_TARGET_LAUNCH_SYSLOGD
     bool "Run system log daemon"
     default y
 
+config LIRE_TARGET_LAUNCH_SSDPD
+    bool "Run ssdp-responder daemon"
+    default n
+
 config LIRE_TARGET_SYSLOGCONSOLE
     int "Console for dumping kernel messages"
     default 10

@@ -34,7 +34,11 @@ if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
         echo
     else
         ifconfig $TARGET_ETHERNET_NIC up $TARGET_MAIN_IP netmask 255.255.255.0
-        route add -net default gw xx.xx.xx.xx netmask 0.0.0.0 $TARGET_ETHERNET_NIC
 	# TODO: gw configurable!
+        route add -net default gw xx.xx.xx.xx netmask 0.0.0.0 $TARGET_ETHERNET_NIC
+        # SSDP daemon
+        if [ "$TARGET_LAUNCH_SSDPD" == "y" ]; then
+            ssdpd $TARGET_ETHERNET_NIC
+        fi
     fi
 fi

@@ -3,6 +3,7 @@
 #
 # dhcpcd build script
 # 2011-01-14 Sascha Kruse <knopwob@googlemail.com>
+# 2020-12-04 Sebastian Smolorz <sebastian.smolorz@still.de>
 #
 
 # name of this package
@@ -70,7 +71,8 @@ if [ $BUILD -eq 1 ]; then
     cd "$LIRE_DHCPCD_SRCDIR"
     $LIRE_DHCPCD_SRCDIR/configure --target=${host_alias} --host=${host_alias} \
                                   --small --disable-inet6 --disable-auth \
-                                  --disable-dhcp6 --disable-privsep
+                                  --disable-dhcp6 --disable-privsep \
+                                  --libexecdir=/usr/libexec
 
     [ $? -gt 0 ] && { echo "configure [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo " configure [OK]"
@@ -137,7 +139,7 @@ if [ $MAKEPACK -eq 1 ]; then
     DEST="$LIRE_DHCPCD_PACKDIR/"
 
     echo -n " Creating $TAR ... "
-    tar -cjf "$TAR" sbin/*
+    tar -cjf "$TAR" sbin usr/libexec
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"
 

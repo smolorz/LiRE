@@ -32,6 +32,8 @@ if [ "$TARGET_INIT_ETHERNET" == "y" ]; then
         echo -n "           "
         ifconfig | grep inet
         echo
+    elif [ "$TARGET_MAIN_IP" == "IPv4LL" ]; then
+        dhcpcd $TARGET_ETHERNET_NIC -f /etc/dhcpcd-ipv4ll.conf -h $TARGET_HOSTNAME -I $TARGET_HOSTNAME
     else
         ifconfig $TARGET_ETHERNET_NIC up $TARGET_MAIN_IP netmask 255.255.255.0
 	# TODO: gw configurable!

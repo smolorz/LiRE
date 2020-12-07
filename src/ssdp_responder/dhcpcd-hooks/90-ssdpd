@@ -1,0 +1,6 @@
+. /etc/lire.conf
+
+killall ssdpd 2>/dev/null
+if [ "$TARGET_LAUNCH_SSDPD" == "y" ]; then
+    ssdpd $TARGET_ETHERNET_NIC
+fi

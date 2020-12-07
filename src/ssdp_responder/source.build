@@ -99,8 +99,12 @@ if [ $INSTALL -eq 1 ]; then
     make install-strip
     [ $? -gt 0 ] && { echo "make install [FAILED]"; LIRE_EXIT_ERROR 1; }
     echo "make install [OK]"
-			  
 
+    echo "copy ssdpd's dhcpcd hook ... "
+    mkdir -p $LIRE_SSDP_RESPONDER_INSTDIR/usr/libexec
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
+    cp -a $LIRE_SSDP_RESPONDER_SCRDIR/dhcpcd-hooks $LIRE_SSDP_RESPONDER_INSTDIR/usr/libexec
+    [ $? -gt 0 ] && { echo "[FAILED]"; LIRE_EXIT_ERROR 1; }
 
 #========== STOP YOUR INSTALL HERE  ============================================
 
@@ -122,7 +126,7 @@ if [ $MAKEPACK -eq 1 ]; then
     DEST="$LIRE_SSDP_RESPONDER_PACKDIR/"
 
     echo -n " Creating $TAR ... "
-    tar -cjf "$TAR" sbin
+    tar -cjf "$TAR" sbin usr
     [ $? -gt 0 ] && { echo "[FAILED]"; cd ..; LIRE_EXIT_ERROR 1; }
     echo "[OK]"
 
